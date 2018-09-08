@@ -41,5 +41,23 @@ namespace Volyar.Controllers
                 }
             }
         }
+
+        [HttpPost("scanlib")]
+        public IActionResult FullScan(string library)
+        {
+            var lib = settings.Libraries.Where(x => x.Name == library).FirstOrDefault();
+            if (lib != null)
+            {
+                using (var outerContext = new VolyContext(dbOptions))
+                {
+                    scanner.ScheduleLibraryScan(lib, outerContext);
+                }
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
     }
 }

@@ -156,16 +156,6 @@ namespace Volyar.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// The external database used to reference additional information about this media.
-        /// </summary>
-        public string ForeignDbType { get; set; }
-
-        /// <summary>
-        /// The key to an external database containing more information about this media.
-        /// </summary>
-        public string ForeignDbKey { get; set; }
-
-        /// <summary>
         /// The date this database entry was created.
         /// </summary>
         public DateTimeOffset CreateDate { get; set; }

@@ -61,7 +61,7 @@ namespace Volyar.Models
             Name = name ?? "Default";
             OriginPath = originPath ?? Environment.CurrentDirectory;
             OriginPath = storagePath ?? Environment.CurrentDirectory;
-            ValidExtensions = whitelist ?? new HashSet<string>() { ".mpv", ".mp4", ".avi", ".mov", ".webm", ".ogg" };
+            ValidExtensions = whitelist ?? new HashSet<string>() { ".mpv", ".mp4", ".mkv", ".avi", ".mov", ".webm", ".ogg" };
             Qualities = qualities ?? new List<Quality>()
             {
                 new Quality(),
