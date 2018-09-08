@@ -1,0 +1,73 @@
+﻿@model string
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Conversion Status";
+}
+
+@section head {
+    <script src="~/voly/external/static/lib/moment.js"></script>
+    <script src="~/voly/external/static/js/api.js"></script>
+    <script defer src="~/voly/external/static/js/vues.js"></script>
+    <script defer src="~/voly/external/static/js/timer.js"></script>
+}
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title dropdown">
+            Conversion Status
+        </h3>
+        <button class="btn btn-primary btn-sm" onclick="postFullscan(null, null);">Trigger Conversion</button>
+    </div>
+</div>
+
+
+<div class="container-full p-4" id="vuebox">
+    <h5 class="alert alert-primary text-center">Processing</h5>
+    <progress-queue-component v-bind:items="inProgress"></progress-queue-component>
+    <h5 class="alert alert-dark text-center">Waiting</h5>
+    <wait-queue-component v-bind:items="waiting"></wait-queue-component>
+</div>
+
+<script type="text/x-template" id="queue-template">
+    <div class="row">
+        <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3" style="padding-bottom:1rem;" v-for="item in items">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{item.OutputBaseFilename}}
+                    </h5>
+                    <dl style="margin-left:8%;">
+                        <dt class="card-text" data-toggle="tooltip" v-bind:title="item.CreateTime">
+                            Added
+                        </dt>
+                        <dd>
+                            {{timeago(item.CreateTime)}}
+                        </dd>
+
+                        <dt>
+                            Qualities
+                        </dt>
+                        <dd>
+                            <quality-component v-bind:quality="item.Quality"></quality-component>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer p-0">
+                    <div class="progress" style="height: 0.15em">
+                        <div class="progress-bar" v-bind:style="{ width: progressInt(item.Progress) + '%' }" style="width: 25%" role="progressbar" v-bind:aria-valuenow="progressInt(item.Progress)" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="quality-template">
+    <div>
+        <div v-for="q in quality">
+            {{q.Width}}x{{q.Height}}@@{{ q.Bitrate}}k - {{q.Preset}}
+        </div>
+    </div>
+</script>
