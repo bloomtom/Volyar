@@ -43,7 +43,14 @@ namespace Volyar.Media.Conversion
 
         protected override void Process(IConversionItem item)
         {
-            var dashResult = encoder.GenerateDash(item.SourcePath, item.OutputBaseFilename, item.Framerate, 0, item.Quality, item.DestinationDirectory, new Action<float>(x => { item.Progress = x; }));
+            var dashResult = encoder.GenerateDash(
+                inFile: item.SourcePath,
+                outFilename: item.OutputBaseFilename,
+                framerate: item.Framerate,
+                keyframeInterval: 0,
+                qualities: item.Quality,
+                outDirectory: item.DestinationDirectory,
+                progress: new Action<float>(x => { item.Progress = x; }));
             if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator Check the ffmpeg/mp4box log."); }
             item.CompletionAction.Invoke(dashResult);
         }
