@@ -43,12 +43,15 @@ namespace Volyar.Media.Conversion
 
         protected override void Process(IConversionItem item)
         {
+            var options = new H264EncodeOptions();
+
             var dashResult = encoder.GenerateDash(
                 inFile: item.SourcePath,
                 outFilename: item.OutputBaseFilename,
                 framerate: item.Framerate,
                 keyframeInterval: 0,
                 qualities: item.Quality,
+                options: options,
                 outDirectory: item.DestinationDirectory,
                 progress: new Action<float>(x => { item.Progress = x; }));
             if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator Check the ffmpeg/mp4box log."); }
