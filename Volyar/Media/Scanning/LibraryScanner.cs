@@ -8,14 +8,16 @@ using System.IO.Enumeration;
 using System.Linq;
 using System.Threading.Tasks;
 using Volyar.Media.Conversion;
+using Volyar.Media.Storage;
 using Volyar.Models;
 
 namespace Volyar.Media.Scanning
 {
-    public class LibraryScanItem : ScanItem
+    public class LibraryScanner : ScanItem
     {
         private readonly MediaConverter converter;
         private readonly DbContextOptions<VolyContext> dbOptions;
+        private readonly IStorage storageBackend;
         private readonly ILogger log;
 
         private readonly bool deleteWithSource;
@@ -23,9 +25,10 @@ namespace Volyar.Media.Scanning
 
         private readonly Library library;
 
-        public LibraryScanItem(Library library, MediaConverter converter, DbContextOptions<VolyContext> dbOptions, ILogger log, bool deleteWithSource, bool truncateSource) : base(ScanType.Library, library.Name)
+        public LibraryScanner(Library library, MediaConverter converter, DbContextOptions<VolyContext> dbOptions, ILogger log, bool deleteWithSource, bool truncateSource) : base(ScanType.Library, library.Name)
         {
             this.library = library;
+            storageBackend = library.StorageBackend.RetrieveBackend(log);
             this.converter = converter;
             this.dbOptions = dbOptions;
             this.log = log;
@@ -109,8 +112,10 @@ namespace Volyar.Media.Scanning
 
         private void ScheduleConversion(Library library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, string sourceHash, string outFilename)
         {
-            converter.AddItem(new ConversionItem(sourcePath, library.StoragePath, outFilename, quality, library.ForceFramerate, (result) =>
+            converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (result) =>
             {
+                var addedFiles = new List<string>();
+
                 using (var innerContext = new VolyContext(dbOptions))
                 {
                     // Save the new media item to db.
@@ -138,12 +143,20 @@ namespace Volyar.Media.Scanning
                     });
 
                     // Add associated files to the db.
-                    var mediaFiles = result.MediaFiles;
-                    AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.StoragePath, mediaFiles);
+                    AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, result.MediaFiles);
 
                     HandleSourceTruncation(sourcePath);
 
                     innerContext.SaveChanges();
+
+                    // Set files on disk variable for the storage backend operations below.
+                    addedFiles.Add(result.DashFilePath);
+                    addedFiles.AddRange(result.MediaFiles);
+                }
+
+                foreach (var file in addedFiles)
+                {
+                    storageBackend.UploadAsync(Path.GetFileName(file), file, true);
                 }
             },
             (ex) =>
@@ -154,10 +167,14 @@ namespace Volyar.Media.Scanning
 
         private void ScheduleReconversion(Library library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string sourceHash, string outFilename)
         {
-            converter.AddItem(new ConversionItem(sourcePath, library.StoragePath, outFilename, quality, library.ForceFramerate, (result) =>
+            converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (result) =>
             {
+                var addedFiles = new List<string>();
+                var removedFiles = new List<string>();
+
                 using (var innerContext = new VolyContext(dbOptions))
                 {
+                    removedFiles = innerContext.MediaFile.Where(x => x.MediaId == mediaId).Select(x => x.Filename).ToList();
                     innerContext.MediaFile.RemoveRange(innerContext.MediaFile.Where(x => x.MediaId == mediaId));
                     var inDb = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault();
                     if (inDb != null)
@@ -170,8 +187,7 @@ namespace Volyar.Media.Scanning
                         inDb.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
                         innerContext.Update(inDb);
 
-                        var mediaFiles = result.MediaFiles;
-                        AddMediaFilesToMedia(innerContext, inDb.MediaId, library.StoragePath, mediaFiles);
+                        AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, result.MediaFiles);
 
                         HandleSourceTruncation(sourcePath);
                     }
@@ -181,6 +197,19 @@ namespace Volyar.Media.Scanning
                     }
 
                     innerContext.SaveChanges();
+
+                    // Set files on disk variable for the storage backend operations below.
+                    addedFiles.Add(result.DashFilePath);
+                    addedFiles.AddRange(result.MediaFiles);
+
+                    foreach (var file in addedFiles)
+                    {
+                        storageBackend.UploadAsync(Path.GetFileName(file), file, true);
+                    }
+                    foreach (var file in removedFiles)
+                    {
+                        storageBackend.DeleteAsync(Path.GetFileName(file));
+                    }
                 }
             },
             (ex) =>

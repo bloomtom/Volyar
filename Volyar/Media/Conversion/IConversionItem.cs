@@ -8,7 +8,7 @@ namespace Volyar.Media.Conversion
     public interface IExportableConversionItem
     {
         string SourcePath { get; }
-        string DestinationDirectory { get; }
+        string OutputPath { get; }
         string OutputBaseFilename { get; }
         int Framerate { get; }
         DateTime CreateTime { get; }

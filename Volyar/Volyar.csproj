@@ -9,7 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="bloomtom.DEnc" Version="0.2.6" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.27.1" />
+    <PackageReference Include="bloomtom.BunAPI" Version="1.1.5" />
+    <PackageReference Include="bloomtom.DEnc" Version="0.2.7" />
     <PackageReference Include="bloomtom.DistinctQueueProcessor" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />

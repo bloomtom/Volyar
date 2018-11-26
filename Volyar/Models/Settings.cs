@@ -25,7 +25,7 @@ namespace Volyar.Models
 
         public VSettings() : this(null)
         {
-
+            
         }
 
         public VSettings(IEnumerable<Library> libraries)
@@ -46,7 +46,8 @@ namespace Volyar.Models
     {
         public string Name { get; set; }
         public string OriginPath { get; set; }
-        public string StoragePath { get; set; }
+        public string TempPath { get; set; }
+        public StorageSettings StorageBackend { get; set; } = new StorageSettings();
         public HashSet<string> ValidExtensions { get; set; }
         public IEnumerable<Quality> Qualities { get; set; }
         public int ForceFramerate { get; set; } = 0;
@@ -56,11 +57,11 @@ namespace Volyar.Models
 
         }
 
-        public Library(string name, string originPath, string storagePath, HashSet<string> whitelist, IEnumerable<Quality> qualities)
+        public Library(string name, string originPath, string tempPath, HashSet<string> whitelist, IEnumerable<Quality> qualities)
         {
             Name = name ?? "Default";
             OriginPath = originPath ?? Environment.CurrentDirectory;
-            OriginPath = storagePath ?? Environment.CurrentDirectory;
+            TempPath = tempPath ?? Environment.CurrentDirectory;
             ValidExtensions = whitelist ?? new HashSet<string>() { ".mpv", ".mp4", ".mkv", ".avi", ".mov", ".webm", ".ogg" };
             Qualities = qualities ?? new List<Quality>()
             {
@@ -85,7 +86,7 @@ namespace Volyar.Models
             return string.Join('\n', new string[] {
                 "Name: " + Name,
                 "Origin Path: " + OriginPath,
-                "Storage Path: " + StoragePath,
+                "Storage Path: " + StorageBackend,
                 "Whitelist: " + string.Join(" ", ValidExtensions),
                 $"Qualities: \n{{{string.Join('\n', Qualities.Select(x => x.ToString()))}\n}}"
             });

@@ -17,9 +17,9 @@ namespace Volyar.Media.Conversion
         /// </summary>
         public string SourcePath { get; protected set; }
         /// <summary>
-        /// The directory to put files emitted from conversion.
+        /// A description of the storage backend used for files emitted from conversion.
         /// </summary>
-        public string DestinationDirectory { get; protected set; }
+        public string OutputPath { get; protected set; }
         /// <summary>
         /// The base filename for the output. Ensure this is unique as collisions will result in undefined behavior.
         /// </summary>
@@ -50,7 +50,7 @@ namespace Volyar.Media.Conversion
             return new ExportableConversionItem()
             {
                 SourcePath = value.SourcePath,
-                DestinationDirectory = value.DestinationDirectory,
+                OutputPath = value.OutputPath,
                 OutputBaseFilename = value.OutputBaseFilename,
                 Framerate = value.Framerate,
                 Quality = value.Quality,
@@ -76,10 +76,10 @@ namespace Volyar.Media.Conversion
 
         public new float Progress { get; set; }
 
-        public ConversionItem(string sourcePath, string destinationDirectory, string outputBaseFilename, HashSet<IQuality> quality, int framerate, Action<DashEncodeResult> completionAction, Action<Exception> errorAction)
+        public ConversionItem(string sourcePath, string destination, string outputBaseFilename, HashSet<IQuality> quality, int framerate, Action<DashEncodeResult> completionAction, Action<Exception> errorAction)
         {
             SourcePath = sourcePath;
-            DestinationDirectory = destinationDirectory;
+            OutputPath = destination;
             OutputBaseFilename = outputBaseFilename;
             Quality = quality.ToImmutableHashSet();
             Framerate = framerate;

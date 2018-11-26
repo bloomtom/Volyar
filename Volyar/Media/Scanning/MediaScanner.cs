@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Volyar.Media.Conversion;
+using Volyar.Media.Storage;
 using Volyar.Models;
 
 namespace Volyar.Media.Scanning
@@ -36,7 +37,7 @@ namespace Volyar.Media.Scanning
 
         public void ScheduleLibraryScan(Library library, VolyContext context)
         {
-            AddItem(new LibraryScanItem(library, converter, dbOptions.Database, log, settings.DeleteWithSource, settings.TruncateSource));
+            AddItem(new LibraryScanner(library, converter, dbOptions.Database, log, settings.DeleteWithSource, settings.TruncateSource));
         }
 
         protected override void Process(IScanItem item)

@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Volyar.Media.Conversion;
 using Volyar.Media.Scanning;
+using Volyar.Media.Storage;
 using Volyar.Models;
 
 namespace Volyar

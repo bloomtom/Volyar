@@ -52,7 +52,7 @@ namespace Volyar.Media.Conversion
                 keyframeInterval: 0,
                 qualities: item.Quality,
                 options: options,
-                outDirectory: item.DestinationDirectory,
+                outDirectory: item.OutputPath,
                 progress: new Action<float>(x => { item.Progress = x; }));
             if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator Check the ffmpeg/mp4box log."); }
             item.CompletionAction.Invoke(dashResult);
