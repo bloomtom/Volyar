@@ -64,6 +64,9 @@ namespace Volyar.Media.Scanning
 
                 foreach (var file in foundFiles)
                 {
+                    var extension = Path.GetExtension(file.Path);
+                    if (!library.ValidExtensions.Contains(extension)) { continue; }
+
                     bool existsInDb = currentLibrary.TryGetValue(file.Path, out var existingEntry);
                     if (existsInDb) { currentLibrary.Remove(file.Path); } // Remove to track missing entries for later.
 
