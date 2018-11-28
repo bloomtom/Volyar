@@ -23,17 +23,17 @@ namespace Volyar.Models
 
         public IStorage RetrieveBackend(ILogger log)
         {
-            if (Filesystem != null)
-            {
-                return new FilesystemStorage(Filesystem.Directory, log);
-            }
-            else if (AmazonS3 != null)
+            if (AmazonS3 != null)
             {
                 return new S3Storage(AmazonS3.AccessKey, AmazonS3.ApiKey, AmazonS3.Region, AmazonS3.Bucket, log);
             }
             else if (BunnyCDN != null)
             {
                 return new BunnyStorage(BunnyCDN.ApiKey, BunnyCDN.StorageZone, log);
+            }
+            else if (Filesystem != null)
+            {
+                return new FilesystemStorage(Filesystem.Directory, log);
             }
             else
             {
