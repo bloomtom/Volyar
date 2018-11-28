@@ -150,16 +150,16 @@ namespace Volyar.Media.Scanning
 
                     HandleSourceTruncation(sourcePath);
 
-                    innerContext.SaveChanges();
-
                     // Set files on disk variable for the storage backend operations below.
                     addedFiles.Add(result.DashFilePath);
-                    addedFiles.AddRange(result.MediaFiles);
-                }
+                    addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
 
-                foreach (var file in addedFiles)
-                {
-                    storageBackend.UploadAsync(Path.GetFileName(file), file, true);
+                    foreach (var file in addedFiles)
+                    {
+                        storageBackend.UploadAsync(Path.GetFileName(file), file, true);
+                    }
+
+                    innerContext.SaveChanges();
                 }
             },
             (ex) =>
@@ -199,8 +199,6 @@ namespace Volyar.Media.Scanning
                         log.LogError($"Failed to find media item {mediaId}");
                     }
 
-                    innerContext.SaveChanges();
-
                     // Set files on disk variable for the storage backend operations below.
                     addedFiles.Add(result.DashFilePath);
                     addedFiles.AddRange(result.MediaFiles);
@@ -213,6 +211,8 @@ namespace Volyar.Media.Scanning
                     {
                         storageBackend.DeleteAsync(Path.GetFileName(file));
                     }
+
+                    innerContext.SaveChanges();
                 }
             },
             (ex) =>
