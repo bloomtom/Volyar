@@ -23,6 +23,7 @@ namespace Volyar.Media.Storage.FilesystemStorage
             this.log = log ?? new Logger<FilesystemStorage>(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
 
             Directory.CreateDirectory(RootDirectory);
+            log.LogInformation($"Filesystem storage backend initialized to root directory {RootDirectory}.");
         }
 
         public Task DeleteAllAsync()

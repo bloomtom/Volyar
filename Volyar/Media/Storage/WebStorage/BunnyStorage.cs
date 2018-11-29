@@ -19,6 +19,7 @@ namespace Volyar.Media.Storage.WebStorage
         public BunnyStorage(string apiKey, string storageZone, ILogger log) : base(apiKey, apiKey, storageZone, log)
         {
             client = new BunClient(apiKey, storageZone);
+            log.LogInformation($"BunnyCDN storage backend initialized to storage zone {storageZone}.");
         }
 
         public override async Task DeleteAsync(string name)

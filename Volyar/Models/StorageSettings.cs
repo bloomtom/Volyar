@@ -37,7 +37,7 @@ namespace Volyar.Models
             }
             else
             {
-                return null;
+                return new NullStorage(log);
             }
         }
 
