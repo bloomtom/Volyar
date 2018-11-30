@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Copyright>MIT</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <Company>bloomtom</Company>
+    <Product>bloomtom</Product>
+    <Version>0.1.0</Version>
+    <Description>Bridges multiple storage backends into a simple object store layer.</Description>
   </PropertyGroup>
 
   <ItemGroup>

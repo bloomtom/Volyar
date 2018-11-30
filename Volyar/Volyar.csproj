@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Copyright>GPL-3.0-or-later</Copyright>
+    <PackageLicenseUrl>https://www.gnu.org/licenses/</PackageLicenseUrl>
+    <Company>bloomtom</Company>
+    <Product>Volyar</Product>
+    <Authors>bloomtom</Authors>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
