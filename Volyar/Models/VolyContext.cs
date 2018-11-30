@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using VolyExports;
 
 namespace Volyar.Models
 {
@@ -124,7 +125,7 @@ namespace Volyar.Models
         }
     }
 
-    public class MediaItem : Entity, Exportable.IMediaItem
+    public class MediaItem : Entity, IMediaItem
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
