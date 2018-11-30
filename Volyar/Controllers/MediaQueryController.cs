@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Volyar.Media;
 using Volyar.Models;
+using Volyar.Models.Exportable;
 
 namespace Volyar.Controllers
 {
@@ -25,36 +26,30 @@ namespace Volyar.Controllers
         [HttpGet("diff/{transactionId:long?}")]
         public IActionResult Diff(long transactionId)
         {
-            var result = new Dictionary<string, object>();
+            Differential result;
 
             using (var transaction = db.Database.BeginTransaction())
             {
                 long maxLogKey = db.TransactionLog.DefaultIfEmpty().Max(x => x.TransactionId);
 
                 // Select items deleted.
-                var removed = db.TransactionLog
+                IEnumerable<Deletion> removed = db.TransactionLog
                     .Where(x => x.TransactionId > transactionId && x.TransactionId <= maxLogKey && x.Type == TransactionType.Delete)
                     .Select(x => new Deletion(x.TableName, x.Key));
 
                 // Select distinct media items added but not deleted.
-                var added = db.Media.FromSql("SELECT MediaItem.* FROM MediaItem" +
+                IEnumerable<IMediaItem> added = db.Media.FromSql("SELECT MediaItem.* FROM MediaItem" +
                     " INNER JOIN (SELECT DISTINCT [Key] FROM TransactionLog TL WHERE TL.Type = 0 AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TKeys ON TKeys.[Key] = MediaItem.MediaId" +
                     " LEFT JOIN (SELECT [Key] FROM TransactionLog TL WHERE TL.Type = 2 AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TExcept ON TExcept.[Key] = MediaItem.MediaId WHERE TExcept.[Key] IS NULL",
                     transactionId, maxLogKey);
 
                 // Select distinct media items changed but not added or deleted.
-                var changed = db.Media.FromSql("SELECT MediaItem.* FROM MediaItem" +
+                IEnumerable<IMediaItem> changed = db.Media.FromSql("SELECT MediaItem.* FROM MediaItem" +
                     " INNER JOIN (SELECT DISTINCT [Key] FROM TransactionLog TL WHERE TL.Type = 1 AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TKeys ON TKeys.[Key] = MediaItem.MediaId" +
                     " LEFT JOIN (SELECT [Key] FROM TransactionLog TL WHERE TL.Type IN (0, 2) AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TExcept ON TExcept.[Key] = MediaItem.MediaId WHERE TExcept.[Key] IS NULL",
                     transactionId, maxLogKey);
 
-                result = new Dictionary<string, object>
-                {
-                    { "added", added },
-                    { "changed", changed },
-                    { "removed", removed },
-                    { "diffBase", maxLogKey }
-                };
+                result = new Differential(maxLogKey, removed, added, changed);
 
                 transaction.Rollback(); // This was a read only transaction.
             }

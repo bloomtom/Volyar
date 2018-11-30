@@ -1,4 +1,5 @@
 ﻿using DEnc;
+using DQP;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -15,7 +16,7 @@ namespace Volyar.Media.Scanning
 {
     public class LibraryScanner : ScanItem
     {
-        private readonly MediaConverter converter;
+        private readonly IDistinctQueueProcessor<IConversionItem> converter;
         private readonly DbContextOptions<VolyContext> dbOptions;
         private readonly IStorage storageBackend;
         private readonly ILogger log;
@@ -25,7 +26,7 @@ namespace Volyar.Media.Scanning
 
         private readonly Library library;
 
-        public LibraryScanner(Library library, MediaConverter converter, DbContextOptions<VolyContext> dbOptions, ILogger log, bool deleteWithSource, bool truncateSource) : base(ScanType.Library, library.Name)
+        public LibraryScanner(Library library, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, ILogger log, bool deleteWithSource, bool truncateSource) : base(ScanType.Library, library.Name)
         {
             this.library = library;
             storageBackend = library.StorageBackend.RetrieveBackend(log);

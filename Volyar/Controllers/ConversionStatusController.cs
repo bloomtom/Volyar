@@ -10,10 +10,10 @@ namespace Volyar.Controllers
     [Route("voly/external/api/conversion")]
     public class ConversionStatusController : Controller
     {
-        private readonly MediaConverter converter;
+        private readonly DQP.IDistinctQueueProcessor<IConversionItem> converter;
         private readonly ILogger<ConversionStatusController> log;
 
-        public ConversionStatusController(MediaConverter converter, ILogger<ConversionStatusController> logger)
+        public ConversionStatusController(DQP.IDistinctQueueProcessor<IConversionItem> converter, ILogger<ConversionStatusController> logger)
         {
             this.converter = converter;
             log = logger;

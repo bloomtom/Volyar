@@ -22,10 +22,10 @@ namespace Volyar.Media.Scanning
     {
         private readonly MediaDatabase dbOptions;
         private readonly VSettings settings;
-        private readonly MediaConverter converter;
+        private readonly IDistinctQueueProcessor<IConversionItem> converter;
         protected readonly ILogger<MediaScanner> log;
 
-        public MediaScanner(MediaDatabase dbOptions, VSettings settings, MediaConverter converter, ILogger<MediaScanner> logger)
+        public MediaScanner(MediaDatabase dbOptions, VSettings settings, IDistinctQueueProcessor<IConversionItem> converter, ILogger<MediaScanner> logger)
         {
             this.dbOptions = dbOptions;
             this.settings = settings;

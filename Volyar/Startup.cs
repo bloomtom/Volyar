@@ -79,7 +79,7 @@ namespace Volyar
                 tempPath = Environment.CurrentDirectory;
             }
 
-            var converter = new MediaConverter(
+            DQP.IDistinctQueueProcessor<IConversionItem> converter = new MediaConverter(
                 Settings.FFmpegPath,
                 Settings.FFprobePath,
                 Settings.Mp4BoxPath,

@@ -124,7 +124,7 @@ namespace Volyar.Models
         }
     }
 
-    public class MediaItem : Entity
+    public class MediaItem : Entity, Exportable.IMediaItem
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
