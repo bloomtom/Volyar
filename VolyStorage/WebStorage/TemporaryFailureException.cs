@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Storage.WebStorage
+namespace VolyStorage.WebStorage
 {
     public class TemporaryFailureException : Exception
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Storage.WebStorage
+namespace VolyStorage.WebStorage
 {
     public abstract class WebStorage : IStorage
     {

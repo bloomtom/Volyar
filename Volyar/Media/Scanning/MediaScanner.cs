@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Volyar.Media.Conversion;
-using Volyar.Media.Storage;
+using VolyStorage;
 using Volyar.Models;
 
 namespace Volyar.Media.Scanning

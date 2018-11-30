@@ -6,7 +6,7 @@ using System.IO.Enumeration;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Storage.FilesystemStorage
+namespace VolyStorage.FilesystemStorage
 {
     public class FilesystemStorage : IStorage
     {

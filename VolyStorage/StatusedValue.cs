@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Storage
+namespace VolyStorage
 {
     /// <summary>
     /// Encapsulates an arbitrary value along with a success flag.

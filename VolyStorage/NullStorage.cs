@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Storage
+namespace VolyStorage
 {
     public class NullStorage : IStorage
     {

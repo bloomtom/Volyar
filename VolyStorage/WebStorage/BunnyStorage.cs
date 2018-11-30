@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using BunAPI;
 using Microsoft.Extensions.Logging;
 
-namespace Volyar.Media.Storage.WebStorage
+namespace VolyStorage.WebStorage
 {
     /// <summary>
     /// An IStorage implementation for BunnyCDN.

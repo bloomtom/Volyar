@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Storage
+namespace VolyStorage
 {
     /// <summary>
     /// An interface for performing operations on an object based storage backend

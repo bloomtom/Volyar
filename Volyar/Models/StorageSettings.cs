@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Volyar.Media.Storage;
-using Volyar.Media.Storage.FilesystemStorage;
-using Volyar.Media.Storage.WebStorage;
+using VolyStorage;
+using VolyStorage.FilesystemStorage;
+using VolyStorage.WebStorage;
 
 namespace Volyar.Models
 {
