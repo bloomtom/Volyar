@@ -13,6 +13,7 @@ namespace Volyar
     public class Program
     {
         public static readonly string settingsPath = Path.Join(Environment.CurrentDirectory, "vsettings.json");
+        public static readonly System.Version version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
 
         public static void Main(string[] args)
         {
