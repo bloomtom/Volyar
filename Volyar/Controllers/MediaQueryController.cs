@@ -11,7 +11,7 @@ using VolyExports;
 
 namespace Volyar.Controllers
 {
-    [Route("voly/external/api/media")]
+    [Route("external/api/media")]
     public class MediaQueryController
     {
         private readonly VolyContext db;

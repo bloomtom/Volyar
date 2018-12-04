@@ -7,7 +7,7 @@ using Volyar.Media.Conversion;
 
 namespace Volyar.Controllers
 {
-    [Route("voly/external/ui")]
+    [Route("external/ui")]
     public class FrontendController : Controller
     {
         private readonly ILogger<FrontendController> log;

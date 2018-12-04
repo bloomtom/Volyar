@@ -100,6 +100,11 @@ namespace Volyar
             ILoggerFactory loggerFactory,
             VolyContext context)
         {
+            if (!string.IsNullOrWhiteSpace(Settings.BasePath))
+            {
+                app.UsePathBase(new Microsoft.AspNetCore.Http.PathString(Settings.BasePath));
+            }
+
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
@@ -113,7 +118,7 @@ namespace Volyar
 
             app.UseMvc();
 
-            app.UseStaticFiles("/voly/external/static");
+            app.UseStaticFiles("/external/static");
 
             VolySeed.Initialize(context);
         }

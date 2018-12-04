@@ -7,7 +7,7 @@ using Volyar.Media.Conversion;
 
 namespace Volyar.Controllers
 {
-    [Route("voly/external/api/conversion")]
+    [Route("external/api/conversion")]
     public class ConversionStatusController : Controller
     {
         private readonly DQP.IDistinctQueueProcessor<IConversionItem> converter;

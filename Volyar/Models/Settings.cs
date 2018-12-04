@@ -12,6 +12,7 @@ namespace Volyar.Models
     {
         public string Listen { get; set; } = "0.0.0.0";
         public int Port { get; set; } = 7014;
+        public string BasePath { get; set; } = "/voly";
         public string DatabaseType { get; set; } = "sqlite";
         public string DatabaseConnection { get; set; } = $"Data Source={Path.Join(Environment.CurrentDirectory, "volyar.sqlite")};";
         public string FFmpegPath { get; set; } = "ffmpeg";

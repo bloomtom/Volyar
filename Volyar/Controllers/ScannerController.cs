@@ -13,7 +13,7 @@ using Volyar.Models;
 
 namespace Volyar.Controllers
 {
-    [Route("voly/internal/api/scan")]
+    [Route("internal/api/scan")]
     [ApiController]
     public class ScannerController : ControllerBase
     {
