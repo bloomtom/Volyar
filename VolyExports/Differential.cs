@@ -22,11 +22,11 @@ namespace VolyExports
         /// <summary>
         /// The media items added in this differential window.
         /// </summary>
-        public IEnumerable<IMediaItem> Additions { get; private set; }
+        public IEnumerable<MediaItem> Additions { get; private set; }
         /// <summary>
         /// The media items modified in this differential window.
         /// </summary>
-        public IEnumerable<IMediaItem> Modifications { get; private set; }
+        public IEnumerable<MediaItem> Modifications { get; private set; }
 
         /// <summary>
         /// Creates a new full Differential instance.
@@ -35,8 +35,8 @@ namespace VolyExports
         {
             CurrentKey = currentKey;
             Deletions = deletions;
-            Additions = additons;
-            Modifications = modifications;
+            Additions = additons.Select(x => MediaItem.Convert(x));
+            Modifications = modifications.Select(x => MediaItem.Convert(x));
         }
     }
 }
