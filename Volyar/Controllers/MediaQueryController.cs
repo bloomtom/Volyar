@@ -49,7 +49,7 @@ namespace Volyar.Controllers
                     " LEFT JOIN (SELECT [Key] FROM TransactionLog TL WHERE TL.Type IN (0, 2) AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TExcept ON TExcept.[Key] = MediaItem.MediaId WHERE TExcept.[Key] IS NULL",
                     transactionId, maxLogKey);
 
-                result = new Differential(maxLogKey, removed, added, changed);
+                result = new Differential() { CurrentKey = maxLogKey, Deletions = removed, Additions = added.Select(x => VolyExports.MediaItem.Convert(x)), Modifications = changed.Select(x => VolyExports.MediaItem.Convert(x)) };
 
                 transaction.Rollback(); // This was a read only transaction.
             }
