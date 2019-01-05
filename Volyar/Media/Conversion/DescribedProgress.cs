@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Volyar.Media.Conversion
 {
+
     public class DescribedProgress
     {
         public string Description { get; private set; }

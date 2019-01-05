@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyExports", "VolyExports\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyExportsTests", "VolyExportsTests\VolyExportsTests.csproj", "{86C7E1DC-FE90-4EF3-95A6-64855176CCC6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolyTests", "VolyTests\VolyTests.csproj", "{336476F1-DAEB-43E9-9091-8F66EB640836}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{86C7E1DC-FE90-4EF3-95A6-64855176CCC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86C7E1DC-FE90-4EF3-95A6-64855176CCC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86C7E1DC-FE90-4EF3-95A6-64855176CCC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{336476F1-DAEB-43E9-9091-8F66EB640836}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{336476F1-DAEB-43E9-9091-8F66EB640836}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{336476F1-DAEB-43E9-9091-8F66EB640836}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{336476F1-DAEB-43E9-9091-8F66EB640836}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

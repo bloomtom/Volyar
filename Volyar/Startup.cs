@@ -78,16 +78,16 @@ namespace Volyar
                 tempPath = Environment.CurrentDirectory;
             }
 
-            DQP.IDistinctQueueProcessor<IConversionItem> converter = new MediaConverter(
+            DQP.IDistinctQueueProcessor<IConversionItem> converter = new MediaConversionQueue(
                 Settings.FFmpegPath,
                 Settings.FFprobePath,
                 Settings.Mp4BoxPath,
                 tempPath,
                 Settings.Parallelization,
-                LoggerFactory.CreateLogger<MediaConverter>());
+                LoggerFactory.CreateLogger<MediaConversionQueue>());
             services.AddSingleton(converter);
 
-            services.AddSingleton(new MediaScanner(dbOptions, Settings, converter, LoggerFactory.CreateLogger<MediaScanner>()));
+            services.AddSingleton(new LibraryScanningQueue(dbOptions, Settings, converter, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
 
             services.AddSingleton(Settings);
 

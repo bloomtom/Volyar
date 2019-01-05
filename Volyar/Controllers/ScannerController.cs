@@ -19,10 +19,10 @@ namespace Volyar.Controllers
     {
         private readonly DbContextOptions<VolyContext> dbOptions;
         private readonly VSettings settings;
-        private readonly MediaScanner scanner;
+        private readonly LibraryScanningQueue scanner;
         protected readonly ILogger<ScannerController> log;
 
-        public ScannerController(DbContextOptions<VolyContext> dbOptions, VSettings settings, MediaScanner scanner, ILogger<ScannerController> logger)
+        public ScannerController(DbContextOptions<VolyContext> dbOptions, VSettings settings, LibraryScanningQueue scanner, ILogger<ScannerController> logger)
         {
             this.dbOptions = dbOptions;
             this.settings = settings;

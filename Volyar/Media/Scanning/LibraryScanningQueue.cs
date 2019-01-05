@@ -18,14 +18,14 @@ namespace Volyar.Media.Scanning
         public DbContextOptions<VolyContext> Database { get; set; }
     }
 
-    public class MediaScanner : DistinctQueueProcessor<IScanItem>
+    public class LibraryScanningQueue : DistinctQueueProcessor<IScanItem>
     {
         private readonly MediaDatabase dbOptions;
         private readonly VSettings settings;
         private readonly IDistinctQueueProcessor<IConversionItem> converter;
-        protected readonly ILogger<MediaScanner> log;
+        protected readonly ILogger<LibraryScanningQueue> log;
 
-        public MediaScanner(MediaDatabase dbOptions, VSettings settings, IDistinctQueueProcessor<IConversionItem> converter, ILogger<MediaScanner> logger)
+        public LibraryScanningQueue(MediaDatabase dbOptions, VSettings settings, IDistinctQueueProcessor<IConversionItem> converter, ILogger<LibraryScanningQueue> logger)
         {
             this.dbOptions = dbOptions;
             this.settings = settings;

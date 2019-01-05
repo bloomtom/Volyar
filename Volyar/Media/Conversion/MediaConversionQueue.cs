@@ -19,11 +19,11 @@ namespace Volyar.Media.Conversion
     /// <summary>
     /// A threaded queue based encapsulation around the DEnc encoder.
     /// </summary>
-    public class MediaConverter : DistinctQueueProcessor<IConversionItem>
+    public class MediaConversionQueue : DistinctQueueProcessor<IConversionItem>
     {
         private readonly Encoder encoder;
 
-        private readonly ILogger<MediaConverter> log;
+        private readonly ILogger<MediaConversionQueue> log;
 
         /// <param name="ffmpegPath">The path to an FFmpeg executable.</param>
         /// <param name="ffProbePath">The path to an FFprobe executable.</param>
@@ -31,7 +31,7 @@ namespace Volyar.Media.Conversion
         /// <param name="tempPath">A temp path to use for intermediary files during processing.</param>
         /// <param name="parallelization">The number of files to convert at once.</param>
         /// <param name="logger">A log receiver to capture ffmpeg/mp4box output.</param>
-        public MediaConverter(string ffmpegPath, string ffProbePath, string mp4boxPath, string tempPath, int parallelization, ILogger<MediaConverter> logger)
+        public MediaConversionQueue(string ffmpegPath, string ffProbePath, string mp4boxPath, string tempPath, int parallelization, ILogger<MediaConversionQueue> logger)
         {
             log = logger;
             Parallelization = parallelization <= 0 ? 1 : parallelization;
