@@ -52,7 +52,7 @@ namespace Volyar.Controllers
                     new List<ExportableConversionItem>()
                     {
                         new ConversionItem("/home/test/vid/vid3.mkv", "/home/output/", "processItem", quality, 24, null, null),
-                        new ConversionItem("/home/test/vid/vid4.mkv", "/home/output/", "processItem2", quality, 24, null, null) { Progress = 0.25f }
+                        new ConversionItem("/home/test/vid/vid4.mkv", "/home/output/", "processItem2", quality, 24, null, null) { Progress = new List<DescribedProgress>(){ new DescribedProgress("Encoding", 0.25) } }
                     }
                 }
             };

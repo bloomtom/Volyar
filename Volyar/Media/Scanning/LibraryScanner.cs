@@ -10,7 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Volyar.Media.Conversion;
 using Volyar.Models;
-using VolyStorage;
+using MStorage;
+using HttpProgress;
+using NaiveProgress;
 
 namespace Volyar.Media.Scanning
 {
@@ -29,7 +31,7 @@ namespace Volyar.Media.Scanning
         public LibraryScanner(Library library, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, ILogger log, bool deleteWithSource, bool truncateSource) : base(ScanType.Library, library.Name)
         {
             this.library = library;
-            storageBackend = library.StorageBackend.RetrieveBackend(log);
+            storageBackend = library.StorageBackend.RetrieveBackend();
             this.converter = converter;
             this.dbOptions = dbOptions;
             this.log = log;
@@ -116,7 +118,7 @@ namespace Volyar.Media.Scanning
 
         private void ScheduleConversion(Library library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, string sourceHash, string outFilename)
         {
-            converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (result) =>
+            converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
                 var addedFiles = new List<string>();
 
@@ -155,9 +157,19 @@ namespace Volyar.Media.Scanning
                     addedFiles.Add(result.DashFilePath);
                     addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
 
-                    foreach (var file in addedFiles)
+                    // Set up progress reporting.
+                    var progress = sender.Progress.ToList();
+                    var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
+                    progress.AddRange(uploadProgress);
+                    sender.Progress = progress;
+
+                    // Upload files.
+                    for (int i = 0; i < addedFiles.Count; i++)
                     {
-                        storageBackend.UploadAsync(Path.GetFileName(file), file, true);
+                        storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
+                        {
+                            uploadProgress[i].Progress = e.PercentComplete;
+                        })));
                     }
 
                     innerContext.SaveChanges();
@@ -171,7 +183,7 @@ namespace Volyar.Media.Scanning
 
         private void ScheduleReconversion(Library library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string sourceHash, string outFilename)
         {
-            converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (result) =>
+            converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
                 var addedFiles = new List<string>();
                 var removedFiles = new List<string>();
@@ -204,13 +216,30 @@ namespace Volyar.Media.Scanning
                     addedFiles.Add(result.DashFilePath);
                     addedFiles.AddRange(result.MediaFiles);
 
-                    foreach (var file in addedFiles)
+                    // Set up progress reporting.
+                    var progress = sender.Progress.ToList();
+                    var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
+                    progress.AddRange(uploadProgress);
+                    var deleteProgress = new DescribedProgress("Delete Old", 0);
+                    progress.Add(deleteProgress);
+                    sender.Progress = progress;
+
+                    // Upload files.
+                    for (int i = 0; i < addedFiles.Count; i++)
                     {
-                        storageBackend.UploadAsync(Path.GetFileName(file), file, true);
+                        storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
+                        {
+                            uploadProgress[i].Progress = e.PercentComplete;
+                        })));
                     }
+
+                    // Delete files.
+                    int deleteCount = 0;
                     foreach (var file in removedFiles)
                     {
                         storageBackend.DeleteAsync(Path.GetFileName(file));
+                        deleteCount++;
+                        deleteProgress.Progress = deleteCount / removedFiles.Count;
                     }
 
                     innerContext.SaveChanges();

@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using VolyStorage;
-using VolyStorage.FilesystemStorage;
-using VolyStorage.WebStorage;
+using MStorage;
+using MStorage.FilesystemStorage;
+using MStorage.WebStorage;
 
 namespace Volyar.Models
 {
@@ -14,6 +14,7 @@ namespace Volyar.Models
     {
         public FilesystemBackendConfig Filesystem { get; set; } = new FilesystemBackendConfig();
         public S3BackendConfig AmazonS3 { get; set; } = null;
+        public AzureBackendConfig Azure { get; set; } = null;
         public BunnyCdnBackendConfig BunnyCDN { get; set; } = null;
 
         public StorageSettings()
@@ -21,23 +22,27 @@ namespace Volyar.Models
 
         }
 
-        public IStorage RetrieveBackend(ILogger log)
+        public IStorage RetrieveBackend()
         {
             if (AmazonS3 != null)
             {
-                return new S3Storage(AmazonS3.AccessKey, AmazonS3.ApiKey, AmazonS3.Region, AmazonS3.Bucket, log);
+                return new S3Storage(AmazonS3.AccessKey, AmazonS3.ApiKey, AmazonS3.Endpoint, AmazonS3.Bucket);
+            }
+            else if(Azure != null)
+            {
+                return new AzureStorage(Azure.Account, Azure.SasToken, Azure.Container);
             }
             else if (BunnyCDN != null)
             {
-                return new BunnyStorage(BunnyCDN.ApiKey, BunnyCDN.StorageZone, log);
+                return new BunnyStorage(BunnyCDN.ApiKey, BunnyCDN.StorageZone);
             }
             else if (Filesystem != null)
             {
-                return new FilesystemStorage(Filesystem.Directory, log);
+                return new FilesystemStorage(Filesystem.Directory);
             }
             else
             {
-                return new NullStorage(log);
+                return new NullStorage();
             }
         }
 
@@ -76,12 +81,24 @@ namespace Volyar.Models
     {
         public string AccessKey { get; set; }
         public string ApiKey { get; set; }
-        public RegionEndpoint Region { get; set; }
+        public string Endpoint { get; set; }
         public string Bucket { get; set; }
 
         public override string ToString()
         {
             return $"AmazonS3 {Bucket}";
+        }
+    }
+
+    public class AzureBackendConfig
+    {
+        public string Account { get; set; }
+        public string SasToken { get; set; }
+        public string Container { get; set; }
+
+        public override string ToString()
+        {
+            return $"Azure {Container}";
         }
     }
 

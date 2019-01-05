@@ -38,9 +38,14 @@ namespace Volyar.Media.Conversion
         public DateTime CreateTime { get; protected set; } = DateTime.UtcNow;
 
         /// <summary>
-        /// A value between 0 and 1 representing conversion progress.
+        /// A collection of progress indicators for conversion steps on this object.
         /// </summary>
-        public float Progress { get; protected set; } = 0;
+        public IEnumerable<DescribedProgress> Progress { get; protected set; } = new List<DescribedProgress>();
+
+        /// <summary>
+        /// Error text which may be displayed if conversion fails.
+        /// </summary>
+        public string ErrorText { get; protected set; }
 
         /// <summary>
         /// Returns a deep copy of a given value deriving from IExportableConversionItem.
@@ -68,15 +73,21 @@ namespace Volyar.Media.Conversion
         /// <summary>
         /// An action to perform upon conversion success.
         /// </summary>
-        public Action<DashEncodeResult> CompletionAction { get; private set; }
+        public Action<IConversionItem, DashEncodeResult> CompletionAction { get; private set; }
+
         /// <summary>
         /// An action to perform upon conversion failure.
         /// </summary>
         public Action<Exception> ErrorAction { get; private set; }
 
-        public new float Progress { get; set; }
+        public new IEnumerable<DescribedProgress> Progress { get; set; }
 
-        public ConversionItem(string sourcePath, string destination, string outputBaseFilename, HashSet<IQuality> quality, int framerate, Action<DashEncodeResult> completionAction, Action<Exception> errorAction)
+        /// <summary>
+        /// Error text which may be displayed if conversion fails.
+        /// </summary>
+        public new string ErrorText { get; set; }
+
+        public ConversionItem(string sourcePath, string destination, string outputBaseFilename, HashSet<IQuality> quality, int framerate, Action<IConversionItem, DashEncodeResult> completionAction, Action<Exception> errorAction)
         {
             SourcePath = sourcePath;
             OutputPath = destination;

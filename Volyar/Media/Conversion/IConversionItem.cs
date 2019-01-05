@@ -12,17 +12,19 @@ namespace Volyar.Media.Conversion
         string OutputBaseFilename { get; }
         int Framerate { get; }
         DateTime CreateTime { get; }
-        float Progress { get; }
+        IEnumerable<DescribedProgress> Progress { get; }
+        string ErrorText { get; }
 
         ImmutableHashSet<IQuality> Quality { get; }
     }
 
     public interface IConversionItem : IExportableConversionItem
     {
-        Action<DashEncodeResult> CompletionAction { get; }
+        Action<IConversionItem, DashEncodeResult> CompletionAction { get; }
         Action<Exception> ErrorAction { get; }
 
-        new float Progress { get; set; }
+        new IEnumerable<DescribedProgress> Progress { get; set; }
+        new string ErrorText { get; set; }
 
         bool Equals(object obj);
         int GetHashCode();

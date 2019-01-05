@@ -2,6 +2,7 @@
 using DQP;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NaiveProgress;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -43,6 +44,7 @@ namespace Volyar.Media.Conversion
         {
             log.LogError($"Exception while converting {item.ToString()} -- {ex.Message}");
             item.ErrorAction.Invoke(ex);
+            item.ErrorText = ex.Message;
         }
 
         protected override void Process(IConversionItem item)
@@ -57,9 +59,9 @@ namespace Volyar.Media.Conversion
                 qualities: item.Quality,
                 options: options,
                 outDirectory: item.OutputPath,
-                progress: new Action<float>(x => { item.Progress = x; }));
+                progress: new NaiveProgress<IEnumerable<EncodeStageProgress>>(x => { item.Progress = x.Select(y => new DescribedProgress(y.Name, y.Progress)); }));
             if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator Check the ffmpeg/mp4box log."); }
-            item.CompletionAction.Invoke(dashResult);
+            item.CompletionAction.Invoke(item, dashResult);
         }
     }
 }
