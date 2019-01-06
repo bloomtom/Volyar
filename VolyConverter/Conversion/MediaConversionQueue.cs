@@ -10,11 +10,6 @@ using System.Threading.Tasks;
 
 namespace VolyConverter.Conversion
 {
-    public interface IMediaConverter
-    {
-        void Process(IConversionItem item);
-    }
-
     /// <summary>
     /// A threaded queue based encapsulation around the DEnc encoder.
     /// </summary>
