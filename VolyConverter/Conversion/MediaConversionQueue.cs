@@ -1,6 +1,5 @@
 ﻿using DEnc;
 using DQP;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NaiveProgress;
 using System;
@@ -9,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Conversion
+namespace VolyConverter.Conversion
 {
     public interface IMediaConverter
     {

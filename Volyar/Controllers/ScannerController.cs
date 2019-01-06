@@ -7,9 +7,9 @@ using DEnc;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Volyar.Media;
-using Volyar.Media.Scanning;
 using Volyar.Models;
+using VolyConverter.Scanning;
+using VolyDatabase;
 
 namespace Volyar.Controllers
 {
@@ -37,20 +37,20 @@ namespace Volyar.Controllers
             {
                 foreach (var library in settings.Libraries)
                 {
-                    scanner.ScheduleLibraryScan(library, outerContext);
+                    scanner.ScheduleLibraryScan(library, library.StorageBackend.RetrieveBackend(), outerContext);
                 }
             }
         }
 
         [HttpPost("scanlib")]
-        public IActionResult FullScan(string library)
+        public IActionResult FullScan(string libraryName)
         {
-            var lib = settings.Libraries.Where(x => x.Name == library).FirstOrDefault();
-            if (lib != null)
+            var library = settings.Libraries.Where(x => x.Name == libraryName).FirstOrDefault();
+            if (library != null)
             {
                 using (var outerContext = new VolyContext(dbOptions))
                 {
-                    scanner.ScheduleLibraryScan(lib, outerContext);
+                    scanner.ScheduleLibraryScan(library, library.StorageBackend.RetrieveBackend(), outerContext);
                 }
                 return Ok();
             }

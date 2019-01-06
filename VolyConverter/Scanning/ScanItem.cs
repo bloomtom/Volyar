@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Scanning
+namespace VolyConverter.Scanning
 {
     public enum ScanType
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Volyar
+namespace VolyConverter
 {
-    public static class Hashing
+    internal static class Hashing
     {
         public static string HashFileMd5(string filePath)
         {

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Volyar.Media.Conversion;
+using VolyConverter.Conversion;
 
 namespace Volyar.Controllers
 {
@@ -30,33 +30,6 @@ namespace Volyar.Controllers
         {
             string json = GetStatus();
             return new ObjectResult(json);
-        }
-
-        [HttpGet("teststatus")]
-        public IActionResult TestStatus(long transactionId)
-        {
-            var quality = DEnc.Quality.GenerateDefaultQualities(DEnc.DefaultQuality.medium, "fast").ToHashSet();
-
-            var result = new Dictionary<string, object>
-            {
-                {
-                    "queued",
-                    new List<ExportableConversionItem>()
-                    {
-                        new ConversionItem("/home/test/vid/vid1.mkv", "/home/output/", "testitem", quality, 24, null, null),
-                        new ConversionItem("/home/test/vid/vid2.mkv", "/home/output/", "testitem2", quality, 24, null, null)
-                    }
-                },
-                {
-                    "processing",
-                    new List<ExportableConversionItem>()
-                    {
-                        new ConversionItem("/home/test/vid/vid3.mkv", "/home/output/", "processItem", quality, 24, null, null),
-                        new ConversionItem("/home/test/vid/vid4.mkv", "/home/output/", "processItem2", quality, 24, null, null) { Progress = new List<DescribedProgress>(){ new DescribedProgress("Encoding", 0.25) } }
-                    }
-                }
-            };
-            return new ObjectResult(Newtonsoft.Json.JsonConvert.SerializeObject(result));
         }
 
         private string GetStatus()

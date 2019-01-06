@@ -10,9 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Volyar.Media.Conversion;
-using Volyar.Media.Scanning;
+using VolyConverter.Conversion;
+using VolyConverter.Scanning;
 using Volyar.Models;
+using VolyDatabase;
 
 namespace Volyar
 {
@@ -87,7 +88,7 @@ namespace Volyar
                 LoggerFactory.CreateLogger<MediaConversionQueue>());
             services.AddSingleton(converter);
 
-            services.AddSingleton(new LibraryScanningQueue(dbOptions, Settings, converter, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
+            services.AddSingleton(new LibraryScanningQueue(dbOptions, Settings.DeleteWithSource, Settings.TruncateSource, converter, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
 
             services.AddSingleton(Settings);
 

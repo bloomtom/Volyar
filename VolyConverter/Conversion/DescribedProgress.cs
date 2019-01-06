@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Conversion
+namespace VolyConverter.Conversion
 {
 
     public class DescribedProgress

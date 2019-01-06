@@ -1,5 +1,4 @@
-﻿using DEnc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VolyExports;
 
-namespace Volyar.Models
+namespace VolyDatabase
 {
     public enum TransactionType
     {
@@ -17,7 +16,7 @@ namespace Volyar.Models
         Delete = 2
     }
 
-    public class VolyContext : DbContext
+    public class VolyContext : DbContext, IVolyContext
     {
         public DbSet<Configuration> Configuration { get; set; }
         public DbSet<TransactionLog> TransactionLog { get; set; }

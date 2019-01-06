@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyExportsTests", "VolyExp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolyTests", "VolyTests\VolyTests.csproj", "{336476F1-DAEB-43E9-9091-8F66EB640836}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolyConverter", "VolyConverter\VolyConverter.csproj", "{C3D40261-D812-442B-ABC5-50D4990750C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolyDatabase", "VolyDatabase\VolyDatabase.csproj", "{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{336476F1-DAEB-43E9-9091-8F66EB640836}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{336476F1-DAEB-43E9-9091-8F66EB640836}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{336476F1-DAEB-43E9-9091-8F66EB640836}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3D40261-D812-442B-ABC5-50D4990750C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3D40261-D812-442B-ABC5-50D4990750C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3D40261-D812-442B-ABC5-50D4990750C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3D40261-D812-442B-ABC5-50D4990750C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Volyar.Media.Conversion
+namespace VolyConverter.Conversion
 {
     /// <summary>
     /// A json exportable view of a ConversionItem.
@@ -68,7 +68,7 @@ namespace Volyar.Media.Conversion
     /// <summary>
     /// An object for storing the definition and callbacks for a conversion routine.
     /// </summary>
-    public class ConversionItem : ExportableConversionItem, IConversionItem
+    internal class ConversionItem : ExportableConversionItem, IConversionItem
     {
         /// <summary>
         /// An action to perform upon conversion success.

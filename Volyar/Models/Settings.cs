@@ -43,15 +43,9 @@ namespace Volyar.Models
         }
     }
 
-    public class Library
+    public class Library : VolyConverter.Scanning.Library, VolyConverter.Scanning.ILibrary
     {
-        public string Name { get; set; }
-        public string OriginPath { get; set; }
-        public string TempPath { get; set; }
         public StorageSettings StorageBackend { get; set; } = new StorageSettings();
-        public HashSet<string> ValidExtensions { get; set; }
-        public IEnumerable<Quality> Qualities { get; set; }
-        public int ForceFramerate { get; set; } = 0;
 
         public Library() : this(null, null, null, null, null)
         {

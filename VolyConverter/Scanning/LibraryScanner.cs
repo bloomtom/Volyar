@@ -1,6 +1,5 @@
 ﻿using DEnc;
 using DQP;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -8,13 +7,15 @@ using System.IO;
 using System.IO.Enumeration;
 using System.Linq;
 using System.Threading.Tasks;
-using Volyar.Media.Conversion;
-using Volyar.Models;
+using VolyConverter.Conversion;
 using MStorage;
 using HttpProgress;
 using NaiveProgress;
+using VolyExports;
+using VolyDatabase;
+using Microsoft.EntityFrameworkCore;
 
-namespace Volyar.Media.Scanning
+namespace VolyConverter.Scanning
 {
     public class LibraryScanner : ScanItem
     {
@@ -26,12 +27,12 @@ namespace Volyar.Media.Scanning
         private readonly bool deleteWithSource;
         private readonly bool truncateSource;
 
-        private readonly Library library;
+        private readonly ILibrary library;
 
-        public LibraryScanner(Library library, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, ILogger log, bool deleteWithSource, bool truncateSource) : base(ScanType.Library, library.Name)
+        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, ILogger log, bool deleteWithSource, bool truncateSource) : base(ScanType.Library, library.Name)
         {
             this.library = library;
-            storageBackend = library.StorageBackend.RetrieveBackend();
+            this.storageBackend = storageBackend;
             this.converter = converter;
             this.dbOptions = dbOptions;
             this.log = log;
@@ -51,7 +52,7 @@ namespace Volyar.Media.Scanning
             {
                 var currentLibrary = context.Media
                     .Where(x => x.LibraryName == library.Name)
-                    .Select(x => new MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash })
+                    .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash })
                     .ToDictionary(k => k.SourcePath);
                 var quality = new HashSet<IQuality>(library.Qualities);
 
@@ -116,7 +117,7 @@ namespace Volyar.Media.Scanning
             }
         }
 
-        private void ScheduleConversion(Library library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, string sourceHash, string outFilename)
+        private void ScheduleConversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, string sourceHash, string outFilename)
         {
             converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
@@ -125,7 +126,7 @@ namespace Volyar.Media.Scanning
                 using (var innerContext = new VolyContext(dbOptions))
                 {
                     // Save the new media item to db.
-                    var newMedia = new MediaItem()
+                    var newMedia = new VolyDatabase.MediaItem()
                     {
                         SourcePath = sourcePath,
                         SourceModified = lastWrite,
@@ -181,7 +182,7 @@ namespace Volyar.Media.Scanning
             }));
         }
 
-        private void ScheduleReconversion(Library library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string sourceHash, string outFilename)
+        private void ScheduleReconversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string sourceHash, string outFilename)
         {
             converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {

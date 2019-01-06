@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="bloomtom.DEnc" Version="1.0.0" />
+    <PackageReference Include="bloomtom.DistinctQueueProcessor" Version="1.1.1" />
+    <PackageReference Include="bloomtom.MStorage" Version="0.2.1" />
+    <PackageReference Include="bloomtom.NaiveProgress" Version="1.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VolyDatabase\VolyDatabase.csproj" />
+    <ProjectReference Include="..\VolyExports\VolyExports.csproj" />
+  </ItemGroup>
+
+</Project>

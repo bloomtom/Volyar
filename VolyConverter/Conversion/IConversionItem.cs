@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DEnc;
 using System.Collections.Immutable;
 
-namespace Volyar.Media.Conversion
+namespace VolyConverter.Conversion
 {
     public interface IExportableConversionItem
     {
