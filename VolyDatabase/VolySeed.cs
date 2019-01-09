@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VolyDatabase;
 
-namespace Volyar.Models
+namespace VolyDatabase
 {
     public class VolySeed
     {
