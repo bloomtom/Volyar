@@ -40,7 +40,7 @@ namespace VolyConverter.Conversion
         /// <summary>
         /// A collection of progress indicators for conversion steps on this object.
         /// </summary>
-        public IEnumerable<DescribedProgress> Progress { get; protected set; } = new List<DescribedProgress>();
+        public IEnumerable<DescribedProgress> Progress { get; protected set; } = Enumerable.Empty<DescribedProgress>();
 
         /// <summary>
         /// Error text which may be displayed if conversion fails.
@@ -80,7 +80,7 @@ namespace VolyConverter.Conversion
         /// </summary>
         public Action<Exception> ErrorAction { get; private set; }
 
-        public new IEnumerable<DescribedProgress> Progress { get; set; }
+        public new IEnumerable<DescribedProgress> Progress { get; set; } = Enumerable.Empty<DescribedProgress>();
 
         /// <summary>
         /// Error text which may be displayed if conversion fails.
