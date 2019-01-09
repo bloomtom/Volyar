@@ -13,11 +13,6 @@ using VolyDatabase;
 
 namespace VolyConverter.Scanning
 {
-    public class MediaDatabase
-    {
-        public DbContextOptions<VolyContext> Database { get; set; }
-    }
-
     public class LibraryScanningQueue : DistinctQueueProcessor<IScanItem>
     {
         private readonly MediaDatabase dbOptions;
