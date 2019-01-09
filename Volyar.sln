@@ -9,11 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyExports", "VolyExports\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyExportsTests", "VolyExportsTests\VolyExportsTests.csproj", "{86C7E1DC-FE90-4EF3-95A6-64855176CCC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolyTests", "VolyTests\VolyTests.csproj", "{336476F1-DAEB-43E9-9091-8F66EB640836}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyTests", "VolyTests\VolyTests.csproj", "{336476F1-DAEB-43E9-9091-8F66EB640836}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolyConverter", "VolyConverter\VolyConverter.csproj", "{C3D40261-D812-442B-ABC5-50D4990750C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyConverter", "VolyConverter\VolyConverter.csproj", "{C3D40261-D812-442B-ABC5-50D4990750C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolyDatabase", "VolyDatabase\VolyDatabase.csproj", "{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyDatabase", "VolyDatabase\VolyDatabase.csproj", "{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolyConverterTests", "VolyConverterTests\VolyConverterTests.csproj", "{5DD458B2-7475-4E36-BD46-234F9DEFF5E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolyDatabaseTests", "VolyDatabaseTests\VolyDatabaseTests.csproj", "{10511B51-8C68-40D8-B207-7D0B49586D4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{711CE7FF-36E7-4A21-ACA8-CCC15DE6E75E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DD458B2-7475-4E36-BD46-234F9DEFF5E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DD458B2-7475-4E36-BD46-234F9DEFF5E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DD458B2-7475-4E36-BD46-234F9DEFF5E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DD458B2-7475-4E36-BD46-234F9DEFF5E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10511B51-8C68-40D8-B207-7D0B49586D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10511B51-8C68-40D8-B207-7D0B49586D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10511B51-8C68-40D8-B207-7D0B49586D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10511B51-8C68-40D8-B207-7D0B49586D4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
