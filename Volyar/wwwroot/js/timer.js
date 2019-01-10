@@ -1,10 +1,14 @@
 ﻿
-var timerPeriod = 2500;
+var timerPeriod = 2000;
 var timerRunning = false;
 var timerCounter = 0; // Free running clock of timer executions.
 
+var testMode = false;
+
 function updateStatus() {
-    getStatus(function (data) {
+    var statusFunc = testMode ? getTestStatus : getStatus;
+
+    statusFunc(function (data) {
         let result = JSON.parse(data);
         mainVue.waiting = result.queued;
         mainVue.inProgress = result.processing;

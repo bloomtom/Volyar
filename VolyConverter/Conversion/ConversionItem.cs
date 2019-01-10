@@ -68,7 +68,7 @@ namespace VolyConverter.Conversion
     /// <summary>
     /// An object for storing the definition and callbacks for a conversion routine.
     /// </summary>
-    internal class ConversionItem : ExportableConversionItem, IConversionItem
+    public class ConversionItem : ExportableConversionItem, IConversionItem
     {
         /// <summary>
         /// An action to perform upon conversion success.
