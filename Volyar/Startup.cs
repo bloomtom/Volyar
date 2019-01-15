@@ -63,11 +63,13 @@ namespace Volyar
                     case "mysql":
                         o.UseMySql(Settings.DatabaseConnection);
                         break;
-                    default:
+                    case "temp":
                         string litePath = Path.Combine(Environment.CurrentDirectory, "temp.sqlite");
                         if (File.Exists(litePath)) { File.Delete(litePath); }
                         o.UseSqlite($"Data Source={litePath}");
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException($"The database settings {Settings.DatabaseType} is not a valid option. Only sqlite, sqlserver, mysql, and temp are allowed.");
                 }
                 dbOptions.Database = (DbContextOptions<VolyContext>)o.Options;
             });
