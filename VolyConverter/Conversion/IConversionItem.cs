@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DEnc;
 using System.Collections.Immutable;
+using System.Threading;
 
 namespace VolyConverter.Conversion
 {
@@ -22,6 +23,7 @@ namespace VolyConverter.Conversion
     {
         Action<IConversionItem, DashEncodeResult> CompletionAction { get; }
         Action<Exception> ErrorAction { get; }
+        CancellationTokenSource CancellationToken { get; }
 
         new IEnumerable<DescribedProgress> Progress { get; set; }
         new string ErrorText { get; set; }

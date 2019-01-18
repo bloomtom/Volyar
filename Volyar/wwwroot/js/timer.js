@@ -1,5 +1,5 @@
 ﻿
-var timerPeriod = 2000;
+var timerPeriod = 1500;
 var timerRunning = false;
 var timerCounter = 0; // Free running clock of timer executions.
 

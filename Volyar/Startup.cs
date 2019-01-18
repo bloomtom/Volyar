@@ -81,7 +81,7 @@ namespace Volyar
                 tempPath = Environment.CurrentDirectory;
             }
 
-            DQP.IDistinctQueueProcessor<IConversionItem> converter = new MediaConversionQueue(
+            MediaConversionQueue converter = new MediaConversionQueue(
                 Settings.FFmpegPath,
                 Settings.FFprobePath,
                 Settings.Mp4BoxPath,

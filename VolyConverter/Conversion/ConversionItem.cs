@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VolyConverter.Conversion
@@ -79,6 +80,8 @@ namespace VolyConverter.Conversion
         /// An action to perform upon conversion failure.
         /// </summary>
         public Action<Exception> ErrorAction { get; private set; }
+
+        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
         public new IEnumerable<DescribedProgress> Progress { get; set; } = Enumerable.Empty<DescribedProgress>();
 

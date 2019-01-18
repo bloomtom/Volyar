@@ -10,10 +10,10 @@ namespace Volyar.Controllers
     [Route("external/api/conversion")]
     public class ConversionStatusController : Controller
     {
-        private readonly DQP.IDistinctQueueProcessor<IConversionItem> converter;
+        private readonly MediaConversionQueue converter;
         private readonly ILogger<ConversionStatusController> log;
 
-        public ConversionStatusController(DQP.IDistinctQueueProcessor<IConversionItem> converter, ILogger<ConversionStatusController> logger)
+        public ConversionStatusController(MediaConversionQueue converter, ILogger<ConversionStatusController> logger)
         {
             this.converter = converter;
             log = logger;
@@ -113,6 +113,39 @@ namespace Volyar.Controllers
                 { "processing", convertingOnly }
             };
             return Newtonsoft.Json.JsonConvert.SerializeObject(result);
+        }
+
+
+        [HttpPost("cancel")]
+        public StatusCodeResult Cancel(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                converter.Cancel();
+                return Ok();
+            }
+            else
+            {
+                if (converter.Cancel(name))
+                {
+                    return Ok();
+                }
+                return NotFound();
+            }
+        }
+
+        [HttpPost("pause")]
+        public StatusCodeResult Pause()
+        {
+            converter.Pause();
+            return Ok();
+        }
+
+        [HttpPost("resume")]
+        public StatusCodeResult Resume()
+        {
+            converter.Resume();
+            return Ok();
         }
     }
 }

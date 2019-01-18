@@ -19,6 +19,8 @@ namespace VolyConverter.Conversion
 
         private readonly ILogger<MediaConversionQueue> log;
 
+        private readonly int parallelization;
+
         /// <param name="ffmpegPath">The path to an FFmpeg executable.</param>
         /// <param name="ffProbePath">The path to an FFprobe executable.</param>
         /// <param name="mp4boxPath">The path to an mp4box executable.</param>
@@ -29,6 +31,7 @@ namespace VolyConverter.Conversion
         {
             log = logger;
             Parallelization = parallelization <= 0 ? 1 : parallelization;
+            this.parallelization = Parallelization;
             encoder = new Encoder(ffmpegPath, ffProbePath, mp4boxPath,
                 new Action<string>(s => { log.LogInformation(s); }),
                 new Action<string>(s => { log.LogDebug(s); }), tempPath);
@@ -43,19 +46,74 @@ namespace VolyConverter.Conversion
 
         protected override void Process(IConversionItem item)
         {
+            if (item.CancellationToken.IsCancellationRequested) { return; }
+
             var options = new H264EncodeOptions();
 
-            var dashResult = encoder.GenerateDash(
-                inFile: item.SourcePath,
-                outFilename: item.OutputBaseFilename,
-                framerate: item.Framerate,
-                keyframeInterval: 0,
-                qualities: item.Quality,
-                options: options,
-                outDirectory: item.OutputPath,
-                progress: new NaiveProgress<IEnumerable<EncodeStageProgress>>(x => { item.Progress = x.Select(y => new DescribedProgress(y.Name, y.Progress)); }));
-            if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator Check the ffmpeg/mp4box log."); }
-            item.CompletionAction.Invoke(item, dashResult);
+            try
+            {
+                var dashResult = encoder.GenerateDash(
+                    inFile: item.SourcePath,
+                    outFilename: item.OutputBaseFilename,
+                    framerate: item.Framerate,
+                    keyframeInterval: 0,
+                    qualities: item.Quality,
+                    options: options,
+                    outDirectory: item.OutputPath,
+                    progress: new NaiveProgress<IEnumerable<EncodeStageProgress>>(x => { item.Progress = x.Select(y => new DescribedProgress(y.Name, y.Progress)); }),
+                    cancel: item.CancellationToken.Token);
+                if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator Check the ffmpeg/mp4box log."); }
+                item.CompletionAction.Invoke(item, dashResult);
+            }
+            catch (OperationCanceledException)
+            {
+                log.LogInformation($"Task Cancelled: {item.SourcePath}");
+            }
+        }
+
+        /// <summary>
+        /// Pause the conversion queue.
+        /// </summary>
+        public void Pause()
+        {
+            Parallelization = 0;
+        }
+
+        /// <summary>
+        /// Resume the conversion queue.
+        /// </summary>
+        public void Resume()
+        {
+            Parallelization = parallelization;
+            for (int i = 0; i < parallelization; i++)
+            {
+                ManualStartWorker();
+            }
+        }
+
+        /// <summary>
+        /// Cancel all current conversion tasks.
+        /// </summary>
+        public void Cancel()
+        {
+            foreach (var item in ItemsQueued.Values)
+            {
+                item.CancellationToken.Cancel();
+            }
+        }
+
+        /// <summary>
+        /// Cancel a single conversion task by the name/path.
+        /// </summary>
+        /// <param name="sourcePath">The SourcePath property of the conversion item to cancel.</param>
+        public bool Cancel(string sourcePath)
+        {
+            if (ItemsQueued.ContainsKey(sourcePath))
+            {
+                ItemsQueued[sourcePath].CancellationToken.Cancel();
+                return true;
+            }
+            return false;
         }
     }
 }

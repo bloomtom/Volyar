@@ -12,12 +12,25 @@
     <script defer src="~/external/static/js/timer.js"></script>
 }
 
+<style>
+    .btn-cancel {
+        align-self: flex-end;
+    }
+
+    .card-body {
+        padding: 0.5rem;
+    }
+</style>
+
 <div class="card">
     <div class="card-body">
         <h3 class="card-title dropdown">
             Conversion Status
         </h3>
         <button class="btn btn-primary btn-sm" onclick="postFullscan(null, null);">Trigger Conversion</button>
+        <button class="btn btn-warning btn-sm" onclick="pauseQueue();">Pause Queue</button>
+        <button class="btn btn-success btn-sm" onclick="resumeQueue();">Resume Queue</button>
+        <button class="btn btn-danger btn-sm" onclick="cancelAll()">Cancel All</button>
     </div>
 </div>
 
@@ -33,6 +46,7 @@
     <div class="row">
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3" style="padding-bottom:1rem;" v-for="item in items">
             <div class="card">
+                <button class="btn btn-danger btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
                 <div class="card-body">
                     <h5 class="card-title">
                         {{item.OutputBaseFilename}}

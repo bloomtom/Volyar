@@ -38,6 +38,11 @@ var queueComponent = {
     methods: {
         timeago: function (x) {
             return moment(x).fromNow();
+        },
+        cancel: function (x) {
+            $.post(
+                "/external/api/conversion/cancel?name=" + encodeURIComponent(x)
+            );
         }
     },
     components: {
