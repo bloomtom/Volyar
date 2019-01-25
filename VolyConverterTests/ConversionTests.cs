@@ -11,6 +11,7 @@ using VolyConverter.Scanning;
 using VolyDatabase;
 using Force.DeepCloner;
 using Microsoft.Data.Sqlite;
+using VolyConverter.Complete;
 
 namespace VolyConverterTests
 {
@@ -53,6 +54,7 @@ namespace VolyConverterTests
                     "mp4box",
                     globalTemp,
                     1,
+                    new CompleteItems<IExportableConversionItem>(),
                     new Logger<MediaConversionQueue>(logFactory));
                 var scanQueue = new LibraryScanningQueue(db, false, false, converter, new Logger<LibraryScanningQueue>(logFactory));
 

@@ -11,6 +11,12 @@ function getTestStatus(done, fail) {
     ).done(done).fail(fail);
 }
 
+function getComplete(done, fail) {
+    $.get(
+        "/external/api/conversion/complete"
+    ).done(done).fail(fail);
+}
+
 function cancelItem(item, done, fail) {
     $.post(
         "/external/api/conversion/cancel?name=" + encodeURIComponent(item)

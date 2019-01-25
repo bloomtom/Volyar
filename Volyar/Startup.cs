@@ -14,6 +14,7 @@ using VolyConverter.Conversion;
 using VolyConverter.Scanning;
 using Volyar.Models;
 using VolyDatabase;
+using VolyConverter.Complete;
 
 namespace Volyar
 {
@@ -81,12 +82,16 @@ namespace Volyar
                 tempPath = Environment.CurrentDirectory;
             }
 
+            ICompleteItems<IExportableConversionItem> completeQueue = new CompleteItems<IExportableConversionItem>(Settings.CompleteQueueLength);
+            services.AddSingleton(completeQueue);
+
             MediaConversionQueue converter = new MediaConversionQueue(
                 Settings.FFmpegPath,
                 Settings.FFprobePath,
                 Settings.Mp4BoxPath,
                 tempPath,
                 Settings.Parallelization,
+                completeQueue,
                 LoggerFactory.CreateLogger<MediaConversionQueue>());
             services.AddSingleton(converter);
 

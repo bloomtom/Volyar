@@ -1,5 +1,5 @@
 ﻿
-var timerPeriod = 1500;
+var timerPeriod = 2500;
 var timerRunning = false;
 var timerCounter = 0; // Free running clock of timer executions.
 
@@ -12,6 +12,11 @@ function updateStatus() {
         let result = JSON.parse(data);
         mainVue.waiting = result.queued;
         mainVue.inProgress = result.processing;
+    }, null);
+
+    getComplete(function (data) {
+        let result = JSON.parse(data);
+        mainVue.complete = result;
     }, null);
 }
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VolyConverter.Complete;
 using VolyConverter.Conversion;
 
 namespace Volyar.Controllers
@@ -11,12 +12,20 @@ namespace Volyar.Controllers
     public class ConversionStatusController : Controller
     {
         private readonly MediaConversionQueue converter;
+        private readonly ICompleteItems<IExportableConversionItem> completeItems;
         private readonly ILogger<ConversionStatusController> log;
 
-        public ConversionStatusController(MediaConversionQueue converter, ILogger<ConversionStatusController> logger)
+        public ConversionStatusController(MediaConversionQueue converter, ICompleteItems<IExportableConversionItem> completeItems, ILogger<ConversionStatusController> logger)
         {
             this.converter = converter;
+            this.completeItems = completeItems;
             log = logger;
+        }
+
+        [HttpGet("complete")]
+        public IActionResult Complete()
+        {
+            return new ObjectResult(Newtonsoft.Json.JsonConvert.SerializeObject(completeItems.ToArray()));
         }
 
         [HttpGet("statusui")]

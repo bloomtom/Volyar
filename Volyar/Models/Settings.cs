@@ -59,6 +59,10 @@ namespace Volyar.Models
         /// </summary>
         public bool DeleteWithSource { get; set; } = true;
         /// <summary>
+        /// The number of items to keep in the complete/error queue.
+        /// </summary>
+        public int CompleteQueueLength { get; set; } = 100;
+        /// <summary>
         /// A collection of libraries to watch.
         /// </summary>
         public IEnumerable<Library> Libraries { get; set; }

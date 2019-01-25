@@ -52,14 +52,28 @@ var queueComponent = {
     template: '#queue-template'
 };
 
+var completeComponent = {
+    props: {
+        items: {}
+    },
+    methods: {
+        timeago: function (x) {
+            return moment(x).fromNow();
+        }
+    },
+    template: '#complete-template'
+};
+
 var mainVue = new Vue({
     el: '#vuebox',
     data: {
         waiting: [],
-        inProgress: []
+        inProgress: [],
+        complete: []
     },
     components: {
         'wait-queue-component': queueComponent,
-        'progress-queue-component': queueComponent
+        'progress-queue-component': queueComponent,
+        'complete-queue-component': completeComponent
     }
 });

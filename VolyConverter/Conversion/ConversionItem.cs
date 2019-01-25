@@ -61,7 +61,8 @@ namespace VolyConverter.Conversion
                 Framerate = value.Framerate,
                 Quality = value.Quality,
                 CreateTime = value.CreateTime,
-                Progress = value.Progress
+                Progress = value.Progress,
+                ErrorText = value.ErrorText
             };
         }
     }
