@@ -50,7 +50,7 @@
             <div class="card">
                 <button class="btn btn-danger btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
                 <div class="card-body">
-                    <h5 class="card-title">
+                    <h5 class="card-title" v-bind:title="item.SourcePath">
                         {{item.OutputBaseFilename}}
                     </h5>
                     <dl style="margin-left:8%;">
@@ -82,7 +82,7 @@
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3" style="padding-bottom:1rem;" v-for="item in items">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
+                    <h5 class="card-title" v-bind:title="item.SourcePath">
                         {{item.OutputBaseFilename}}
                     </h5>
                     <dl style="margin-left:8%;">

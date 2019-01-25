@@ -90,6 +90,8 @@ On first start, a configuration file (`vsettings.json`) is created in the runnin
    - If true, the source file is truncated to zero bytes upon successful processing.
  - `DeleteWithSource`
    - If true, transcoded media objects are deleted from the database and storage backend when the source file cannot be found. 
+ - `CompleteQueueLength`
+   - Specifies the number of items to keep track of after they've gone through conversion.
 
 <a name="library-configuration"></a>
 #### Library Settings
