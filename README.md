@@ -2,7 +2,7 @@
 
 >Automated media transcoding, indexing, and storage.
 
-Getting media file to playback on all platforms is a real chore. There are media library managers and transcoders, but none are simultaneously comprehensive, easy to use, and free.
+Getting media files to playback on all platforms is a real chore. There are media library managers and transcoders, but none are simultaneously comprehensive, easy to use, and free.
 Volyar is a media library transcoder built to fill the gap.
 
 ## Contents
@@ -83,7 +83,7 @@ On first start, a configuration file (`vsettings.json`) is created in the runnin
 <a name="misc-configuration"></a>
 #### Misc Settings
  - `TempPath`
-   - The temp path to use. If none is given, the working directory is used.
+   - The global temp path to use. If none is given, the working directory is used.
  - `Parallelization`
    - The number of media files to process at once.
  - `TruncateSource`
