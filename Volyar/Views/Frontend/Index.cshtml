@@ -93,16 +93,13 @@
                             {{timeago(item.CreateTime)}}
                         </dd>
 
-                        <dt class="text-danger" v-if="item.ErrorText !== 'Success!'">
+                        <dt class="text-danger" v-if="item.ErrorText !== null">
                             Error
                         </dt>
-                        <dd v-if="item.ErrorText !== 'Success!'">
+                        <dd v-if="item.ErrorText !== null">
                             {{item.ErrorText}}
                         </dd>
                     </dl>
-                </div>
-                <div class="card-footer p-0">
-                    <progress-component v-bind:progress="item.Progress"></progress-component>
                 </div>
             </div>
         </div>

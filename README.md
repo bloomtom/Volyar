@@ -219,7 +219,12 @@ The Web UI can be accessed by default at [http://localhost:7014/voly/external/ui
    - GET
      - Returns a collection of items currently being processed, and in queue for processing.
 
+	 
+ - `/external/api/conversion/complete`
+   - GET
+     - Returns a collection of items which have either completed, or errored out (ErrorText != null).
 
+	 
  - `/external/api/media/allmedia`
    - GET
      - Returns a collection of all indexed media from all libraries.

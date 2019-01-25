@@ -73,7 +73,6 @@ namespace VolyConverter.Conversion
 
                 item.CompletionAction.Invoke(item, dashResult);
 
-                item.ErrorText = "Success!";
                 completeItems.Add(ExportableConversionItem.Copy(item));
             }
             catch (OperationCanceledException)
