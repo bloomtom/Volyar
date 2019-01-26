@@ -23,19 +23,13 @@ namespace Volyar.Controllers
         }
 
         [HttpGet("complete")]
-        public IActionResult Complete()
+        public IActionResult GetCompletedItems()
         {
             return new ObjectResult(Newtonsoft.Json.JsonConvert.SerializeObject(completeItems.ToArray()));
         }
 
-        [HttpGet("statusui")]
-        public IActionResult StatusView(long transactionId)
-        {
-            return View("Progress");
-        }
-
         [HttpGet("status")]
-        public IActionResult Status(long transactionId)
+        public IActionResult Status()
         {
             string json = GetStatus();
             return new ObjectResult(json);
@@ -131,14 +125,17 @@ namespace Volyar.Controllers
             if (string.IsNullOrWhiteSpace(name))
             {
                 converter.Cancel();
+                log.LogInformation($"Cancelled entire queue.");
                 return Ok();
             }
             else
             {
                 if (converter.Cancel(name))
                 {
+                    log.LogInformation($"Cancelled {name}");
                     return Ok();
                 }
+                log.LogWarning($"Failed to cancel {name}");
                 return NotFound();
             }
         }
@@ -147,6 +144,7 @@ namespace Volyar.Controllers
         public StatusCodeResult Pause()
         {
             converter.Pause();
+            log.LogInformation($"Paused queue.");
             return Ok();
         }
 
@@ -154,6 +152,7 @@ namespace Volyar.Controllers
         public StatusCodeResult Resume()
         {
             converter.Resume();
+            log.LogInformation($"Resumed queue.");
             return Ok();
         }
     }

@@ -38,8 +38,21 @@ namespace VolyConverter.Conversion
             Parallelization = parallelization <= 0 ? 1 : parallelization;
             this.parallelization = Parallelization;
             encoder = new Encoder(ffmpegPath, ffProbePath, mp4boxPath,
-                new Action<string>(s => { log.LogInformation(s); }),
-                new Action<string>(s => { log.LogDebug(s); }), tempPath);
+                new Action<string>(s =>
+                {
+                    if (s != null)
+                    {
+                        log.LogInformation(s);
+                    }
+                }),
+                new Action<string>(s =>
+                {
+                    if (s != null)
+                    {
+                        log.LogDebug(s);
+                    }
+                }),
+                tempPath);
         }
 
         protected override void Error(IConversionItem item, Exception ex)
@@ -56,6 +69,8 @@ namespace VolyConverter.Conversion
             if (item.CancellationToken.IsCancellationRequested) { return; }
 
             var options = new H264EncodeOptions();
+
+            log.LogInformation($"Processing item {item.SourcePath}");
 
             try
             {

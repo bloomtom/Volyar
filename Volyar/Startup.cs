@@ -15,6 +15,8 @@ using VolyConverter.Scanning;
 using Volyar.Models;
 using VolyDatabase;
 using VolyConverter.Complete;
+using NLog.Extensions.Logging;
+using NLog.Web;
 
 namespace Volyar
 {
@@ -113,15 +115,9 @@ namespace Volyar
                 app.UsePathBase(new Microsoft.AspNetCore.Http.PathString(Settings.BasePath));
             }
 
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
-            else
-            {
             }
 
             app.UseMvc();

@@ -33,6 +33,8 @@ namespace Volyar.Controllers
         [HttpPost("fullscan")]
         public void FullScan()
         {
+            log.LogInformation($"Full scan requested.");
+
             using (var outerContext = new VolyContext(dbOptions))
             {
                 foreach (var library in settings.Libraries)
@@ -45,6 +47,8 @@ namespace Volyar.Controllers
         [HttpPost("scanlib")]
         public IActionResult FullScan(string libraryName)
         {
+            log.LogInformation($"Scan of library {libraryName} requested.");
+
             var library = settings.Libraries.Where(x => x.Name == libraryName).FirstOrDefault();
             if (library != null)
             {

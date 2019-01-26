@@ -26,6 +26,8 @@ namespace Volyar.Controllers
         [HttpGet("diff/{transactionId:long?}")]
         public IActionResult Diff(long transactionId)
         {
+            log.LogInformation($"Diff requested against transaction ID {transactionId}");
+
             Differential result;
 
             using (var transaction = db.Database.BeginTransaction())
@@ -60,6 +62,8 @@ namespace Volyar.Controllers
         [HttpGet()]
         public IActionResult AllMedia()
         {
+            log.LogInformation($"All media requested.");
+
             var result = new Dictionary<string, object>();
             using (var transaction = db.Database.BeginTransaction())
             {

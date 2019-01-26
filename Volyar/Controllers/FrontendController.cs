@@ -17,8 +17,9 @@ namespace Volyar.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(long transactionId)
+        public IActionResult Index()
         {
+            log.LogInformation($"UI view requested.");
             return View();
         }
     }

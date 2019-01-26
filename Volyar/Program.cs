@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace Volyar
 {
@@ -17,22 +18,45 @@ namespace Volyar
 
         public static void Main(string[] args)
         {
-            if (!File.Exists(settingsPath))
+            // NLog: setup the logger first to catch all errors
+            var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            try
             {
-                Console.WriteLine("Creating settings at: " + settingsPath);
-                File.WriteAllText(settingsPath, Newtonsoft.Json.JsonConvert.SerializeObject(new Models.VSettings(), Newtonsoft.Json.Formatting.Indented));
-            }
+                NLog.LogManager.LoadConfiguration("nlog.config");
+                logger.Info("Initialized Main");
 
-            var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VSettings>(File.ReadAllText(settingsPath),
-                new Newtonsoft.Json.JsonSerializerSettings(){ ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace });
-            
-            CreateWebHostBuilder(args, $"http://{settings.Listen}:{settings.Port}")
-                .Build()
-                .Run();
+                if (!File.Exists(settingsPath))
+                {
+                    logger.Info("Creating settings at: " + settingsPath);
+                    File.WriteAllText(settingsPath, Newtonsoft.Json.JsonConvert.SerializeObject(new Models.VSettings(), Newtonsoft.Json.Formatting.Indented));
+                }
+
+                var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VSettings>(File.ReadAllText(settingsPath),
+                    new Newtonsoft.Json.JsonSerializerSettings() { ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace });
+
+                CreateWebHostBuilder(args, $"http://{settings.Listen}:{settings.Port}")
+                    .Build()
+                    .Run();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Top level exception caught. Terminating application.");
+                throw;
+            }
+            finally
+            {
+                NLog.LogManager.Shutdown();
+            }
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args, string url) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>().UseUrls(new string[] { url });
+            .ConfigureLogging(logging =>
+            {
+                logging.ClearProviders();
+                logging.SetMinimumLevel(LogLevel.Trace);
+            })
+            .UseNLog()
+            .UseStartup<Startup>().UseUrls(new string[] { url });
     }
 }
