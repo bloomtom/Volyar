@@ -174,6 +174,7 @@ namespace VolyConverter.Scanning
                     }
 
                     innerContext.SaveChanges();
+                    log.LogInformation($"Converted {sourcePath}");
                 }
             },
             (ex) =>
@@ -244,6 +245,7 @@ namespace VolyConverter.Scanning
                     }
 
                     innerContext.SaveChanges();
+                    log.LogInformation($"Converted {sourcePath}");
                 }
             },
             (ex) =>
