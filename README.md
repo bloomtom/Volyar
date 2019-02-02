@@ -7,6 +7,7 @@ Volyar is a media library transcoder built to fill the gap.
 
 ## Contents
   - [Setup](#setup)
+    - [Systemd](#setup-systemd)
   - [Configuration](#configuration)
     - [Web Configuration](#web-configuration)
     - [Database Configuration](#database-configuration)
@@ -36,24 +37,36 @@ Enter the repo directory:
 ```
 >cd Volyar
 ```
-Publish the project:
+Run the build script. This will also update you to the latest commit:
 ```
->dotnet publish -c Release
+>chmod +x build.sh
+>./build.sh
 ```
-Now run the project:
+Now run the run script:
 ```
->cd Volyar\bin\Release\netcoreapp2.1\publish
->dotnet Volyar.dll
+>chmod +x run.sh
+>./run.sh
 Hosting environment: Production
 Now listening on: http://0.0.0.0:7014
 Application started. Press Ctrl+C to shut down.
 ```
 You can now navigate to the web UI at `http:/localhost:7014/voly/external/ui`.
 
+<a name="setup-systemd"></a>
+##### Systemd Service Configuration
+A service file is also included. Modify it to your needs, and install it the typical way:
+```
+sudo cp volyar.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable volyar
+sudo systemctl start volyar
+sudo systemctl status volyar
+```
+
 <a name="configuration"></a>
 ## Configuration
 
-On first start, a configuration file (`vsettings.json`) is created in the running path. The default configuration works, but won't be terribly useful without modification.
+On first start, a configuration file (`vsettings.json`) is created in the working directory. The default configuration works, but won't be terribly useful without modification.
 
 <a name="web-configuration"></a>
 #### Web interface settings
