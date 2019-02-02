@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 git checkout -- .
-git pull origin
+git reset --hard origin/master
+git pull origin master
 
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 dotnet publish -c Release --output bin
