@@ -17,9 +17,22 @@ namespace VolyConverter.Scanning
         /// </summary>
         string Name { get; }
         /// <summary>
+        /// Enables the library for scanning.
+        /// </summary>
+        bool Enable { get; }
+        /// <summary>
         /// The path to source media items from.
         /// </summary>
         string OriginPath { get; }
+        /// <summary>
+        /// Specifies what should be done to source files after processing.
+        /// </summary>
+        string SourceHandling { get; }
+        /// <summary>
+        /// If true, transcoded media objects are deleted from the database and storage backend when the source file cannot be found.
+        /// This is incompatible with SourceHandling.Delete
+        /// </summary>
+        bool DeleteWithSource { get; }
         /// <summary>
         /// A collection of qualities to encode into.
         /// </summary>

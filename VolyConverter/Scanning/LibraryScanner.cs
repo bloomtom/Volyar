@@ -24,24 +24,24 @@ namespace VolyConverter.Scanning
         private readonly IStorage storageBackend;
         private readonly ILogger log;
 
-        private readonly bool deleteWithSource;
-        private readonly bool truncateSource;
-
         private readonly ILibrary library;
 
-        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, ILogger log, bool deleteWithSource, bool truncateSource) : base(ScanType.Library, library.Name)
+        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, ILogger log) : base(ScanType.Library, library.Name)
         {
             this.library = library;
             this.storageBackend = storageBackend;
             this.converter = converter;
             this.dbOptions = dbOptions;
             this.log = log;
-            this.deleteWithSource = deleteWithSource;
-            this.truncateSource = truncateSource;
         }
 
         public override bool Scan()
         {
+            if(!library.Enable)
+            {
+                log.LogInformation($"Library {library.Name} skipped (disabled).");
+                return false;
+            }
             if (!Directory.Exists(library.OriginPath))
             {
                 log.LogWarning($"Scanning library {library.Name} failed: Directory does not exist.");
@@ -103,7 +103,7 @@ namespace VolyConverter.Scanning
                     }
                 }
 
-                if (deleteWithSource)
+                if (library.DeleteWithSource)
                 {
                     // Delete db items not found in scan.
                     context.Media.RemoveRange(currentLibrary.Values);
@@ -152,7 +152,7 @@ namespace VolyConverter.Scanning
                     // Add associated files to the db.
                     AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, result.MediaFiles);
 
-                    HandleSourceTruncation(sourcePath);
+                    HandleSourceFate(sourcePath);
 
                     // Set files on disk variable for the storage backend operations below.
                     addedFiles.Add(result.DashFilePath);
@@ -207,7 +207,7 @@ namespace VolyConverter.Scanning
 
                         AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, result.MediaFiles);
 
-                        HandleSourceTruncation(sourcePath);
+                        HandleSourceFate(sourcePath);
                     }
                     else
                     {
@@ -254,11 +254,21 @@ namespace VolyConverter.Scanning
             }));
         }
 
-        private void HandleSourceTruncation(string sourcePath)
+        private void HandleSourceFate(string sourcePath)
         {
-            if (truncateSource)
+            switch (library.SourceHandling.ToLowerInvariant())
             {
-                File.WriteAllBytes(sourcePath, new byte[0]);
+                case "none":
+                    break;
+                case "truncate":
+                    File.WriteAllBytes(sourcePath, new byte[0]);
+                    break;
+                case "delete":
+                    File.Delete(sourcePath);
+                    break;
+                default:
+                    log.LogWarning($"Invalid source handling for library {library.Name}. Supported options are: none, truncate, delete.");
+                    break;
             }
         }
 

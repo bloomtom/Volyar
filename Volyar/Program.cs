@@ -34,6 +34,14 @@ namespace Volyar
                 var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VSettings>(File.ReadAllText(settingsPath),
                     new Newtonsoft.Json.JsonSerializerSettings() { ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace });
 
+                foreach (var library in settings.Libraries)
+                {
+                    if (library.SourceHandling.ToLowerInvariant() == "delete" && library.DeleteWithSource)
+                    {
+                        logger.Warn($"Library {library.Name} is set to SourceHandling:delete and DeleteWithSource:true. This is allowed, but is atypical.");
+                    }
+                }
+
                 CreateWebHostBuilder(args, $"http://{settings.Listen}:{settings.Port}")
                     .Build()
                     .Run();

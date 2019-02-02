@@ -51,14 +51,6 @@ namespace Volyar.Models
         /// </summary>
         public int Parallelization { get; set; } = 2;
         /// <summary>
-        /// If true, the source file is truncated to zero bytes upon successful processing.
-        /// </summary>
-        public bool TruncateSource { get; set; } = true;
-        /// <summary>
-        /// If true, transcoded media objects are deleted from the database and storage backend when the source file cannot be found.
-        /// </summary>
-        public bool DeleteWithSource { get; set; } = true;
-        /// <summary>
         /// The number of items to keep in the complete/error queue.
         /// </summary>
         public int CompleteQueueLength { get; set; } = 100;

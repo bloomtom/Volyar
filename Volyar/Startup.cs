@@ -97,7 +97,7 @@ namespace Volyar
                 LoggerFactory.CreateLogger<MediaConversionQueue>());
             services.AddSingleton(converter);
 
-            services.AddSingleton(new LibraryScanningQueue(dbOptions, Settings.DeleteWithSource, Settings.TruncateSource, converter, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
+            services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
 
             services.AddSingleton(Settings);
 

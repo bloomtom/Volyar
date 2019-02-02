@@ -86,10 +86,6 @@ On first start, a configuration file (`vsettings.json`) is created in the runnin
    - The global temp path to use. If none is given, the working directory is used.
  - `Parallelization`
    - The number of media files to process at once.
- - `TruncateSource`
-   - If true, the source file is truncated to zero bytes upon successful processing.
- - `DeleteWithSource`
-   - If true, transcoded media objects are deleted from the database and storage backend when the source file cannot be found. 
  - `CompleteQueueLength`
    - Specifies the number of items to keep track of after they've gone through conversion.
 
@@ -98,8 +94,21 @@ On first start, a configuration file (`vsettings.json`) is created in the runnin
 Libraries are given as a collection of the following properties.
  - `Name`
    - The library name. Must be unique.
+ - `Enable`
+   - Set to false to disable processing of this library.
  - `OriginPath`
    - The path to source media items from.
+ - `SourceHandling`
+   - Defines what should be done with source files after successful processing.
+     - none
+	   - Nothing will be done to source files.
+	 - truncate
+	   - Source files will be truncated to zero bytes.
+	 - delete
+	   - Source files will be deleted.
+	   - Avoid using this with DeleteWithSource: true.
+ - `DeleteWithSource`
+   - If true, transcoded media objects are deleted from the database and storage backend when the source file cannot be found. Avoid using this with SourceHandling: "delete" unless you don't care about your files.
  - `TempPath`
    - The temporary path to store intermediate files when encoding.
  - `ForceFramerate`

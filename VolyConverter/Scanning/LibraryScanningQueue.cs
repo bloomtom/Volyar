@@ -16,16 +16,12 @@ namespace VolyConverter.Scanning
     public class LibraryScanningQueue : DistinctQueueProcessor<IScanItem>
     {
         private readonly MediaDatabase dbOptions;
-        private readonly bool deleteWithSource;
-        private readonly bool truncateSourceOnSuccess;
         private readonly IDistinctQueueProcessor<IConversionItem> converter;
         protected readonly ILogger<LibraryScanningQueue> log;
 
-        public LibraryScanningQueue(MediaDatabase dbOptions, bool deleteWithSource, bool truncateSourceOnSuccess, IDistinctQueueProcessor<IConversionItem> converter, ILogger<LibraryScanningQueue> logger)
+        public LibraryScanningQueue(MediaDatabase dbOptions, IDistinctQueueProcessor<IConversionItem> converter, ILogger<LibraryScanningQueue> logger)
         {
             this.dbOptions = dbOptions;
-            this.deleteWithSource = deleteWithSource;
-            this.truncateSourceOnSuccess = truncateSourceOnSuccess;
             this.converter = converter;
             log = logger;
 
@@ -34,7 +30,7 @@ namespace VolyConverter.Scanning
 
         public void ScheduleLibraryScan(Library library, IStorage storageBackend, VolyContext context)
         {
-            AddItem(new LibraryScanner(library, storageBackend, converter, dbOptions.Database, log, deleteWithSource, truncateSourceOnSuccess));
+            AddItem(new LibraryScanner(library, storageBackend, converter, dbOptions.Database, log));
         }
 
         protected override void Process(IScanItem item)
