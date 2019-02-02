@@ -42,6 +42,13 @@ namespace Volyar
                     }
                 }
 
+                // Exit if this is a bootstrap run.
+                if (args.Where(x => x.ToLowerInvariant() == "--bootstrap").Any())
+                {
+                    logger.Info("This was just a bootstrapping run. Exiting...");
+                    return;
+                }
+
                 CreateWebHostBuilder(args, $"http://{settings.Listen}:{settings.Port}")
                     .Build()
                     .Run();
