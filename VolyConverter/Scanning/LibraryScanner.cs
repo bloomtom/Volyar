@@ -165,12 +165,13 @@ namespace VolyConverter.Scanning
                     sender.Progress = progress;
 
                     // Upload files.
-                    for (int i = 0; i < addedFiles.Count - 1; i++)
+                    for (int i = 0; i < addedFiles.Count; i++)
                     {
+                        // Avoid including i directly in the following without Waiting on the task, or i will be changed during execution.
                         storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
                         {
                             uploadProgress[i].Progress = e.PercentComplete;
-                        })));
+                        }))).Wait();
                     }
 
                     innerContext.SaveChanges();
