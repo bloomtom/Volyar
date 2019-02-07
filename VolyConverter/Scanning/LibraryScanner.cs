@@ -147,9 +147,11 @@ namespace VolyConverter.Scanning
                         IndexHash = Hashing.HashFileMd5(result.DashFilePath),
                         LibraryName = library.Name,
                         Name = Path.GetFileNameWithoutExtension(sourcePath),
-                        SeriesName = seriesName
+                        SeriesName = seriesName,
+                        Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata)
                     };
                     innerContext.Media.Add(newMedia);
+
                     innerContext.SaveChanges();
 
                     // Update the transaction log.
@@ -215,6 +217,7 @@ namespace VolyConverter.Scanning
                         inDb.Duration = result.FileDuration;
                         inDb.IndexName = Path.GetFileName(result.DashFilePath);
                         inDb.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
+                        inDb.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata);
                         innerContext.Update(inDb);
 
                         AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, result.MediaFiles);

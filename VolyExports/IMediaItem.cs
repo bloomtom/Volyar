@@ -51,5 +51,10 @@ namespace VolyExports
         /// The physical path to the source file.
         /// </summary>
         string SourcePath { get; set; }
-    }
+
+        /// <summary>
+        /// A serialized key/value store of media metadata.
+        /// </summary>
+        string Metadata { get; set; }
+}
 }

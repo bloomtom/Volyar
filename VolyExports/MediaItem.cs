@@ -53,6 +53,10 @@ namespace VolyExports
         /// The physical path to the source file.
         /// </summary>
         public string SourcePath { get; set; }
+        /// <summary>
+        /// A serialized key/value store of media file metadata.
+        /// </summary>
+        public string Metadata { get; set; }
 
         /// <summary>
         /// Generate a MediaItem from an IMediaItem.
@@ -73,7 +77,8 @@ namespace VolyExports
                 SeriesName = item.SeriesName,
                 SourceHash = item.SourceHash,
                 SourceModified = item.SourceModified,
-                SourcePath = item.SourcePath
+                SourcePath = item.SourcePath,
+                Metadata = item.Metadata
             };
         }
     }

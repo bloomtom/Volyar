@@ -180,6 +180,11 @@ namespace VolyDatabase
         /// </summary>
         public TimeSpan Duration { get; set; }
 
+        /// <summary>
+        /// A serialized key/value store of media file metadata.
+        /// </summary>
+        public string Metadata { get; set; }
+
         public override void OnBeforeInsert(VolyContext context)
         {
             CreateDate = DateTime.UtcNow;
