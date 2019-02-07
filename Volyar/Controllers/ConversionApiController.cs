@@ -96,11 +96,11 @@ namespace Volyar.Controllers
 
         private string GetStatus()
         {
-            var queued = converter.ItemsQueued.Values.Select(x => ExportableConversionItem.Copy(x));
+            var queued = converter.ItemsQueued.Values;
             var converting = converter.ItemsProcessing.Values.Select(x => x.SourcePath).ToHashSet();
 
-            var queueOnly = new List<ExportableConversionItem>();
-            var convertingOnly = new List<ExportableConversionItem>();
+            var queueOnly = new List<IExportableConversionItem>();
+            var convertingOnly = new List<IExportableConversionItem>();
             foreach (var item in queued)
             {
                 if (converting.Contains(item.SourcePath))

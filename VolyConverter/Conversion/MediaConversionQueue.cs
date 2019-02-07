@@ -61,7 +61,7 @@ namespace VolyConverter.Conversion
             item.ErrorAction.Invoke(ex);
             item.ErrorText = ex.Message;
 
-            completeItems.Add(ExportableConversionItem.Copy(item));
+            completeItems.Add(item);
         }
 
         protected override void Process(IConversionItem item)
@@ -88,7 +88,7 @@ namespace VolyConverter.Conversion
 
                 item.CompletionAction.Invoke(item, dashResult);
 
-                completeItems.Add(ExportableConversionItem.Copy(item));
+                completeItems.Add(item);
             }
             catch (OperationCanceledException)
             {

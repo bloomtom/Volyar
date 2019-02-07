@@ -1,4 +1,5 @@
 ﻿using DEnc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -47,24 +48,6 @@ namespace VolyConverter.Conversion
         /// Error text which may be displayed if conversion fails.
         /// </summary>
         public string ErrorText { get; protected set; }
-
-        /// <summary>
-        /// Returns a deep copy of a given value deriving from IExportableConversionItem.
-        /// </summary>
-        public static ExportableConversionItem Copy(IExportableConversionItem value)
-        {
-            return new ExportableConversionItem()
-            {
-                SourcePath = value.SourcePath,
-                OutputPath = value.OutputPath,
-                OutputBaseFilename = value.OutputBaseFilename,
-                Framerate = value.Framerate,
-                Quality = value.Quality,
-                CreateTime = value.CreateTime,
-                Progress = value.Progress,
-                ErrorText = value.ErrorText
-            };
-        }
     }
 
     /// <summary>
@@ -75,13 +58,16 @@ namespace VolyConverter.Conversion
         /// <summary>
         /// An action to perform upon conversion success.
         /// </summary>
+        [JsonIgnore]
         public Action<IConversionItem, DashEncodeResult> CompletionAction { get; private set; }
 
         /// <summary>
         /// An action to perform upon conversion failure.
         /// </summary>
+        [JsonIgnore]
         public Action<Exception> ErrorAction { get; private set; }
 
+        [JsonIgnore]
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
         public new IEnumerable<DescribedProgress> Progress { get; set; } = Enumerable.Empty<DescribedProgress>();
