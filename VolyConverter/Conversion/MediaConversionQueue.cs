@@ -84,7 +84,7 @@ namespace VolyConverter.Conversion
                     outDirectory: item.OutputPath,
                     progress: new NaiveProgress<IEnumerable<EncodeStageProgress>>(x => { item.Progress = x.Select(y => new DescribedProgress(y.Name, y.Progress)); }),
                     cancel: item.CancellationToken.Token);
-                if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator Check the ffmpeg/mp4box log."); }
+                if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator. Check the ffmpeg/mp4box log."); }
 
                 item.CompletionAction.Invoke(item, dashResult);
 
