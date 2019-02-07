@@ -37,12 +37,17 @@ namespace VolyConverter.Scanning
 
         public override bool Scan()
         {
-            if(!library.Enable)
+            if (!library.Enable)
             {
                 log.LogInformation($"Library {library.Name} skipped (disabled).");
                 return false;
             }
-            if (!Directory.Exists(library.OriginPath))
+            else if (CancellationToken.IsCancellationRequested)
+            {
+                log.LogInformation($"Library {library.Name} skipped (cancelled).");
+                return false;
+            }
+            else if (!Directory.Exists(library.OriginPath))
             {
                 log.LogWarning($"Scanning library {library.Name} failed: Directory does not exist.");
                 return false;
@@ -68,6 +73,12 @@ namespace VolyConverter.Scanning
 
                 foreach (var file in foundFiles)
                 {
+                    if (CancellationToken.IsCancellationRequested)
+                    {
+                        log.LogInformation($"Halted scan of library {library.Name} (cancelled).");
+                        return false;
+                    }
+
                     var extension = Path.GetExtension(file.Path);
                     if (!library.ValidExtensions.Contains(extension)) { continue; }
 

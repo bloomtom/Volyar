@@ -38,6 +38,17 @@ namespace VolyConverter.Scanning
             item.Scan();
         }
 
+        /// <summary>
+        /// Cancel all current conversion tasks.
+        /// </summary>
+        public void Cancel()
+        {
+            foreach (var item in ItemsQueued.Values)
+            {
+                item.CancellationToken.Cancel();
+            }
+        }
+
         protected override void Error(IScanItem item, Exception ex)
         {
             log.LogError($"Exception while converting {item.ToString()} -- {ex.Message}");

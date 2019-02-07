@@ -5,18 +5,21 @@ using System.Collections.Generic;
 using System.Linq;
 using VolyConverter.Complete;
 using VolyConverter.Conversion;
+using VolyConverter.Scanning;
 
 namespace Volyar.Controllers
 {
     [Route("external/api/conversion")]
-    public class ConversionStatusController : Controller
+    public class ConversionApiController : Controller
     {
+        private readonly LibraryScanningQueue libraryScanner;
         private readonly MediaConversionQueue converter;
         private readonly ICompleteItems<IExportableConversionItem> completeItems;
-        private readonly ILogger<ConversionStatusController> log;
+        private readonly ILogger<ConversionApiController> log;
 
-        public ConversionStatusController(MediaConversionQueue converter, ICompleteItems<IExportableConversionItem> completeItems, ILogger<ConversionStatusController> logger)
+        public ConversionApiController(LibraryScanningQueue libraryScanner, MediaConversionQueue converter, ICompleteItems<IExportableConversionItem> completeItems, ILogger<ConversionApiController> logger)
         {
+            this.libraryScanner = libraryScanner;
             this.converter = converter;
             this.completeItems = completeItems;
             log = logger;
@@ -125,6 +128,7 @@ namespace Volyar.Controllers
             if (string.IsNullOrWhiteSpace(name))
             {
                 converter.Cancel();
+                libraryScanner.Cancel();
                 log.LogInformation($"Cancelled entire queue.");
                 return Ok();
             }

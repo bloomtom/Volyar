@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VolyConverter.Scanning
@@ -15,6 +16,7 @@ namespace VolyConverter.Scanning
     {
         ScanType Type { get; }
         string Name { get; }
+        CancellationTokenSource CancellationToken { get; }
 
         bool Scan();
     }
@@ -23,6 +25,7 @@ namespace VolyConverter.Scanning
     {
         public ScanType Type { get; private set; }
         public string Name { get; private set; }
+        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
         public ScanItem(ScanType type, string name)
         {
