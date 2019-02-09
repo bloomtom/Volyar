@@ -106,10 +106,39 @@ namespace Volyar
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app,
+            IApplicationLifetime applicationLifetime,
             IHostingEnvironment env,
             ILoggerFactory loggerFactory,
+            LibraryScanningQueue libraryScanningQueue,
+            MediaConversionQueue mediaConversionQueue,
             VolyContext context)
         {
+            var log = loggerFactory.CreateLogger("Volyar.Startup");
+
+            applicationLifetime.ApplicationStopping.Register(() =>
+            {
+                libraryScanningQueue.Cancel();
+                mediaConversionQueue.Cancel();
+                if (mediaConversionQueue.ItemsProcessing.Count() > 0)
+                {
+                    log.LogInformation("Waiting for tasks to cancel...");
+                    var waitTimer = new System.Diagnostics.Stopwatch();
+                    waitTimer.Start();
+                    while (mediaConversionQueue.ItemsQueued.Count() > 0 || waitTimer.ElapsedMilliseconds > 10000)
+                    {
+                        System.Threading.Thread.Sleep(500);
+                    }
+                    if (mediaConversionQueue.ItemsQueued.Count() == 0)
+                    {
+                        log.LogInformation("All tasks stopped.");
+                    }
+                    else
+                    {
+                        log.LogWarning("Shutdown timeout expired and not all tasks were cancelled.");
+                    }
+                }
+            });
+
             if (!string.IsNullOrWhiteSpace(Settings.BasePath))
             {
                 app.UsePathBase(new Microsoft.AspNetCore.Http.PathString(Settings.BasePath));
