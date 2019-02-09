@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,60 +11,55 @@ namespace VolyDatabase
 {
     public class VolySeed
     {
-        private static string mostRecentVersion = "4";
+        private static readonly int migrationCountOffset = 4;
         // A chain of upgrade queries which, when run, upgrade the database by one version.
         // Ensure mostRecentVersion is equal to the final version, or not on the upgrade map. Otherwise upgrades might be run on a new database.
-        private static readonly Dictionary<string, Func<VolyContext, string>> Upgrades = new Dictionary<string, Func<VolyContext, string>>()
+        private static readonly List<Action<VolyContext>> Upgrades = new List<Action<VolyContext>>()
         {
-            { "1", new Func<VolyContext, string>(x =>
+            new Action<VolyContext>(x =>
             {
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaVariant] ADD [Built] BIT NOT NULL DEFAULT(1);");
-                return "2";
-            }) },
-            { "2", new Func<VolyContext, string>(x =>
-            {
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [IndexName] VARCHAR;");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [ForeignDbType] VARCHAR");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [ForeignDbKey] VARCHAR;");
-                return "3";
-            }) },
-            { "3", new Func<VolyContext, string>(x =>
-            {
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaVariant] ADD [Preset] VARCHAR;");
-                return mostRecentVersion;
-            }) }
+                //x.Database.ExecuteSqlCommand("ALTER TABLE [MediaVariant] ADD [Built] BIT NOT NULL DEFAULT(1);");
+            })
         };
+
+        private static int UpgradesOffsetCount { get { return Upgrades.Count + migrationCountOffset; } }
+
+        public static int UpgradesOffsetIndex(int index) { return index - migrationCountOffset; }
 
         /// <summary>
         /// Initializes the database if it doesn't exist, and upgrades it to the latest version if it does.
         /// </summary>
-        /// <param name="context"></param>
-        public static void Initialize(VolyContext context)
+        public static void Initialize(VolyContext context, ILogger log)
         {
             context.Database.EnsureCreated();
-            Upgrade(context);
+            Upgrade(context, log);
         }
 
         /// <summary>
         /// I don't like the built in EF upgrade system.
         /// </summary>
-        /// <param name="context"></param>
-        private static void Upgrade(VolyContext context)
+        private static void Upgrade(VolyContext context, ILogger log)
         {
-            var version = context.Configuration.Where(x => x.Key == "version").FirstOrDefault();
-            if (version == null)
+            var dbVersion = context.Configuration.Where(x => x.Key == "version").FirstOrDefault();
+            if (dbVersion == null || string.IsNullOrWhiteSpace(dbVersion.Value) || !int.TryParse(dbVersion.Value, out int version))
             {
-                context.Configuration.Add(new Configuration() { Key = "version", Value = mostRecentVersion });
+                context.Configuration.Add(new Configuration() { Key = "version", Value = UpgradesOffsetCount.ToString() });
                 context.SaveChanges();
+                log.LogInformation($"Database created at version {UpgradesOffsetCount}.");
             }
-            else if (Upgrades.ContainsKey(version.Value))
+            else
             {
-                // Upgrade the database by one step.
-                version.Value = Upgrades[version.Value].Invoke(context);
-                context.SaveChanges();
-
-                // Recurse.
-                Upgrade(context);
+                while(version < UpgradesOffsetCount)
+                {
+                    Upgrades[UpgradesOffsetIndex(version)].Invoke(context);
+                    version++;
+                }
+                if (dbVersion.Value != UpgradesOffsetCount.ToString())
+                {
+                    dbVersion.Value = UpgradesOffsetCount.ToString();
+                    context.SaveChanges();
+                    log.LogInformation($"Database upgraded to version {dbVersion.Value}.");
+                }
             }
         }
     }

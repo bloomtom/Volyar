@@ -153,7 +153,7 @@ namespace Volyar
 
             app.UseStaticFiles("/external/static");
 
-            VolySeed.Initialize(context);
+            VolySeed.Initialize(context, log);
         }
     }
 }
