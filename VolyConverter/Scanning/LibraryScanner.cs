@@ -192,6 +192,9 @@ namespace VolyConverter.Scanning
 
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
+
+
+                    CallHooks(library.WebHooks);
                 }
             },
             (ex) =>
@@ -264,6 +267,8 @@ namespace VolyConverter.Scanning
 
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
+
+                    CallHooks(library.WebHooks);
                 }
             },
             (ex) =>
@@ -307,6 +312,15 @@ namespace VolyConverter.Scanning
                     Filename = f,
                     Filesize = fInfo.Length
                 });
+            }
+        }
+
+        private void CallHooks(IEnumerable<WebHook> hooks)
+        {
+            if (hooks == null) { return; }
+            foreach (var hook in hooks)
+            {
+                rateLimiter.AddItem(new RateLimitedItem($"WebHook {hook.Url}", () => { hook.CallAsync("").Wait(); }));
             }
         }
     }

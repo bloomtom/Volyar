@@ -28,7 +28,7 @@ namespace VolyDatabaseTests
 
                 using (var context = new VolyContext(dbBuilder.Options))
                 {
-                    VolySeed.Initialize(context);
+                    VolySeed.Initialize(context, null);
 
                     var newMedia = new MediaItem()
                     {

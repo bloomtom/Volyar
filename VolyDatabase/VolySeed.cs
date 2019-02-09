@@ -45,11 +45,11 @@ namespace VolyDatabase
             {
                 context.Configuration.Add(new Configuration() { Key = "version", Value = UpgradesOffsetCount.ToString() });
                 context.SaveChanges();
-                log.LogInformation($"Database created at version {UpgradesOffsetCount}.");
+                if (log != null) { log.LogInformation($"Database created at version {UpgradesOffsetCount}."); }
             }
             else
             {
-                while(version < UpgradesOffsetCount)
+                while (version < UpgradesOffsetCount)
                 {
                     Upgrades[UpgradesOffsetIndex(version)].Invoke(context);
                     version++;
@@ -58,7 +58,7 @@ namespace VolyDatabase
                 {
                     dbVersion.Value = UpgradesOffsetCount.ToString();
                     context.SaveChanges();
-                    log.LogInformation($"Database upgraded to version {dbVersion.Value}.");
+                    if (log != null) { log.LogInformation($"Database upgraded to version {dbVersion.Value}."); }
                 }
             }
         }
