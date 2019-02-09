@@ -17,6 +17,7 @@ using VolyDatabase;
 using VolyConverter.Complete;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using VolyConverter;
 
 namespace Volyar
 {
@@ -97,11 +98,16 @@ namespace Volyar
                 LoggerFactory.CreateLogger<MediaConversionQueue>());
             services.AddSingleton(converter);
 
-            services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
+            RateLimiter rateLimiter = new RateLimiter(TimeSpan.FromSeconds(10), LoggerFactory.CreateLogger<RateLimiter>());
+            services.AddSingleton(rateLimiter);
+
+            services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, rateLimiter, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
 
             services.AddSingleton(Settings);
 
             services.AddAuthorization();
+
+            services.AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

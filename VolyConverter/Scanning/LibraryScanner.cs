@@ -24,14 +24,17 @@ namespace VolyConverter.Scanning
         private readonly IStorage storageBackend;
         private readonly ILogger log;
 
+        private readonly RateLimiter rateLimiter;
+
         private readonly ILibrary library;
 
-        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, ILogger log) : base(ScanType.Library, library.Name)
+        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, RateLimiter rateLimiter, ILogger log) : base(ScanType.Library, library.Name)
         {
             this.library = library;
             this.storageBackend = storageBackend;
             this.converter = converter;
             this.dbOptions = dbOptions;
+            this.rateLimiter = rateLimiter;
             this.log = log;
         }
 

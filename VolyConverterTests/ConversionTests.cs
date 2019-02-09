@@ -12,6 +12,7 @@ using VolyDatabase;
 using Force.DeepCloner;
 using Microsoft.Data.Sqlite;
 using VolyConverter.Complete;
+using VolyConverter;
 
 namespace VolyConverterTests
 {
@@ -56,7 +57,8 @@ namespace VolyConverterTests
                     1,
                     new CompleteItems<IExportableConversionItem>(),
                     new Logger<MediaConversionQueue>(logFactory));
-                var scanQueue = new LibraryScanningQueue(db, converter, new Logger<LibraryScanningQueue>(logFactory));
+                var rateLimiter = new RateLimiter(TimeSpan.FromSeconds(5), logFactory.CreateLogger("RateLimiter"));
+                var scanQueue = new LibraryScanningQueue(db, converter, rateLimiter, new Logger<LibraryScanningQueue>(logFactory));
 
                 var quality1 = new DEnc.Quality(640, 480, 300, "ultrafast");
                 var quality2 = new DEnc.Quality(640, 480, 400, "ultrafast");
@@ -73,7 +75,7 @@ namespace VolyConverterTests
 
                 using (var context = new VolyContext(dbBuilder.Options))
                 {
-                    VolySeed.Initialize(context);
+                    VolySeed.Initialize(context, logFactory.CreateLogger("VolySeed"));
 
                     scanQueue.ScheduleLibraryScan(testLibrary, storage, context);
 
