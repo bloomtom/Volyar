@@ -97,11 +97,16 @@ namespace VolyExports
                 LibraryName = item.LibraryName,
                 MediaId = item.MediaId,
                 Name = item.Name,
+                SeasonNumber = item.SeasonNumber,
+                EpisodeNumber = item.EpisodeNumber,
                 SeriesName = item.SeriesName,
+                ImdbId = item.ImdbId,
+                TvdbId = item.TvdbId,
+                TvmazeId = item.TvmazeId,
                 SourceHash = item.SourceHash,
                 SourceModified = item.SourceModified,
                 SourcePath = item.SourcePath,
-                Metadata = item.Metadata
+                Metadata = item.Metadata,
             };
         }
     }

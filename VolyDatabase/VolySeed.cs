@@ -11,9 +11,9 @@ namespace VolyDatabase
 {
     public class VolySeed
     {
-        private static readonly int migrationCountOffset = 4;
-        // A chain of upgrade queries which, when run, upgrade the database by one version.
-        // Ensure mostRecentVersion is equal to the final version, or not on the upgrade map. Otherwise upgrades might be run on a new database.
+        private static readonly int migrationCountOffset = 4; // Increment this for each old entry that's removed from Upgrades.
+
+        // A chain of upgrade queries which, when run, upgrade the database by one version each.
         private static readonly List<Action<VolyContext>> Upgrades = new List<Action<VolyContext>>()
         {
             new Action<VolyContext>(x =>
