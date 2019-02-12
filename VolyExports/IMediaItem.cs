@@ -36,9 +36,32 @@ namespace VolyExports
         /// </summary>
         string Name { get; set; }
         /// <summary>
+        /// The season number if this was retrieved from an integration.
+        /// </summary>
+        int SeasonNumber { get; set; }
+
+        /// <summary>
+        /// The episode number if this was retrieved from an integration.
+        /// </summary>
+        int EpisodeNumber { get; set; }
+        /// <summary>
         /// The name of the series this media item belongs to. If the media item is a movie, this may be the same as Name.
         /// </summary>
         string SeriesName { get; set; }
+        /// <summary>
+        /// The ID for this series on IMDB if this was retrieved from an integration.
+        /// </summary>
+        string ImdbId { get; set; }
+
+        /// <summary>
+        /// The ID for this series on TheTVDB if this was retrieved from an integration.
+        /// </summary>
+        string TvdbId { get; set; }
+
+        /// <summary>
+        /// The ID for this series on TVMAZE if this was retrieved from an integration.
+        /// </summary>
+        string TvmazeId { get; set; }
         /// <summary>
         /// The md5 hash of the source file this media item was transcoded from.
         /// </summary>

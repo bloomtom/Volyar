@@ -151,9 +151,34 @@ namespace VolyDatabase
         public string SeriesName { get; set; }
 
         /// <summary>
+        /// The ID for this series on IMDB if this was retrieved from an integration.
+        /// </summary>
+        public string ImdbId { get; set; }
+
+        /// <summary>
+        /// The ID for this series on TheTVDB if this was retrieved from an integration.
+        /// </summary>
+        public string TvdbId { get; set; }
+
+        /// <summary>
+        /// The ID for this series on TVMAZE if this was retrieved from an integration.
+        /// </summary>
+        public string TvmazeId { get; set; }
+
+        /// <summary>
         /// The specific title for this media.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// The season number if this was retrieved from an integration.
+        /// </summary>
+        public int SeasonNumber { get; set; }
+
+        /// <summary>
+        /// The episode number if this was retrieved from an integration.
+        /// </summary>
+        public int EpisodeNumber { get; set; }
 
         /// <summary>
         /// The date this database entry was created.

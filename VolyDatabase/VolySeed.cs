@@ -19,6 +19,14 @@ namespace VolyDatabase
             new Action<VolyContext>(x =>
             {
                 //x.Database.ExecuteSqlCommand("ALTER TABLE [MediaVariant] ADD [Built] BIT NOT NULL DEFAULT(1);");
+            }),
+            new Action<VolyContext>(x =>
+            {
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [SeasonNumber] INTEGER;");
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [EpisodeNumber] INTEGER;");
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [ImdbId] VARCHAR;");
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TvdbId] VARCHAR;");
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TvmazeId] VARCHAR;");
             })
         };
 
