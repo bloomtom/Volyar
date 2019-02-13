@@ -52,33 +52,8 @@ namespace Volyar
 
             services.AddOptions();
             services.Configure<VSettings>(Configuration.GetSection("VSettings"));
+            MediaDatabase dbOptions = AddDatabase(services);
 
-            MediaDatabase dbOptions = new MediaDatabase();
-            services.AddDbContextPool<VolyContext>((o) =>
-            {
-                switch (Settings.DatabaseType)
-                {
-                    case "sqlite":
-                        o.UseSqlite(Settings.DatabaseConnection);
-                        break;
-                    case "sqlserver":
-                        o.UseSqlServer(Settings.DatabaseConnection);
-                        break;
-                    case "mysql":
-                        o.UseMySql(Settings.DatabaseConnection);
-                        break;
-                    case "temp":
-                        string litePath = Path.Combine(Environment.CurrentDirectory, "temp.sqlite");
-                        if (File.Exists(litePath)) { File.Delete(litePath); }
-                        o.UseSqlite($"Data Source={litePath}");
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException($"The database settings {Settings.DatabaseType} is not a valid option. Only sqlite, sqlserver, mysql, and temp are allowed.");
-                }
-                dbOptions.Database = (DbContextOptions<VolyContext>)o.Options;
-            });
-
-            var s = services.Where(x => x.ServiceType == typeof(VolyContext));
             string tempPath = Settings.TempPath;
             if (!Directory.Exists(tempPath))
             {
@@ -120,6 +95,35 @@ namespace Volyar
             services.AddAuthorization();
 
             services.AddHttpClient();
+        }
+
+        private MediaDatabase AddDatabase(IServiceCollection services)
+        {
+            MediaDatabase dbOptions = new MediaDatabase();
+            services.AddDbContextPool<VolyContext>((o) =>
+            {
+                switch (Settings.DatabaseType)
+                {
+                    case "sqlite":
+                        o.UseSqlite(Settings.DatabaseConnection);
+                        break;
+                    case "sqlserver":
+                        o.UseSqlServer(Settings.DatabaseConnection);
+                        break;
+                    case "mysql":
+                        o.UseMySql(Settings.DatabaseConnection);
+                        break;
+                    case "temp":
+                        string litePath = Path.Combine(Environment.CurrentDirectory, "temp.sqlite");
+                        if (File.Exists(litePath)) { File.Delete(litePath); }
+                        o.UseSqlite($"Data Source={litePath}");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException($"The database settings {Settings.DatabaseType} is not a valid option. Only sqlite, sqlserver, mysql, and temp are allowed.");
+                }
+                dbOptions.Database = (DbContextOptions<VolyContext>)o.Options;
+            });
+            return dbOptions;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
