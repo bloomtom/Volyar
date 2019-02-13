@@ -180,15 +180,7 @@ namespace VolyConverter.Scanning
                     progress.AddRange(uploadProgress);
                     sender.Progress = progress;
 
-                    // Upload files.
-                    for (int i = 0; i < addedFiles.Count; i++)
-                    {
-                        // Avoid including i directly in the following without Waiting on the task, or i will be changed during execution.
-                        storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
-                        {
-                            uploadProgress[i].Progress = e.PercentComplete;
-                        }))).Wait();
-                    }
+                    UploadFiles(addedFiles, uploadProgress);
 
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
@@ -247,14 +239,7 @@ namespace VolyConverter.Scanning
                     progress.Add(deleteProgress);
                     sender.Progress = progress;
 
-                    // Upload files.
-                    for (int i = 0; i < addedFiles.Count; i++)
-                    {
-                        storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
-                        {
-                            uploadProgress[i].Progress = e.PercentComplete;
-                        })));
-                    }
+                    UploadFiles(addedFiles, uploadProgress);
 
                     // Delete files.
                     int deleteCount = 0;
@@ -275,6 +260,18 @@ namespace VolyConverter.Scanning
             {
                 log.LogError($"Failed to re-convert {sourcePath}, database not updated. -- Ex: {ex.ToString()}");
             }));
+        }
+
+        private void UploadFiles(List<string> addedFiles, List<DescribedProgress> uploadProgress)
+        {
+            for (int i = 0; i < addedFiles.Count; i++)
+            {
+                // Avoid including i directly in the following without Waiting on the task, or i will be changed during execution.
+                storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
+                {
+                    uploadProgress[i].Progress = e.PercentComplete;
+                }))).Wait();
+            }
         }
 
         private void HandleSourceFate(string sourcePath)
