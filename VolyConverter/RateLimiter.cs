@@ -53,7 +53,7 @@ namespace VolyConverter
                     {
                         recentlyRun.TryRemove(item, out DateTime x);
                     }
-                    System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
+                    System.Threading.Thread.Sleep(TimeSpan.FromMinutes(5));
                 }
             });
             cleanupThread.Start();
