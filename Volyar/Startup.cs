@@ -101,7 +101,19 @@ namespace Volyar
             RateLimiter rateLimiter = new RateLimiter(TimeSpan.FromSeconds(10), LoggerFactory.CreateLogger<RateLimiter>());
             services.AddSingleton(rateLimiter);
 
-            services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, rateLimiter, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
+            var plugins = new List<ConversionPlugin>
+            {
+                (args) =>
+                {
+                    if (args.Library?.WebHooks == null) { return; }
+                    foreach (var hook in args.Library.WebHooks)
+                    {
+                        rateLimiter.AddItem(new RateLimitedItem($"WebHook {hook.Url}", () => { hook.CallAsync("").Wait(); }));
+                    }
+                }
+            };
+
+            services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, plugins, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
 
             services.AddSingleton(Settings);
 

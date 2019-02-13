@@ -57,8 +57,7 @@ namespace VolyConverterTests
                     1,
                     new CompleteItems<IExportableConversionItem>(),
                     new Logger<MediaConversionQueue>(logFactory));
-                var rateLimiter = new RateLimiter(TimeSpan.FromSeconds(5), logFactory.CreateLogger("RateLimiter"));
-                var scanQueue = new LibraryScanningQueue(db, converter, rateLimiter, new Logger<LibraryScanningQueue>(logFactory));
+                var scanQueue = new LibraryScanningQueue(db, converter, new List<ConversionPlugin>(), new Logger<LibraryScanningQueue>(logFactory));
 
                 var quality1 = new DEnc.Quality(640, 480, 300, "ultrafast");
                 var quality2 = new DEnc.Quality(640, 480, 400, "ultrafast");

@@ -17,14 +17,14 @@ namespace VolyConverter.Scanning
     {
         private readonly MediaDatabase dbOptions;
         private readonly IDistinctQueueProcessor<IConversionItem> converter;
-        private readonly RateLimiter rateLimiter;
+        private readonly IEnumerable<ConversionPlugin> conversionPlugins;
         protected readonly ILogger<LibraryScanningQueue> log;
 
-        public LibraryScanningQueue(MediaDatabase dbOptions, IDistinctQueueProcessor<IConversionItem> converter, RateLimiter rateLimiter, ILogger<LibraryScanningQueue> logger)
+        public LibraryScanningQueue(MediaDatabase dbOptions, IDistinctQueueProcessor<IConversionItem> converter, IEnumerable<ConversionPlugin> conversionPlugins, ILogger<LibraryScanningQueue> logger)
         {
             this.dbOptions = dbOptions;
             this.converter = converter;
-            this.rateLimiter = rateLimiter;
+            this.conversionPlugins = conversionPlugins;
             log = logger;
 
             Parallelization = 1; // Process linearly.
@@ -32,7 +32,7 @@ namespace VolyConverter.Scanning
 
         public void ScheduleLibraryScan(Library library, IStorage storageBackend, VolyContext context)
         {
-            AddItem(new LibraryScanner(library, storageBackend, converter, dbOptions.Database, rateLimiter, log));
+            AddItem(new LibraryScanner(library, storageBackend, converter, dbOptions.Database, conversionPlugins, log));
         }
 
         protected override void Process(IScanItem item)

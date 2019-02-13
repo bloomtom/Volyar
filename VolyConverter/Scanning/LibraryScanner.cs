@@ -24,17 +24,17 @@ namespace VolyConverter.Scanning
         private readonly IStorage storageBackend;
         private readonly ILogger log;
 
-        private readonly RateLimiter rateLimiter;
+        private readonly IEnumerable<ConversionPlugin> conversionPlugins;
 
         private readonly ILibrary library;
 
-        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, RateLimiter rateLimiter, ILogger log) : base(ScanType.Library, library.Name)
+        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, IEnumerable<ConversionPlugin> conversionPlugins, ILogger log) : base(ScanType.Library, library.Name)
         {
             this.library = library;
             this.storageBackend = storageBackend;
             this.converter = converter;
             this.dbOptions = dbOptions;
-            this.rateLimiter = rateLimiter;
+            this.conversionPlugins = conversionPlugins;
             this.log = log;
         }
 
@@ -182,11 +182,10 @@ namespace VolyConverter.Scanning
 
                     UploadFiles(addedFiles, uploadProgress);
 
+                    RunPlugins(library, innerContext, sender, result, ConversionType.Conversion);
+
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
-
-
-                    CallHooks(library.WebHooks);
                 }
             },
             (ex) =>
@@ -250,10 +249,10 @@ namespace VolyConverter.Scanning
                         deleteProgress.Progress = deleteCount / removedFiles.Count;
                     }
 
+                    RunPlugins(library, innerContext, sender, result, ConversionType.Conversion);
+
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
-
-                    CallHooks(library.WebHooks);
                 }
             },
             (ex) =>
@@ -292,6 +291,14 @@ namespace VolyConverter.Scanning
             }
         }
 
+        private void RunPlugins(ILibrary library, VolyContext context, IConversionItem item, DashEncodeResult result, ConversionType type)
+        {
+            foreach (var plugin in conversionPlugins)
+            {
+                plugin.Invoke(new ConversionPluginArgs(library, context, item, result, type, log));
+            }
+        }
+
         private void AddMediaFilesToMedia(VolyContext context, int mediaId, string basePath, IEnumerable<string> mediaFiles)
         {
             foreach (var f in mediaFiles)
@@ -309,15 +316,6 @@ namespace VolyConverter.Scanning
                     Filename = f,
                     Filesize = fInfo.Length
                 });
-            }
-        }
-
-        private void CallHooks(IEnumerable<WebHook> hooks)
-        {
-            if (hooks == null) { return; }
-            foreach (var hook in hooks)
-            {
-                rateLimiter.AddItem(new RateLimitedItem($"WebHook {hook.Url}", () => { hook.CallAsync("").Wait(); }));
             }
         }
     }
