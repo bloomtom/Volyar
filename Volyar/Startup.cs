@@ -54,12 +54,6 @@ namespace Volyar
             services.Configure<VSettings>(Configuration.GetSection("VSettings"));
             MediaDatabase dbOptions = AddDatabase(services);
 
-            string tempPath = Settings.TempPath;
-            if (!Directory.Exists(tempPath))
-            {
-                tempPath = Environment.CurrentDirectory;
-            }
-
             ICompleteItems<IExportableConversionItem> completeQueue = new CompleteItems<IExportableConversionItem>(Settings.CompleteQueueLength);
             services.AddSingleton(completeQueue);
 
@@ -67,7 +61,7 @@ namespace Volyar
                 Settings.FFmpegPath,
                 Settings.FFprobePath,
                 Settings.Mp4BoxPath,
-                tempPath,
+                GetTemp(),
                 Settings.Parallelization,
                 completeQueue,
                 LoggerFactory.CreateLogger<MediaConversionQueue>());
@@ -80,10 +74,13 @@ namespace Volyar
             {
                 (args) =>
                 {
-                    if (args.Library?.WebHooks == null) { return; }
-                    foreach (var hook in args.Library.WebHooks)
+                    if (args.Library is Models.Library library)
                     {
-                        rateLimiter.AddItem(new RateLimitedItem($"WebHook {hook.Url}", () => { hook.CallAsync("").Wait(); }));
+                        if (library?.WebHooks == null) { return; }
+                        foreach (var hook in library.WebHooks)
+                        {
+                            rateLimiter.AddItem(new RateLimitedItem($"WebHook {hook.Url}", () => { hook.CallAsync("").Wait(); }));
+                        }
                     }
                 }
             };
@@ -95,6 +92,17 @@ namespace Volyar
             services.AddAuthorization();
 
             services.AddHttpClient();
+        }
+
+        private string GetTemp()
+        {
+            string tempPath = Settings.TempPath;
+            if (!Directory.Exists(tempPath))
+            {
+                tempPath = Environment.CurrentDirectory;
+            }
+
+            return tempPath;
         }
 
         private MediaDatabase AddDatabase(IServiceCollection services)

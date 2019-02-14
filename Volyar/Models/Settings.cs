@@ -87,6 +87,10 @@ namespace Volyar.Models
         /// The storage backend setting to use for this library.
         /// </summary>
         public StorageSettings StorageBackend { get; set; } = new StorageSettings();
+        /// <summary>
+        /// A collection of web hooks to call upon conversion of an item.
+        /// </summary>
+        public IEnumerable<WebHook> WebHooks { get; set; } = null;
 
         public Library() : this(null, null, null, null, null)
         {

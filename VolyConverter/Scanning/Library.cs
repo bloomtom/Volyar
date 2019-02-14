@@ -48,10 +48,6 @@ namespace VolyConverter.Scanning
         /// If not zero, the output framerate is forced to this value on encode.
         /// </summary>
         public int ForceFramerate { get; set; } = 0;
-        /// <summary>
-        /// A collection of web hooks to call upon conversion of an item.
-        /// </summary>
-        public IEnumerable<WebHook> WebHooks { get; set; } = null;
 
         public Library()
         {

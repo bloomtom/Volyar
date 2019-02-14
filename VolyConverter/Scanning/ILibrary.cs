@@ -45,10 +45,6 @@ namespace VolyConverter.Scanning
         /// The file extensions allowed for uptake in a scan. Should start with a dot (.mp4, .mkv, etc.)
         /// </summary>
         HashSet<string> ValidExtensions { get; }
-        /// <summary>
-        /// A collection of web hooks to call upon conversion of an item.
-        /// </summary>
-        IEnumerable<WebHook> WebHooks { get; }
 
         string ToString();
     }
