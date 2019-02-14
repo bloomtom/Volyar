@@ -19,6 +19,7 @@ Volyar is a media library transcoder built to fill the gap.
         - [AmazonS3](#library-storage-s3-configuration) 
         - [Azure Files](#library-storage-azure-configuration) 
         - [BunnyCDN](#library-storage-bunny-configuration) 
+      - [WebHooks](#library-webhook-configuration)
   - [Web UI](#web-ui)
   - [Web API](#web-api)
   - [Differentials](#differentials)
@@ -132,8 +133,10 @@ Libraries are given as a collection of the following properties.
    - A collection of qualities to encode into.
  - `StorageBackend`
    - The storage backend setting to use for this library.
+ - `WebHooks`
+   - A collection of web hooks to call upon completion of a conversion.
  
- The qualities and storage backend setting for a library are a bit more complex than the others, so they're broken out below.
+ The qualities, storage backend and web hooks settings for a library are a bit more complex than the others, so they're broken out below.
  
 <a name="library-quality-configuration"></a>
 ##### Qualities
@@ -222,7 +225,28 @@ You should only set one of the following, and leave the rest as `null`. Setting 
   - `StorageZone`
     - The storage zone to store files in.
 
-
+<a name="library-webhook-configuration"></a>
+##### WebHooks
+WebHooks are called when a conversion is completed. They simply make a call to a remote resource with no payload.
+##### `WebHooks`
+```
+"WebHooks": [
+  {
+    "Url": "https://somesite.example",
+    "Method": "post",
+    "Username": "tom",
+    "Password": "mypass"
+  },
+]
+```
+  - `Url`
+    - The endpoint to call.
+  - `Method`
+    - The HTTP method to use: Put or post.
+  - `Username`
+    - A username if needed for http authentication.
+  - `Password`
+    - A password if needed for http authentication.
 
 <a name="web-ui"></a>
 ## Web UI
@@ -269,13 +293,4 @@ The Web UI can be accessed by default at [http://localhost:7014/voly/external/ui
 ## Differentials
 
 Your media library might be quite large, and the queries to `allmedia` quite slow. A much faster way for an external service to determine what's in a library is to keep its local database synchronized with the Volyar database by using differentials. A differential is just a set of data showing what's been added, removed and changed since the last query. Each differential you get will include a `TransactionId`, which can be used for the next diff query to determine what's been changed in the meantime.
-
-
-
-
-
-
-
-
-
 
