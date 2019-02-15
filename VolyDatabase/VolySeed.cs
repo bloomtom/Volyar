@@ -27,6 +27,11 @@ namespace VolyDatabase
                 x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [ImdbId] VARCHAR;");
                 x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TvdbId] VARCHAR;");
                 x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TvmazeId] VARCHAR;");
+            }),
+            new Action<VolyContext>(x =>
+            {
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TmdbId] VARCHAR;");
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [AbsoluteEpisodeNumber] INTEGER;");
             })
         };
 

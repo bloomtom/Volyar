@@ -97,7 +97,9 @@ namespace Volyar
                             args.MediaItem.Name = metadata.Title ?? args.MediaItem.Name;
                             args.MediaItem.SeasonNumber = metadata.SeasonNumber;
                             args.MediaItem.EpisodeNumber = metadata.EpisodeNumber;
-                            args.MediaItem.ImdbId = metadata.ImdbId;
+                            args.MediaItem.AbsoluteEpisodeNumber = metadata.AbsoluteEpisodeNumber;
+                            args.MediaItem.ImdbId = string.IsNullOrWhiteSpace(metadata.ImdbId) ? null : metadata.ImdbId;
+                            args.MediaItem.TmdbId = metadata.TmdbId?.ToString();
                             args.MediaItem.TvdbId = metadata.TvdbId?.ToString();
                             args.MediaItem.TvmazeId = metadata.TvMazeId?.ToString();
                         }

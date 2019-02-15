@@ -156,6 +156,11 @@ namespace VolyDatabase
         public string ImdbId { get; set; }
 
         /// <summary>
+        /// The ID for this series on The Movie Database if this was retrieved from an integration.
+        /// </summary>
+        public string TmdbId { get; set; }
+
+        /// <summary>
         /// The ID for this series on TheTVDB if this was retrieved from an integration.
         /// </summary>
         public string TvdbId { get; set; }
@@ -179,6 +184,11 @@ namespace VolyDatabase
         /// The episode number if this was retrieved from an integration.
         /// </summary>
         public int EpisodeNumber { get; set; }
+
+        /// <summary>
+        /// The absolute episode number if this was retrieved from an integration.
+        /// </summary>
+        public int AbsoluteEpisodeNumber { get; set; }
 
         /// <summary>
         /// The date this database entry was created.
