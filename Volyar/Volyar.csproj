@@ -34,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\VolyConverter\VolyConverter.csproj" />
     <ProjectReference Include="..\VolyExports\VolyExports.csproj" />
+    <ProjectReference Include="..\VolyExternalApiAccess\VolyExternalApiAccess.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -91,6 +91,10 @@ namespace Volyar.Models
         /// A collection of web hooks to call upon conversion of an item.
         /// </summary>
         public IEnumerable<WebHook> WebHooks { get; set; } = null;
+        /// <summary>
+        /// A backend API to query for metadata to store with media items.
+        /// </summary>
+        public ApiIntegration ApiIntegration { get; set; } = null;
 
         public Library() : this(null, null, null, null, null)
         {

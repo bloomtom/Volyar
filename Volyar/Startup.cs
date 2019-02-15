@@ -72,7 +72,7 @@ namespace Volyar
 
             var plugins = new List<ConversionPlugin>
             {
-                (args) =>
+                new ConversionPlugin("WebHook", (args) =>
                 {
                     if (args.Library is Models.Library library)
                     {
@@ -82,7 +82,27 @@ namespace Volyar
                             rateLimiter.AddItem(new RateLimitedItem($"WebHook {hook.Url}", () => { hook.CallAsync("").Wait(); }));
                         }
                     }
-                }
+                }),
+                new ConversionPlugin("ApiIntegration", (args) =>
+                {
+                    if (args.Library is Models.Library library)
+                    {
+                        if (library?.ApiIntegration == null) { return; }
+                        var g = library.ApiIntegration;
+                        var fetcher = new VolyExternalApiAccess.ApiFetch(g.Type, g.Url, g.ApiKey, g.Username, g.Password);
+                        var metadata = fetcher.RetrieveInfo(args.ConversionItem.SourcePath);
+                        if (metadata != null)
+                        {
+                            args.MediaItem.SeriesName = metadata.SeriesTitle ?? args.MediaItem.SeriesName;
+                            args.MediaItem.Name = metadata.Title ?? args.MediaItem.Name;
+                            args.MediaItem.SeasonNumber = metadata.SeasonNumber;
+                            args.MediaItem.EpisodeNumber = metadata.EpisodeNumber;
+                            args.MediaItem.ImdbId = metadata.ImdbId;
+                            args.MediaItem.TvdbId = metadata.TvdbId?.ToString();
+                            args.MediaItem.TvmazeId = metadata.TvMazeId?.ToString();
+                        }
+                    }
+                })
             };
 
             services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, plugins, LoggerFactory.CreateLogger<LibraryScanningQueue>()));

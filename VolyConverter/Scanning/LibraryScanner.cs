@@ -182,7 +182,7 @@ namespace VolyConverter.Scanning
 
                     UploadFiles(addedFiles, uploadProgress);
 
-                    RunPlugins(library, innerContext, sender, result, ConversionType.Conversion);
+                    RunPlugins(library, innerContext, sender, newMedia, result, ConversionType.Conversion);
 
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
@@ -249,7 +249,7 @@ namespace VolyConverter.Scanning
                         deleteProgress.Progress = deleteCount / removedFiles.Count;
                     }
 
-                    RunPlugins(library, innerContext, sender, result, ConversionType.Conversion);
+                    RunPlugins(library, innerContext, sender, inDb, result, ConversionType.Conversion);
 
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
@@ -291,11 +291,18 @@ namespace VolyConverter.Scanning
             }
         }
 
-        private void RunPlugins(ILibrary library, VolyContext context, IConversionItem item, DashEncodeResult result, ConversionType type)
+        private void RunPlugins(ILibrary library, VolyContext context, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, DashEncodeResult result, ConversionType type)
         {
             foreach (var plugin in conversionPlugins)
             {
-                plugin.Invoke(new ConversionPluginArgs(library, context, item, result, type, log));
+                try
+                {
+                    plugin.Action.Invoke(new ConversionPluginArgs(library, context, conversionItem, mediaItem, result, type, log));
+                }
+                catch (Exception ex)
+                {
+                    log.LogWarning($"Failed to run plugin {plugin.Name} on item {conversionItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
+                }
             }
         }
 
