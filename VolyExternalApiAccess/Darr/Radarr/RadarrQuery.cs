@@ -14,40 +14,22 @@ namespace VolyExternalApiAccess.Darr.Radarr
         public Stopwatch LastFilled { get; set; } = new Stopwatch();
     }
 
-    public class RadarrQuery
+    public class RadarrQuery : DarrQuery<ICollection<Movie>>
     {
-        public readonly string baseUrl;
-        private readonly string apiKey;
-        private readonly string username;
-        private readonly string password;
-
         private readonly TimeSpan cacheTimeout;
-
         private static ConcurrentDictionary<string, RadarrCached> cached = new ConcurrentDictionary<string, RadarrCached>();
 
         public RadarrQuery(string baseUrl, string apiKey, string username = null, string password = null, TimeSpan? cacheTimeout = null)
+            : base(baseUrl, apiKey, username, password)
         {
-            if (baseUrl.EndsWith("/")) { baseUrl = baseUrl.Substring(0, baseUrl.Length - 1); }
-            this.baseUrl = baseUrl;
-            this.apiKey = apiKey;
-            this.username = username;
-            this.password = password;
             this.cacheTimeout = cacheTimeout ?? TimeSpan.FromMinutes(30);
-
             cached.GetOrAdd(baseUrl, new RadarrCached());
         }
 
         protected virtual ICollection<Movie> Get()
         {
-            using (HttpClient client = new HttpClient())
+            return QueryApi((client) =>
             {
-                client.Timeout = TimeSpan.FromSeconds(20);
-                if (username != null && password != null)
-                {
-                    var credentialsBytes = Encoding.ASCII.GetBytes($"{username}:{password}");
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentialsBytes));
-                }
-
                 HttpResponseMessage result;
                 try
                 {
@@ -74,7 +56,7 @@ namespace VolyExternalApiAccess.Darr.Radarr
                 }
 
                 return deserialized;
-            }
+            });
         }
 
         private ICollection<Movie> GetCached(TimeSpan? invalidation = null)

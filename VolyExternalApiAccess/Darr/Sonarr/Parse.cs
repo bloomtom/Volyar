@@ -7,7 +7,7 @@ using Newtonsoft.Json.Converters;
 namespace VolyExternalApiAccess.Darr
 {
 
-    public class SonarrParse
+    public class SonarrParsed
     {
         [JsonProperty("title")]
         public string Title { get; set; }
@@ -21,7 +21,7 @@ namespace VolyExternalApiAccess.Darr
         [JsonProperty("episodes")]
         public List<Episode> Episodes { get; set; }
 
-        public static SonarrParse FromJson(string json) => JsonConvert.DeserializeObject<SonarrParse>(json, Converter.Settings);
+        public static SonarrParsed FromJson(string json) => JsonConvert.DeserializeObject<SonarrParsed>(json, Converter.Settings);
     }
 
     public class Episode
@@ -207,13 +207,13 @@ namespace VolyExternalApiAccess.Darr
         public int Runtime { get; set; }
 
         [JsonProperty("tvdbId")]
-        public int TvdbId { get; set; }
+        public int? TvdbId { get; set; }
 
         [JsonProperty("tvRageId")]
-        public int TvRageId { get; set; }
+        public int? TvRageId { get; set; }
 
         [JsonProperty("tvMazeId")]
-        public int TvMazeId { get; set; }
+        public int? TvMazeId { get; set; }
 
         [JsonProperty("firstAired")]
         public DateTime? FirstAired { get; set; }

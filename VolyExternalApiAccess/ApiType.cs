@@ -4,7 +4,7 @@ using System.Text;
 
 namespace VolyExternalApiAccess
 {
-    enum ApiType
+    public enum ApiType
     {
         None,
         Sonarr,

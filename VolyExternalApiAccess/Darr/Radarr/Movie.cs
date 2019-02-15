@@ -75,7 +75,7 @@ namespace VolyExternalApiAccess.Darr
         public string ImdbId { get; set; }
 
         [JsonProperty("tmdbId")]
-        public int TmdbId { get; set; }
+        public int? TmdbId { get; set; }
 
         [JsonProperty("titleSlug")]
         public string TitleSlug { get; set; }
