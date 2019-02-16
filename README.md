@@ -20,6 +20,7 @@ Volyar is a media library transcoder built to fill the gap.
         - [Azure Files](#library-storage-azure-configuration) 
         - [BunnyCDN](#library-storage-bunny-configuration) 
       - [WebHooks](#library-webhook-configuration)
+      - [API Integration](#library-api-integration-configuration)
   - [Web UI](#web-ui)
   - [Web API](#web-api)
   - [Differentials](#differentials)
@@ -228,7 +229,6 @@ You should only set one of the following, and leave the rest as `null`. Setting 
 <a name="library-webhook-configuration"></a>
 ##### WebHooks
 WebHooks are called when a conversion is completed. They simply make a call to a remote resource with no payload.
-##### `WebHooks`
 ```
 "WebHooks": [
   {
@@ -247,6 +247,30 @@ WebHooks are called when a conversion is completed. They simply make a call to a
     - A username if needed for http authentication.
   - `Password`
     - A password if needed for http authentication.
+
+<a name="library-api-integration-configuration"></a>
+##### API Integration
+A library's API integration is called whenever a media item is transcoded. It's used to fill in metadata about a media item, like the series and episode title, or the IMDb or TVDB IDs. This can be incredibly useful, so adding an integration hook is strongly encouraged if one is available.
+```
+"ApiIntegration": [
+  {
+    "Url": "https://somesite.example/sonarr",
+    "Type": "sonarr",
+    "ApiKey": "6c2e7634f46959b20a51993205b5c29b",
+    "Username": "tom",
+    "Password": "mypass"
+  },
+]
+```
+  - `Url`
+    - The API endpoint to call. Don't include /api, just the base URL.
+  - `Type`
+    - The type of API. Supports 'sonarr' and 'radarr'.
+  - `Username`
+    - A username if needed for http authentication.
+  - `Password`
+    - A password if needed for http authentication.
+
 
 <a name="web-ui"></a>
 ## Web UI
