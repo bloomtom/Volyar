@@ -34,9 +34,9 @@ namespace Volyar
             LoggerFactory = loggerFactory;
             Env = env;
 
-            if (File.Exists(Program.settingsPath))
+            if (File.Exists(Program.SettingsPath))
             {
-                Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<VSettings>(File.ReadAllText(Program.settingsPath),
+                Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<VSettings>(File.ReadAllText(Program.SettingsPath),
                     new Newtonsoft.Json.JsonSerializerSettings() { ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace });
             }
             else

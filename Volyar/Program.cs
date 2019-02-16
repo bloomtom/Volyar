@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CommandLine;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +14,7 @@ namespace Volyar
 {
     public class Program
     {
-        public static readonly string settingsPath = Path.Join(Environment.CurrentDirectory, "vsettings.json");
+        public static string SettingsPath { get; private set; }
         public static readonly Version version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
 
         public static void Main(string[] args)
@@ -23,15 +24,36 @@ namespace Volyar
             try
             {
                 NLog.LogManager.LoadConfiguration("nlog.config");
-                logger.Info("Initialized Main");
 
-                if (!File.Exists(settingsPath))
+                Options commandOptions = null;
+                try
                 {
-                    logger.Info("Creating settings at: " + settingsPath);
-                    File.WriteAllText(settingsPath, Newtonsoft.Json.JsonConvert.SerializeObject(new Models.VSettings(), Newtonsoft.Json.Formatting.Indented));
+                    Parser.Default.ParseArguments<Options>(args)
+                        .WithParsed(o =>
+                        {
+                            commandOptions = o;
+                        })
+                        .WithNotParsed(e =>
+                        {
+                            HandleParseError(e, logger);
+                        });
+                    SettingsPath = commandOptions.SettingsPath;
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Failed to parse command line arguments " + ex.ToString());
+                    Environment.Exit(4);
                 }
 
-                var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VSettings>(File.ReadAllText(settingsPath),
+                logger.Info("Initialized Main");
+
+                if (!File.Exists(SettingsPath))
+                {
+                    logger.Info("Creating settings at: " + SettingsPath);
+                    File.WriteAllText(SettingsPath, Newtonsoft.Json.JsonConvert.SerializeObject(new Models.VSettings(), Newtonsoft.Json.Formatting.Indented));
+                }
+
+                var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VSettings>(File.ReadAllText(SettingsPath),
                     new Newtonsoft.Json.JsonSerializerSettings() { ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace });
 
                 foreach (var library in settings.Libraries)
@@ -43,9 +65,10 @@ namespace Volyar
                 }
 
                 // Exit if this is a bootstrap run.
-                if (args.Where(x => x.ToLowerInvariant() == "--bootstrap").Any())
+                if (commandOptions != null && commandOptions.Bootstrap)
                 {
                     logger.Info("This was just a bootstrapping run. Exiting...");
+                    Environment.Exit(0);
                     return;
                 }
 
@@ -73,5 +96,20 @@ namespace Volyar
             })
             .UseNLog()
             .UseStartup<Startup>().UseUrls(new string[] { url });
+
+        private static void HandleParseError(IEnumerable<Error> errs, NLog.Logger log)
+        {
+            if (errs.Count() == 1)
+            {
+                var e = errs.First();
+                if (e.Tag == ErrorType.VersionRequestedError || e.Tag == ErrorType.HelpRequestedError)
+                {
+                    Environment.Exit(1);
+                }
+            }
+
+            log.Warn($"Failed to parse command: {string.Join('\n', errs)}");
+            Environment.Exit(2);
+        }
     }
 }
