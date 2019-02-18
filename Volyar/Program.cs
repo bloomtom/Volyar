@@ -53,6 +53,7 @@ namespace Volyar
                     File.WriteAllText(SettingsPath, Newtonsoft.Json.JsonConvert.SerializeObject(new Models.VSettings(), Newtonsoft.Json.Formatting.Indented));
                 }
 
+                WriteoutSchema(SettingsPath);
                 var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VSettings>(File.ReadAllText(SettingsPath),
                     new Newtonsoft.Json.JsonSerializerSettings() { ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace });
 
@@ -84,6 +85,18 @@ namespace Volyar
             finally
             {
                 NLog.LogManager.Shutdown();
+            }
+        }
+
+        private static void WriteoutSchema(string path)
+        {
+            // Generate and write out scema for settings
+            var generator = new Newtonsoft.Json.Schema.Generation.JSchemaGenerator();
+            var schema = generator.Generate(typeof(Models.VSettings));
+            using (StreamWriter file = File.CreateText(Path.Combine(Path.GetDirectoryName(path), "vsettings.schema.json")))
+            using (var writer = new Newtonsoft.Json.JsonTextWriter(file))
+            {
+                schema.WriteTo(writer);
             }
         }
 

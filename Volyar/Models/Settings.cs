@@ -10,6 +10,8 @@ namespace Volyar.Models
 {
     public class VSettings
     {
+        [Newtonsoft.Json.JsonProperty("$schema")]
+        public string Schema { get; } = "./vsettings.schema.json";
         /// <summary>
         /// The IP address to listen on. Use 0.0.0.0 to listen on all interfaces.
         /// </summary>
