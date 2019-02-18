@@ -130,12 +130,14 @@ Libraries are given as a collection of the following properties.
    - If not zero, the output framerate is forced to this value on encode.
  - `ValidExtensions`
    - The file extensions allowed for uptake in a scan. Should start with a dot (.mp4, .mkv, etc.)
- - `Qualities`
+ - [`Qualities`](#library-quality-configuration)
    - A collection of qualities to encode into.
- - `StorageBackend`
+ - [`StorageBackend`](#library-storage-configuration)
    - The storage backend setting to use for this library.
- - `WebHooks`
+ - [`WebHooks`](#library-webhook-configuration)
    - A collection of web hooks to call upon completion of a conversion.
+ - [`ApiIntegration`](#library-api-integration-configuration)
+   - A backend API to query for metadata about a media file upon conversion.
  
  The qualities, storage backend and web hooks settings for a library are a bit more complex than the others, so they're broken out below.
  
