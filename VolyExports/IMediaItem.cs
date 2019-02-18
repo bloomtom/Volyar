@@ -39,11 +39,14 @@ namespace VolyExports
         /// The season number if this was retrieved from an integration.
         /// </summary>
         int SeasonNumber { get; set; }
-
         /// <summary>
         /// The episode number if this was retrieved from an integration.
         /// </summary>
         int EpisodeNumber { get; set; }
+        /// <summary>
+        /// The absolute episode number if this was retrieved from an integration.
+        /// </summary>
+        int AbsoluteEpisodeNumber { get; set; }
         /// <summary>
         /// The name of the series this media item belongs to. If the media item is a movie, this may be the same as Name.
         /// </summary>

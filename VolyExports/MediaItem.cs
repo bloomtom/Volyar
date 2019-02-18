@@ -41,11 +41,14 @@ namespace VolyExports
         /// The season number if this was retrieved from an integration.
         /// </summary>
         public int SeasonNumber { get; set; }
-
         /// <summary>
         /// The episode number if this was retrieved from an integration.
         /// </summary>
         public int EpisodeNumber { get; set; }
+        /// <summary>
+        /// The absolute episode number if this was retrieved from an integration.
+        /// </summary>
+        public int AbsoluteEpisodeNumber { get; set; }
         /// <summary>
         /// The name of the series this media item belongs to. If the media item is a movie, this may be the same as Name.
         /// </summary>
@@ -99,6 +102,7 @@ namespace VolyExports
                 Name = item.Name,
                 SeasonNumber = item.SeasonNumber,
                 EpisodeNumber = item.EpisodeNumber,
+                AbsoluteEpisodeNumber = item.AbsoluteEpisodeNumber,
                 SeriesName = item.SeriesName,
                 ImdbId = item.ImdbId,
                 TvdbId = item.TvdbId,
