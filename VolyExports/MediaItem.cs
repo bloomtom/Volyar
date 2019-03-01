@@ -64,6 +64,11 @@ namespace VolyExports
         public string TvdbId { get; set; }
 
         /// <summary>
+        /// The ID for this series on The Movie Database if this was retrieved from an integration.
+        /// </summary>
+        public string TmdbId { get; set; }
+
+        /// <summary>
         /// The ID for this series on TVMAZE if this was retrieved from an integration.
         /// </summary>
         public string TvmazeId { get; set; }
@@ -106,6 +111,7 @@ namespace VolyExports
                 SeriesName = item.SeriesName,
                 ImdbId = item.ImdbId,
                 TvdbId = item.TvdbId,
+                TmdbId = item.TmdbId,
                 TvmazeId = item.TvmazeId,
                 SourceHash = item.SourceHash,
                 SourceModified = item.SourceModified,

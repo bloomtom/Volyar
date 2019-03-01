@@ -62,6 +62,11 @@ namespace VolyExports
         string TvdbId { get; set; }
 
         /// <summary>
+        /// The ID for this series on The Movie Database if this was retrieved from an integration.
+        /// </summary>
+        string TmdbId { get; set; }
+
+        /// <summary>
         /// The ID for this series on TVMAZE if this was retrieved from an integration.
         /// </summary>
         string TvmazeId { get; set; }
