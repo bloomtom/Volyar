@@ -23,7 +23,7 @@ namespace VolyExternalApiAccess.Darr.Radarr
             : base(baseUrl, apiKey, username, password)
         {
             this.cacheTimeout = cacheTimeout ?? TimeSpan.FromMinutes(30);
-            cached.GetOrAdd(baseUrl, new RadarrCached());
+            cached.GetOrAdd(base.baseUrl, new RadarrCached());
         }
 
         protected virtual ICollection<Movie> Get()
