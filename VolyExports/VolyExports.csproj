@@ -8,7 +8,7 @@
     <Description>A library of the types Volar can send and receive on its API.</Description>
     <Authors>bloomtom</Authors>
     <Company>bloomtom</Company>
-    <Version>0.1.2</Version>
+    <Version>0.1.3</Version>
     <AssemblyVersion>0.1.2.0</AssemblyVersion>
     <FileVersion>0.1.2.0</FileVersion>
     <PackageId>bloomtom.VolyExports</PackageId>
