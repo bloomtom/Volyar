@@ -14,6 +14,7 @@ using NaiveProgress;
 using VolyExports;
 using VolyDatabase;
 using Microsoft.EntityFrameworkCore;
+using MStorage.WebStorage;
 
 namespace VolyConverter.Scanning
 {
@@ -244,7 +245,7 @@ namespace VolyConverter.Scanning
                     int deleteCount = 0;
                     foreach (var file in removedFiles)
                     {
-                        storageBackend.DeleteAsync(Path.GetFileName(file));
+                        DeleteFromBackend(file);
                         deleteCount++;
                         deleteProgress.Progress = deleteCount / removedFiles.Count;
                     }
@@ -261,15 +262,54 @@ namespace VolyConverter.Scanning
             }));
         }
 
+        private void DeleteFromBackend(string file)
+        {
+            try
+            {
+                TryDo(new Action(() => { storageBackend.DeleteAsync(Path.GetFileName(file)).Wait(); }), 4, TimeSpan.FromSeconds(15));
+            }
+            catch (FileNotFoundException)
+            {
+                return;
+            }
+        }
+
         private void UploadFiles(List<string> addedFiles, List<DescribedProgress> uploadProgress)
         {
             for (int i = 0; i < addedFiles.Count; i++)
             {
                 // Avoid including i directly in the following without Waiting on the task, or i will be changed during execution.
-                storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
+                TryDo(new Action(() =>
                 {
-                    uploadProgress[i].Progress = e.PercentComplete;
-                }))).Wait();
+                    storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
+                    {
+                        uploadProgress[i].Progress = e.PercentComplete;
+                    }))).Wait();
+                }), 10, TimeSpan.FromSeconds(30));
+            }
+        }
+
+        private void TryDo(Action action, int attempts, TimeSpan? wait = null)
+        {
+            if (attempts < 1) { throw new ArgumentException("Parameter 'attempts' must be greater than zero."); }
+
+            for (int i = 0; i < attempts; i++)
+            {
+                try
+                {
+                    action.Invoke();
+                    return;
+                }
+                catch (Exception ex) when (
+                ex is TemporaryFailureException ||
+                ex is InvalidOperationException ||
+                ex is TimeoutException
+                )
+                {
+                    if (i >= attempts) { throw; }
+                    log.LogWarning($"Temporary failure performing upload or delete: {ex.Message}. Will attempt {attempts - i} more times.");
+                }
+                if (wait.HasValue) { System.Threading.Thread.Sleep(wait.Value); }
             }
         }
 
