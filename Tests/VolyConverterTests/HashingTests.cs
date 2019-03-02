@@ -54,7 +54,7 @@ namespace VolyConverterTests
             {
                 using (Stream s = File.OpenWrite(testPath))
                 {
-                    long size = 1024 * 1024 * 512;
+                    long size = 1024 * 1024 * 32;
                     for (long i = 0; i < size; i++)
                     {
                         s.WriteByte((byte)i);

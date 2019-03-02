@@ -28,6 +28,11 @@ namespace VolyConverterTests
             var inputDirectory = Path.Join(Environment.CurrentDirectory, "testing\\input");
             Directory.CreateDirectory(inputDirectory);
 
+            if (!File.Exists("testing\\input\\test5.mkv")) { File.Copy(Path.Join(Environment.CurrentDirectory, "..\\..\\..\\test5.mkv"), "testing\\input\\test5.mkv"); }
+            if (!File.Exists("testing\\input\\test52.mkv")) { File.Copy(Path.Join(Environment.CurrentDirectory, "..\\..\\..\\test52.mkv"), "testing\\input\\test52.mkv"); }
+            if (!File.Exists("testing\\input\\testfile.ogg")) { File.Copy(Path.Join(Environment.CurrentDirectory, "..\\..\\..\\testfile.ogg"), "testing\\input\\testfile.ogg"); }
+            if (!File.Exists("testing\\input\\testfile2.ogg")) { File.Copy(Path.Join(Environment.CurrentDirectory, "..\\..\\..\\testfile2.ogg"), "testing\\input\\testfile2.ogg"); }
+
             var libraryTemp = Path.Join(Environment.CurrentDirectory, "testing\\librarytemp");
             Directory.CreateDirectory(libraryTemp);
 
@@ -82,7 +87,7 @@ namespace VolyConverterTests
                     sw.Start();
                     while (converter.ItemsQueued.Count == 0)
                     {
-                        if (sw.ElapsedMilliseconds > 1000000)
+                        if (sw.ElapsedMilliseconds > 10000)
                         {
                             Assert.Fail("Disk scan took too long.");
                         }

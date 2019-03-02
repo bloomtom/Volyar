@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VolyConverter\VolyConverter.csproj" />
-    <ProjectReference Include="..\VolyDatabase\VolyDatabase.csproj" />
-    <ProjectReference Include="..\VolyExports\VolyExports.csproj" />
+    <ProjectReference Include="..\..\VolyConverter\VolyConverter.csproj" />
+    <ProjectReference Include="..\..\VolyDatabase\VolyDatabase.csproj" />
+    <ProjectReference Include="..\..\VolyExports\VolyExports.csproj" />
   </ItemGroup>
 
 </Project>
