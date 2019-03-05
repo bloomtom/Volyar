@@ -75,5 +75,11 @@ var mainVue = new Vue({
         'wait-queue-component': queueComponent,
         'progress-queue-component': queueComponent,
         'complete-queue-component': completeComponent
+    },
+    methods: {
+        queueSize: function (x) {
+            if (x.length === 0) { return ''; }
+            return '(' + x.length + ')';
+        }
     }
 });

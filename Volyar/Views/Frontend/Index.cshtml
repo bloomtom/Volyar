@@ -36,11 +36,11 @@
 
 
 <div class="container-full p-4" id="vuebox">
-    <h5 class="alert alert-primary text-center">Processing</h5>
+    <h5 class="alert alert-primary text-center">Processing {{queueSize(inProgress)}}</h5>
     <progress-queue-component v-bind:items="inProgress"></progress-queue-component>
-    <h5 class="alert alert-dark text-center">Waiting</h5>
+    <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
     <wait-queue-component v-bind:items="waiting"></wait-queue-component>
-    <h5 class="alert alert-success text-center">Complete</h5>
+    <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
     <complete-queue-component v-bind:items="complete"></complete-queue-component>
 </div>
 
