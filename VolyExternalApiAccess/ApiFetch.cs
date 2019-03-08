@@ -54,7 +54,8 @@ namespace VolyExternalApiAccess
                 AbsoluteEpisodeNumber = episode?.AbsoluteEpisodeNumber ?? 0,
                 ImdbId = mediaInfo.Series.ImdbId,
                 TvdbId = mediaInfo.Series.TvdbId,
-                TvMazeId = mediaInfo.Series.TvMazeId
+                TvMazeId = mediaInfo.Series.TvMazeId,
+                Genres = mediaInfo.Series.Genres
             };
         }
 
@@ -73,7 +74,8 @@ namespace VolyExternalApiAccess
                 SeriesTitle = mediaInfo.Title,
                 Title = mediaInfo.Title,
                 ImdbId = mediaInfo.ImdbId,
-                TmdbId = mediaInfo.TmdbId
+                TmdbId = mediaInfo.TmdbId,
+                Genres = mediaInfo.Genres
             };
         }
     }

@@ -15,5 +15,6 @@ namespace VolyExternalApiAccess
         public int EpisodeNumber { get; set; } = 0;
         public int SeasonNumber { get; set; } = 0;
         public int AbsoluteEpisodeNumber { get; set; } = 0;
+        public List<string> Genres { get; set; } = null;
     }
 }

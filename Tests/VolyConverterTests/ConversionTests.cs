@@ -13,6 +13,7 @@ using Force.DeepCloner;
 using Microsoft.Data.Sqlite;
 using VolyConverter.Complete;
 using VolyConverter;
+using VolyConverter.Plugin;
 
 namespace VolyConverterTests
 {
@@ -62,7 +63,7 @@ namespace VolyConverterTests
                     1,
                     new CompleteItems<IExportableConversionItem>(),
                     new Logger<MediaConversionQueue>(logFactory));
-                var scanQueue = new LibraryScanningQueue(db, converter, new List<ConversionPlugin>(), new Logger<LibraryScanningQueue>(logFactory));
+                var scanQueue = new LibraryScanningQueue(db, converter, new List<IConversionPlugin>(), new Logger<LibraryScanningQueue>(logFactory));
 
                 var quality1 = new DEnc.Quality(640, 480, 300, "ultrafast");
                 var quality2 = new DEnc.Quality(640, 480, 400, "ultrafast");

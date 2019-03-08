@@ -35,6 +35,10 @@ namespace VolyConverter.Conversion
         /// </summary>
         public int Framerate { get; protected set; }
         /// <summary>
+        /// The ffmpeg tune type to use for encoding.
+        /// </summary>
+        public Tune Tune { get; set; }
+        /// <summary>
         /// The date and time this object was created.
         /// </summary>
         public DateTime CreateTime { get; protected set; } = DateTime.UtcNow;
@@ -42,12 +46,12 @@ namespace VolyConverter.Conversion
         /// <summary>
         /// A collection of progress indicators for conversion steps on this object.
         /// </summary>
-        public IEnumerable<DescribedProgress> Progress { get; protected set; } = Enumerable.Empty<DescribedProgress>();
+        public IEnumerable<DescribedProgress> Progress { get; set; } = Enumerable.Empty<DescribedProgress>();
 
         /// <summary>
         /// Error text which may be displayed if conversion fails.
         /// </summary>
-        public string ErrorText { get; protected set; }
+        public string ErrorText { get; set; }
     }
 
     /// <summary>
@@ -69,13 +73,6 @@ namespace VolyConverter.Conversion
 
         [JsonIgnore]
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
-
-        public new IEnumerable<DescribedProgress> Progress { get; set; } = Enumerable.Empty<DescribedProgress>();
-
-        /// <summary>
-        /// Error text which may be displayed if conversion fails.
-        /// </summary>
-        public new string ErrorText { get; set; }
 
         public ConversionItem(string sourcePath, string destination, string outputBaseFilename, HashSet<IQuality> quality, int framerate, Action<IConversionItem, DashEncodeResult> completionAction, Action<Exception> errorAction)
         {

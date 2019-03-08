@@ -7,46 +7,12 @@ using VolyConverter.Conversion;
 using VolyConverter.Scanning;
 using VolyDatabase;
 
-namespace VolyConverter
+namespace VolyConverter.Plugin
 {
     /// <summary>
-    /// The signature for a conversion plugin which is executed after conversion is complete but before data is comitted to the database.
+    /// Arguments for a post-conversion plugin.
     /// </summary>
-    public delegate void ConversionPluginAction(ConversionPluginArgs args);
-
-    public class ConversionPlugin
-    {
-        /// <summary>
-        /// The plugin name.
-        /// </summary>
-        public string Name { get; }
-        /// <summary>
-        /// The action to run.
-        /// </summary>
-        public ConversionPluginAction Action { get; }
-
-        public ConversionPlugin(string name, ConversionPluginAction plugin)
-        {
-            Name = name;
-            Action = plugin;
-        }
-    }
-    
-
-    /// <summary>
-    /// The type of conversion that was performed.
-    /// </summary>
-    public enum ConversionType
-    {
-        None,
-        Conversion,
-        Reconversion
-    }
-
-    /// <summary>
-    /// Arguments for a conversion plugin.
-    /// </summary>
-    public class ConversionPluginArgs
+    public class PostConversionPluginArgs
     {
         /// <summary>
         /// The library the conversion was performed for.
@@ -80,7 +46,7 @@ namespace VolyConverter
         /// <summary>
         /// 
         /// </summary>
-        public ConversionPluginArgs(ILibrary library, VolyContext context, IConversionItem item, MediaItem mediaItem, DashEncodeResult conversionResult, ConversionType type, ILogger log)
+        public PostConversionPluginArgs(ILibrary library, VolyContext context, IConversionItem item, MediaItem mediaItem, DashEncodeResult conversionResult, ConversionType type, ILogger log)
         {
             this.Library = library;
             this.Context = context;

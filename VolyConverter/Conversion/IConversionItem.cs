@@ -12,6 +12,7 @@ namespace VolyConverter.Conversion
         string OutputPath { get; }
         string OutputBaseFilename { get; }
         int Framerate { get; }
+        Tune Tune { get; }
         DateTime CreateTime { get; }
         IEnumerable<DescribedProgress> Progress { get; }
         string ErrorText { get; }

@@ -69,6 +69,18 @@ namespace VolyConverter.Conversion
             if (item.CancellationToken.IsCancellationRequested) { return; }
 
             var options = new H264EncodeOptions();
+            switch (item.Tune)
+            {
+                case Tune.Film:
+                    options.AdditionalVideoFlags.Add("-tune film");
+                    break;
+                case Tune.Grain:
+                    options.AdditionalVideoFlags.Add("-tune grain");
+                    break;
+                case Tune.Animation:
+                    options.AdditionalVideoFlags.Add("-tune animation");
+                    break;
+            }
 
             log.LogInformation($"Processing item {item.SourcePath}");
 

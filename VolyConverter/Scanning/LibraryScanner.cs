@@ -15,6 +15,7 @@ using VolyExports;
 using VolyDatabase;
 using Microsoft.EntityFrameworkCore;
 using MStorage.WebStorage;
+using VolyConverter.Plugin;
 
 namespace VolyConverter.Scanning
 {
@@ -25,11 +26,11 @@ namespace VolyConverter.Scanning
         private readonly IStorage storageBackend;
         private readonly ILogger log;
 
-        private readonly IEnumerable<ConversionPlugin> conversionPlugins;
+        private readonly IEnumerable<IConversionPlugin> conversionPlugins;
 
         private readonly ILibrary library;
 
-        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, IEnumerable<ConversionPlugin> conversionPlugins, ILogger log) : base(ScanType.Library, library.Name)
+        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, IEnumerable<IConversionPlugin> conversionPlugins, ILogger log) : base(ScanType.Library, library.Name)
         {
             this.library = library;
             this.storageBackend = storageBackend;
@@ -134,26 +135,27 @@ namespace VolyConverter.Scanning
 
         private void ScheduleConversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, string sourceHash, string outFilename)
         {
-            converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
+            var newMedia = new VolyDatabase.MediaItem()
+            {
+                SourcePath = sourcePath,
+                SourceModified = lastWrite,
+                SourceHash = sourceHash,
+                LibraryName = library.Name,
+                Name = Path.GetFileNameWithoutExtension(sourcePath),
+                SeriesName = seriesName
+            };
+            var conversionItem = new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
                 var addedFiles = new List<string>();
 
                 using (var innerContext = new VolyContext(dbOptions))
                 {
                     // Save the new media item to db.
-                    var newMedia = new VolyDatabase.MediaItem()
-                    {
-                        SourcePath = sourcePath,
-                        SourceModified = lastWrite,
-                        SourceHash = sourceHash,
-                        Duration = result.FileDuration,
-                        IndexName = Path.GetFileName(result.DashFilePath),
-                        IndexHash = Hashing.HashFileMd5(result.DashFilePath),
-                        LibraryName = library.Name,
-                        Name = Path.GetFileNameWithoutExtension(sourcePath),
-                        SeriesName = seriesName,
-                        Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata)
-                    };
+                    newMedia.Duration = result.FileDuration;
+                    newMedia.IndexName = Path.GetFileName(result.DashFilePath);
+                    newMedia.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
+                    newMedia.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata);
+
                     innerContext.Media.Add(newMedia);
 
                     innerContext.SaveChanges();
@@ -183,7 +185,7 @@ namespace VolyConverter.Scanning
 
                     UploadFiles(addedFiles, uploadProgress);
 
-                    RunPlugins(library, innerContext, sender, newMedia, result, ConversionType.Conversion);
+                    RunPostPlugins(library, innerContext, sender, newMedia, result, ConversionType.Conversion);
 
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
@@ -192,12 +194,25 @@ namespace VolyConverter.Scanning
             (ex) =>
             {
                 log.LogError($"Failed to convert {sourcePath} -- Ex: {ex.ToString()}");
-            }));
+            });
+
+            RunPrePlugins(library, conversionItem, newMedia, ConversionType.Conversion);
+            if (conversionItem.CancellationToken.IsCancellationRequested) { return; }
+
+            converter.AddItem(conversionItem);
         }
 
         private void ScheduleReconversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string sourceHash, string outFilename)
         {
-            converter.AddItem(new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
+            var newMedia = new VolyDatabase.MediaItem()
+            {
+                SourcePath = sourcePath,
+                SourceModified = lastWrite,
+                SourceHash = sourceHash,
+                LibraryName = library.Name,
+                Name = Path.GetFileNameWithoutExtension(sourcePath),
+            };
+            var conversionItem = new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
                 var addedFiles = new List<string>();
                 var removedFiles = new List<string>();
@@ -209,9 +224,20 @@ namespace VolyConverter.Scanning
                     var inDb = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault();
                     if (inDb != null)
                     {
-                        inDb.SourcePath = sourcePath;
-                        inDb.SourceModified = lastWrite;
-                        inDb.SourceHash = sourceHash;
+                        inDb.SourcePath = newMedia.SourcePath;
+                        inDb.SourceModified = newMedia.SourceModified;
+                        inDb.SourceHash = newMedia.SourceHash;
+                        inDb.SeriesName = newMedia.SeriesName;
+                        inDb.Name = newMedia.Name;
+
+                        if (newMedia.SeasonNumber != 0) { inDb.SeasonNumber = newMedia.SeasonNumber; }
+                        if (newMedia.EpisodeNumber != 0) { inDb.EpisodeNumber = newMedia.EpisodeNumber; }
+                        if (newMedia.AbsoluteEpisodeNumber != 0) { inDb.AbsoluteEpisodeNumber = newMedia.AbsoluteEpisodeNumber; }
+                        if (newMedia.ImdbId != null) { inDb.ImdbId = newMedia.ImdbId; }
+                        if (newMedia.TmdbId != null) { inDb.TmdbId = newMedia.TmdbId; }
+                        if (newMedia.TmdbId != null) { inDb.TvdbId = newMedia.TvdbId; }
+                        if (newMedia.TmdbId != null) { inDb.TvmazeId = newMedia.TvmazeId; }
+
                         inDb.Duration = result.FileDuration;
                         inDb.IndexName = Path.GetFileName(result.DashFilePath);
                         inDb.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
@@ -250,7 +276,7 @@ namespace VolyConverter.Scanning
                         deleteProgress.Progress = deleteCount / removedFiles.Count;
                     }
 
-                    RunPlugins(library, innerContext, sender, inDb, result, ConversionType.Conversion);
+                    RunPostPlugins(library, innerContext, sender, inDb, result, ConversionType.Conversion);
 
                     innerContext.SaveChanges();
                     log.LogInformation($"Converted {sourcePath}");
@@ -259,7 +285,12 @@ namespace VolyConverter.Scanning
             (ex) =>
             {
                 log.LogError($"Failed to re-convert {sourcePath}, database not updated. -- Ex: {ex.ToString()}");
-            }));
+            });
+
+            RunPrePlugins(library, conversionItem, newMedia, ConversionType.Reconversion);
+            if (conversionItem.CancellationToken.IsCancellationRequested) { return; }
+
+            converter.AddItem(conversionItem);
         }
 
         private void DeleteFromBackend(string file)
@@ -307,17 +338,38 @@ namespace VolyConverter.Scanning
             }
         }
 
-        private void RunPlugins(ILibrary library, VolyContext context, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, DashEncodeResult result, ConversionType type)
+        private void RunPrePlugins(ILibrary library, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, ConversionType type)
         {
             foreach (var plugin in conversionPlugins)
             {
-                try
+                if (plugin is PreConversionPlugin pre)
                 {
-                    plugin.Action.Invoke(new ConversionPluginArgs(library, context, conversionItem, mediaItem, result, type, log));
+                    try
+                    {
+                        pre.Action.Invoke(new PreConversionPluginArgs(library, conversionItem, mediaItem, type, log));
+                    }
+                    catch (Exception ex)
+                    {
+                        log.LogWarning($"Failed to run pre-plugin {plugin.Name} on item {conversionItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
+                    }
                 }
-                catch (Exception ex)
+            }
+        }
+
+        private void RunPostPlugins(ILibrary library, VolyContext context, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, DashEncodeResult result, ConversionType type)
+        {
+            foreach (var plugin in conversionPlugins)
+            {
+                if (plugin is PostConversionPlugin post)
                 {
-                    log.LogWarning($"Failed to run plugin {plugin.Name} on item {conversionItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
+                    try
+                    {
+                        post.Action.Invoke(new PostConversionPluginArgs(library, context, conversionItem, mediaItem, result, type, log));
+                    }
+                    catch (Exception ex)
+                    {
+                        log.LogWarning($"Failed to run post-plugin {plugin.Name} on item {conversionItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
+                    }
                 }
             }
         }

@@ -10,6 +10,7 @@ using VolyConverter.Conversion;
 using MStorage;
 using Microsoft.EntityFrameworkCore;
 using VolyDatabase;
+using VolyConverter.Plugin;
 
 namespace VolyConverter.Scanning
 {
@@ -17,10 +18,10 @@ namespace VolyConverter.Scanning
     {
         private readonly MediaDatabase dbOptions;
         private readonly IDistinctQueueProcessor<IConversionItem> converter;
-        private readonly IEnumerable<ConversionPlugin> conversionPlugins;
+        private readonly IEnumerable<IConversionPlugin> conversionPlugins;
         protected readonly ILogger<LibraryScanningQueue> log;
 
-        public LibraryScanningQueue(MediaDatabase dbOptions, IDistinctQueueProcessor<IConversionItem> converter, IEnumerable<ConversionPlugin> conversionPlugins, ILogger<LibraryScanningQueue> logger)
+        public LibraryScanningQueue(MediaDatabase dbOptions, IDistinctQueueProcessor<IConversionItem> converter, IEnumerable<IConversionPlugin> conversionPlugins, ILogger<LibraryScanningQueue> logger)
         {
             this.dbOptions = dbOptions;
             this.converter = converter;

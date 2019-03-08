@@ -18,6 +18,7 @@ using VolyConverter.Complete;
 using NLog.Extensions.Logging;
 using NLog.Web;
 using VolyConverter;
+using VolyConverter.Plugin;
 
 namespace Volyar
 {
@@ -70,9 +71,9 @@ namespace Volyar
             RateLimiter rateLimiter = new RateLimiter(TimeSpan.FromSeconds(10), LoggerFactory.CreateLogger<RateLimiter>());
             services.AddSingleton(rateLimiter);
 
-            var plugins = new List<ConversionPlugin>
+            var plugins = new List<IConversionPlugin>
             {
-                new ConversionPlugin("WebHook", (args) =>
+                new PostConversionPlugin("WebHook", (args) =>
                 {
                     if (args.Library is Models.Library library)
                     {
@@ -83,7 +84,7 @@ namespace Volyar
                         }
                     }
                 }),
-                new ConversionPlugin("ApiIntegration", (args) =>
+                new PreConversionPlugin("ApiIntegration", (args) =>
                 {
                     if (args.Library is Models.Library library)
                     {
@@ -102,11 +103,23 @@ namespace Volyar
                             args.MediaItem.TmdbId = metadata.TmdbId?.ToString();
                             args.MediaItem.TvdbId = metadata.TvdbId?.ToString();
                             args.MediaItem.TvmazeId = metadata.TvMazeId?.ToString();
+
+                            if (args.ConversionItem is ConversionItem conversionItem)
+                            {
+                                if (g.Type == "radarr")
+                                {
+                                    conversionItem.Tune = Tune.Film;
+                                }
+                                if (metadata.Genres != null && metadata.Genres.Where(x => x.ToLowerInvariant() == "animation").Any())
+                                {
+                                    conversionItem.Tune = Tune.Animation;
+                                }
+                            }
                         }
                     }
                 })
             };
-
+            
             services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, plugins, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
 
             services.AddSingleton(Settings);
