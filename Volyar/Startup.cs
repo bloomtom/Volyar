@@ -70,8 +70,20 @@ namespace Volyar
 
             RateLimiter rateLimiter = new RateLimiter(TimeSpan.FromSeconds(10), LoggerFactory.CreateLogger<RateLimiter>());
             services.AddSingleton(rateLimiter);
+            List<IConversionPlugin> plugins = GeneratePlugins(rateLimiter);
 
-            var plugins = new List<IConversionPlugin>
+            services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, plugins, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
+
+            services.AddSingleton(Settings);
+
+            services.AddAuthorization();
+
+            services.AddHttpClient();
+        }
+
+        private static List<IConversionPlugin> GeneratePlugins(RateLimiter rateLimiter)
+        {
+            return new List<IConversionPlugin>
             {
                 new PostConversionPlugin("WebHook", (args) =>
                 {
@@ -90,43 +102,52 @@ namespace Volyar
                     {
                         if (library?.ApiIntegration == null) { return; }
                         var g = library.ApiIntegration;
-                        var fetcher = new VolyExternalApiAccess.ApiFetch(g.Type, g.Url, g.ApiKey, g.Username, g.Password);
-                        var metadata = fetcher.RetrieveInfo(args.ConversionItem.SourcePath);
-                        if (metadata != null)
+                        VolyExternalApiAccess.ApiValue metadata = null;
+                        try
                         {
-                            args.MediaItem.SeriesName = metadata.SeriesTitle ?? args.MediaItem.SeriesName;
-                            args.MediaItem.Name = metadata.Title ?? args.MediaItem.Name;
-                            args.MediaItem.SeasonNumber = metadata.SeasonNumber;
-                            args.MediaItem.EpisodeNumber = metadata.EpisodeNumber;
-                            args.MediaItem.AbsoluteEpisodeNumber = metadata.AbsoluteEpisodeNumber;
-                            args.MediaItem.ImdbId = string.IsNullOrWhiteSpace(metadata.ImdbId) ? null : metadata.ImdbId;
-                            args.MediaItem.TmdbId = metadata.TmdbId?.ToString();
-                            args.MediaItem.TvdbId = metadata.TvdbId?.ToString();
-                            args.MediaItem.TvmazeId = metadata.TvMazeId?.ToString();
-
-                            if (args.ConversionItem is ConversionItem conversionItem)
+                            var fetcher = new VolyExternalApiAccess.ApiFetch(g.Type, g.Url, g.ApiKey, g.Username, g.Password);
+                            metadata = fetcher.RetrieveInfo(args.ConversionItem.SourcePath);
+                            if (metadata != null)
                             {
-                                if (g.Type == "radarr")
+                                args.MediaItem.SeriesName = metadata.SeriesTitle ?? args.MediaItem.SeriesName;
+                                args.MediaItem.Name = metadata.Title ?? args.MediaItem.Name;
+                                args.MediaItem.SeasonNumber = metadata.SeasonNumber;
+                                args.MediaItem.EpisodeNumber = metadata.EpisodeNumber;
+                                args.MediaItem.AbsoluteEpisodeNumber = metadata.AbsoluteEpisodeNumber;
+                                args.MediaItem.ImdbId = string.IsNullOrWhiteSpace(metadata.ImdbId) ? null : metadata.ImdbId;
+                                args.MediaItem.TmdbId = metadata.TmdbId?.ToString();
+                                args.MediaItem.TvdbId = metadata.TvdbId?.ToString();
+                                args.MediaItem.TvmazeId = metadata.TvMazeId?.ToString();
+
+                                if (args.ConversionItem is ConversionItem conversionItem)
                                 {
-                                    conversionItem.Tune = Tune.Film;
+                                    if (g.Type == "radarr")
+                                    {
+                                        conversionItem.Tune = Tune.Film;
+                                    }
+                                    if (metadata.Genres != null && metadata.Genres.Where(x => x.ToLowerInvariant() == "animation").Any())
+                                    {
+                                        conversionItem.Tune = Tune.Animation;
+                                    }
                                 }
-                                if (metadata.Genres != null && metadata.Genres.Where(x => x.ToLowerInvariant() == "animation").Any())
-                                {
-                                    conversionItem.Tune = Tune.Animation;
-                                }
+                            }
+                            else
+                            {
+                                if(g.CancelIfUnavailable) {args.ConversionItem.CancellationToken.Cancel(); }
+                            }
+                        }
+                        finally
+                        {
+                            if(metadata == null && g.CancelIfUnavailable)
+                            {
+                                args.ConversionItem.ErrorText = "Cancelled: No API data found.";
+                                args.Log.LogWarning($"ApiIntegration retrieve failed for {args.ConversionItem.SourcePath}. Cancelling item.");
+                                args.ConversionItem.CancellationToken.Cancel();
                             }
                         }
                     }
                 })
             };
-            
-            services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, plugins, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
-
-            services.AddSingleton(Settings);
-
-            services.AddAuthorization();
-
-            services.AddHttpClient();
         }
 
         private string GetTemp()

@@ -16,6 +16,10 @@ namespace Volyar.Models
         /// </summary>
         public string Type { get; set; }
         /// <summary>
+        /// If true, conversions are cancelled if an API integration records can't be retrieved.
+        /// </summary>
+        public bool CancelIfUnavailable { get; set; }
+        /// <summary>
         /// An API key if needed for this API.
         /// </summary>
         public string ApiKey { get; set; }
