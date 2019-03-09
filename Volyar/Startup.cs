@@ -210,7 +210,7 @@ namespace Volyar
                     log.LogInformation("Waiting for tasks to cancel...");
                     var waitTimer = new System.Diagnostics.Stopwatch();
                     waitTimer.Start();
-                    while (mediaConversionQueue.ItemsQueued.Count() > 0 || waitTimer.ElapsedMilliseconds > 10000)
+                    while (mediaConversionQueue.ItemsQueued.Count() > 0 && libraryScanningQueue.ItemsQueued.Count() > 0 || waitTimer.ElapsedMilliseconds > 10000)
                     {
                         System.Threading.Thread.Sleep(500);
                     }
