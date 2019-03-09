@@ -197,7 +197,6 @@ namespace VolyConverter.Scanning
             });
 
             RunPrePlugins(library, conversionItem, newMedia, ConversionType.Conversion);
-            if (conversionItem.CancellationToken.IsCancellationRequested) { return; }
 
             converter.AddItem(conversionItem);
         }
@@ -288,7 +287,6 @@ namespace VolyConverter.Scanning
             });
 
             RunPrePlugins(library, conversionItem, newMedia, ConversionType.Reconversion);
-            if (conversionItem.CancellationToken.IsCancellationRequested) { return; }
 
             converter.AddItem(conversionItem);
         }

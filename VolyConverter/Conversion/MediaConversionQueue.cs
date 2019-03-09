@@ -66,7 +66,11 @@ namespace VolyConverter.Conversion
 
         protected override void Process(IConversionItem item)
         {
-            if (item.CancellationToken.IsCancellationRequested) { return; }
+            if (item.CancellationToken.IsCancellationRequested)
+            {
+                HandleCancel(item);
+                return;
+            }
 
             var options = new H264EncodeOptions();
             switch (item.Tune)
@@ -105,7 +109,14 @@ namespace VolyConverter.Conversion
             catch (OperationCanceledException)
             {
                 log.LogInformation($"Task Cancelled: {item.SourcePath}");
+                HandleCancel(item);
             }
+        }
+
+        private void HandleCancel(IConversionItem item)
+        {
+            if (item.ErrorText == null) { item.ErrorText = "Cancelled"; }
+            completeItems.Add(item);
         }
 
         /// <summary>
