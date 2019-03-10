@@ -203,6 +203,7 @@ namespace Volyar
 
             applicationLifetime.ApplicationStopping.Register(() =>
             {
+                log.LogInformation("Application stopping...");
                 libraryScanningQueue.Cancel();
                 mediaConversionQueue.Cancel();
                 if (mediaConversionQueue.ItemsProcessing.Count() > 0)
@@ -221,8 +222,13 @@ namespace Volyar
                     else
                     {
                         log.LogWarning("Shutdown timeout expired and not all tasks were cancelled.");
+                        Program.Shutdown(ShutdownCodes.TasksNotCancelled);
+                        return;
                     }
                 }
+
+                log.LogInformation("Application stopped.");
+                Program.Shutdown(ShutdownCodes.Normal);
             });
 
             if (!string.IsNullOrWhiteSpace(Settings.BasePath))

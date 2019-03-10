@@ -12,6 +12,16 @@ using NLog.Web;
 
 namespace Volyar
 {
+    public enum ShutdownCodes
+    {
+        Normal = 0,
+        VersionRequested = 1,
+        Bootstrap = 2,
+        SettingsParseError = 3,
+        TasksNotCancelled = 4,
+        GeneralError = 99
+    }
+
     public class Program
     {
         public static string SettingsPath { get; private set; }
@@ -42,7 +52,7 @@ namespace Volyar
                 catch (Exception ex)
                 {
                     logger.Error("Failed to parse command line arguments " + ex.ToString());
-                    Environment.Exit(4);
+                    Shutdown(ShutdownCodes.SettingsParseError);
                 }
 
                 logger.Info("Initialized Main");
@@ -69,8 +79,7 @@ namespace Volyar
                 if (commandOptions != null && commandOptions.Bootstrap)
                 {
                     logger.Info("This was just a bootstrapping run. Exiting...");
-                    Environment.Exit(0);
-                    return;
+                    Shutdown(ShutdownCodes.Bootstrap);
                 }
 
                 CreateWebHostBuilder(args, $"http://{settings.Listen}:{settings.Port}")
@@ -80,12 +89,14 @@ namespace Volyar
             catch (Exception ex)
             {
                 logger.Error(ex, "Top level exception caught. Terminating application.");
-                throw;
+                Shutdown(ShutdownCodes.GeneralError);
             }
-            finally
-            {
-                NLog.LogManager.Shutdown();
-            }
+        }
+
+        public static void Shutdown(ShutdownCodes code)
+        {
+            NLog.LogManager.Shutdown();
+            Environment.Exit((int)code);
         }
 
         private static void WriteoutSchema(string path)
@@ -117,12 +128,12 @@ namespace Volyar
                 var e = errs.First();
                 if (e.Tag == ErrorType.VersionRequestedError || e.Tag == ErrorType.HelpRequestedError)
                 {
-                    Environment.Exit(1);
+                    Shutdown(ShutdownCodes.VersionRequested);
                 }
             }
 
             log.Warn($"Failed to parse command: {string.Join('\n', errs)}");
-            Environment.Exit(2);
+            Shutdown(ShutdownCodes.SettingsParseError);
         }
     }
 }
