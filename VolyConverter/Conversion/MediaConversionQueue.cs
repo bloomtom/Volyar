@@ -52,7 +52,10 @@ namespace VolyConverter.Conversion
                         log.LogDebug(s);
                     }
                 }),
-                tempPath);
+                tempPath)
+            {
+                EnableStreamCopying = true
+            };
         }
 
         protected override void Error(IConversionItem item, Exception ex)
