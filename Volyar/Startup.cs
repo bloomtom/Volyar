@@ -129,6 +129,8 @@ namespace Volyar
                                     {
                                         conversionItem.Tune = Tune.Animation;
                                     }
+                                    conversionItem.Series = args.MediaItem.SeriesName;
+                                    conversionItem.Title = args.MediaItem.Name;
                                 }
                             }
                             else

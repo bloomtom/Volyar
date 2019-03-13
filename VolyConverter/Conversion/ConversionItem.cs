@@ -15,6 +15,14 @@ namespace VolyConverter.Conversion
     public class ExportableConversionItem : IExportableConversionItem
     {
         /// <summary>
+        /// If known, the series name this media item belongs to.
+        /// </summary>
+        public string Series { get; set; }
+        /// <summary>
+        /// If known, the title of this media item.
+        /// </summary>
+        public string Title { get; set; }
+        /// <summary>
         /// The file to convert. This variable is used for Equals/GetHashCode.
         /// </summary>
         public string SourcePath { get; protected set; }
@@ -74,8 +82,12 @@ namespace VolyConverter.Conversion
         [JsonIgnore]
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
-        public ConversionItem(string sourcePath, string destination, string outputBaseFilename, HashSet<IQuality> quality, int framerate, Action<IConversionItem, DashEncodeResult> completionAction, Action<Exception> errorAction)
+        public ConversionItem(string seriesName, string title, string sourcePath, string destination, string outputBaseFilename,
+            HashSet<IQuality> quality, int framerate,
+            Action<IConversionItem, DashEncodeResult> completionAction, Action<Exception> errorAction)
         {
+            Series = seriesName;
+            Title = title;
             SourcePath = sourcePath;
             OutputPath = destination;
             OutputBaseFilename = outputBaseFilename;

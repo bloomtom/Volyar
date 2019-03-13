@@ -49,22 +49,22 @@ namespace Volyar.Controllers
                     "queued",
                     new List<ExportableConversionItem>()
                     {
-                        new ConversionItem("/home/test/vid/vid1.mkv", "/home/output/", "testitem", quality, 24, null, null),
-                        new ConversionItem("/home/test/vid/vid2.mkv", "/home/output/", "testitem2", quality, 24, null, null)
+                        new ConversionItem("The TEST", "Test #1", "/home/test/vid/vid1.mkv", "/home/output/", "testitem", quality, 24, null, null),
+                        new ConversionItem(null, null, "/home/test/vid/vid2.mkv", "/home/output/", "testitem2", quality, 24, null, null)
                     }
                 },
                 {
                     "processing",
                     new List<ExportableConversionItem>()
                     {
-                        new ConversionItem("/home/test/vid/vid3.mkv", "/home/output/", "processItem", quality, 24, null, null)
+                        new ConversionItem("The TEST", "Test #3","/home/test/vid/vid3.mkv", "/home/output/", "processItem", quality, 24, null, null)
                         {
                             Progress = new List<DescribedProgress>()
                             {
                                 new DescribedProgress("Encoding", 0.25)
                             }
                         },
-                        new ConversionItem("/home/test/vid/vid4.mkv", "/home/output/", "processItem2", quality, 24, null, null)
+                        new ConversionItem(null, null, "/home/test/vid/vid4.mkv", "/home/output/", "processItem2", quality, 24, null, null)
                         {
                             Progress = new List<DescribedProgress>()
                             {
@@ -74,7 +74,7 @@ namespace Volyar.Controllers
                                 new DescribedProgress("Upload", 0.47)
                             }
                         },
-                        new ConversionItem("/home/test/vid/vid5.mkv", "/home/output/", "processItem3", quality, 24, null, null)
+                        new ConversionItem(null, null, "/home/test/vid/vid5.mkv", "/home/output/", "processItem3", quality, 24, null, null)
                         {
                             Progress = new List<DescribedProgress>()
                             {

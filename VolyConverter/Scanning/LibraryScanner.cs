@@ -144,7 +144,7 @@ namespace VolyConverter.Scanning
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
                 SeriesName = seriesName
             };
-            var conversionItem = new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
+            var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
                 var addedFiles = new List<string>();
 
@@ -211,7 +211,7 @@ namespace VolyConverter.Scanning
                 LibraryName = library.Name,
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
             };
-            var conversionItem = new ConversionItem(sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
+            var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
                 var addedFiles = new List<string>();
                 var removedFiles = new List<string>();
