@@ -39,6 +39,18 @@ var queueComponent = {
         timeago: function (x) {
             return moment(x).fromNow();
         },
+        title: function (x) {
+            if (x.Title !== null) { return x.Title; }
+            return x.OutputBaseFilename;
+        },
+        tune: function (x) {
+            switch (x) {
+                case 1: return 'Film';
+                case 2: return 'Grain';
+                case 3: return 'Animation';
+                default: return null;
+            }
+        },
         cancel: function (x) {
             $.post(
                 "/external/api/conversion/cancel?name=" + encodeURIComponent(x)
@@ -74,7 +86,7 @@ var mainVue = new Vue({
     components: {
         'wait-queue-component': queueComponent,
         'progress-queue-component': queueComponent,
-        'complete-queue-component': completeComponent
+        'complete-queue-component': queueComponent
     },
     methods: {
         queueSize: function (x) {

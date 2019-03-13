@@ -13,12 +13,47 @@
 }
 
 <style>
+    *,
+    *:before,
+    *:after {
+        box-sizing: border-box;
+    }
+
+    h1,
+    p {
+        margin: 0 0 1em 0;
+    }
+
+    .wrapper {
+        display: grid;
+        grid-gap: 1rem;
+    }
+
+    .wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        grid-auto-rows: minmax(50px, auto);
+    }
+
+    .panel {
+        margin: 0.1rem;
+    }
+
     .btn-cancel {
-        align-self: flex-end;
+        float: right;
+        margin: -2px;
+        padding: 1px 6px 1px 6px;
+        font-weight: bold;
     }
 
     .card-body {
-        padding: 0.5rem;
+        padding: 0.3rem;
     }
 </style>
 
@@ -45,61 +80,51 @@
 </div>
 
 <script type="text/x-template" id="queue-template">
-    <div class="row">
-        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3" style="padding-bottom:1rem;" v-for="item in items">
+    <div class="wrapper">
+        <div class="panel" v-for="item in items">
             <div class="card">
-                <button class="btn btn-danger btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
                 <div class="card-body">
-                    <h5 class="card-title" v-bind:title="item.SourcePath">
-                        {{item.OutputBaseFilename}}
-                    </h5>
-                    <dl style="margin-left:8%;">
-                        <dt class="card-text" data-toggle="tooltip" v-bind:title="item.CreateTime">
-                            Added
-                        </dt>
-                        <dd>
-                            {{timeago(item.CreateTime)}}
-                        </dd>
+                    <div class="" v-bind:title="item.SourcePath" v-if="item.Complete !== true">
+                        <button class="btn text-danger btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
+                    </div>
+                    <b v-if="item.Series">{{item.Series}}</b>
+                    <details>
+                        <summary class="card-title">
+                            {{title(item)}}
+                            <dl style="margin-left:8%;" v-if="item.ErrorText !== null">
+                                <dt class="text-danger">
+                                    Error
+                                </dt>
+                                <dd>
+                                    {{item.ErrorText}}
+                                </dd>
+                            </dl>
+                        </summary>
+                        <dl style="margin-left:8%;">
+                            <dt class="card-text" data-toggle="tooltip" v-bind:title="item.CreateTime">
+                                Added
+                            </dt>
+                            <dd>
+                                {{timeago(item.CreateTime)}}
+                            </dd>
 
-                        <dt>
-                            Qualities
-                        </dt>
-                        <dd>
-                            <quality-component v-bind:quality="item.Quality"></quality-component>
-                        </dd>
-                    </dl>
+                            <dt>
+                                Qualities
+                            </dt>
+                            <dd>
+                                <quality-component v-bind:quality="item.Quality"></quality-component>
+                            </dd>
+                            <dt v-if="tune(item.Tune)">
+                                Tune
+                            </dt>
+                            <dd>
+                                {{tune(item.Tune)}}
+                            </dd>
+                        </dl>
+                    </details>
                 </div>
-                <div class="card-footer p-0">
+                <div class="card-footer p-0" v-if="item.Complete !== true">
                     <progress-component v-bind:progress="item.Progress"></progress-component>
-                </div>
-            </div>
-        </div>
-    </div>
-</script>
-
-<script type="text/x-template" id="complete-template">
-    <div class="row">
-        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3" style="padding-bottom:1rem;" v-for="item in items">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title" v-bind:title="item.SourcePath">
-                        {{item.OutputBaseFilename}}
-                    </h5>
-                    <dl style="margin-left:8%;">
-                        <dt class="card-text" data-toggle="tooltip" v-bind:title="item.CreateTime">
-                            Added
-                        </dt>
-                        <dd>
-                            {{timeago(item.CreateTime)}}
-                        </dd>
-
-                        <dt class="text-danger" v-if="item.ErrorText !== null">
-                            Error
-                        </dt>
-                        <dd v-if="item.ErrorText !== null">
-                            {{item.ErrorText}}
-                        </dd>
-                    </dl>
                 </div>
             </div>
         </div>
@@ -119,7 +144,7 @@
         <div v-for="p in progress">
             {{shortenDescription(p.Description, 48)}}
             <br />
-            <div class="progress" style="height: 0.10em">
+            <div class="progress" style="height: 1px;">
                 <div class="progress-bar" v-bind:style="{ width: progressInt(p.Progress) + '%' }" style="width: 25%" role="progressbar" v-bind:aria-valuenow="progressInt(p.Progress)" aria-valuemin="0" aria-valuemax="100">
                 </div>
             </div>
