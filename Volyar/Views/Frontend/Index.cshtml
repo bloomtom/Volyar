@@ -52,8 +52,22 @@
         font-weight: bold;
     }
 
+    .text-mute-warn {
+        color: #6c757d;
+    }
+
+        .text-mute-warn:hover {
+            color: white;
+            background-color: #dc3545;
+        }
+
     .card-body {
-        padding: 0.3rem;
+        padding: 0.4rem;
+    }
+    .queue-item-body {
+        margin-left: 0.25rem;
+        display: flex;
+        justify-content: space-between;
     }
 </style>
 
@@ -70,7 +84,7 @@
 </div>
 
 
-<div class="container-full p-4" id="vuebox">
+<div class="container-full p-3" id="vuebox">
     <h5 class="alert alert-primary text-center">Processing {{queueSize(inProgress)}}</h5>
     <progress-queue-component v-bind:items="inProgress"></progress-queue-component>
     <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
@@ -83,45 +97,47 @@
     <div class="wrapper">
         <div class="panel" v-for="item in items">
             <div class="card">
-                <div class="card-body">
-                    <div class="" v-bind:title="item.SourcePath" v-if="item.Complete !== true">
-                        <button class="btn text-danger btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
-                    </div>
-                    <b v-if="item.Series">{{item.Series}}</b>
-                    <details>
-                        <summary class="card-title">
-                            {{title(item)}}
-                            <dl style="margin-left:8%;" v-if="item.ErrorText !== null">
-                                <dt class="text-danger">
-                                    Error
+                <div class="card-body queue-item-body">
+                    <div>
+                        <b v-if="item.Series">{{item.Series}}</b>
+                        <details>
+                            <summary class="card-title">
+                                {{title(item)}}
+                                <dl style="margin-left:8%;" v-if="item.ErrorText !== null">
+                                    <dt class="text-danger">
+                                        Error
+                                    </dt>
+                                    <dd>
+                                        {{item.ErrorText}}
+                                    </dd>
+                                </dl>
+                            </summary>
+                            <dl style="margin-left:8%;">
+                                <dt class="card-text" data-toggle="tooltip" v-bind:title="item.CreateTime">
+                                    Added
                                 </dt>
                                 <dd>
-                                    {{item.ErrorText}}
+                                    {{timeago(item.CreateTime)}}
+                                </dd>
+
+                                <dt>
+                                    Qualities
+                                </dt>
+                                <dd>
+                                    <quality-component v-bind:quality="item.Quality"></quality-component>
+                                </dd>
+                                <dt v-if="tune(item.Tune)">
+                                    Tune
+                                </dt>
+                                <dd>
+                                    {{tune(item.Tune)}}
                                 </dd>
                             </dl>
-                        </summary>
-                        <dl style="margin-left:8%;">
-                            <dt class="card-text" data-toggle="tooltip" v-bind:title="item.CreateTime">
-                                Added
-                            </dt>
-                            <dd>
-                                {{timeago(item.CreateTime)}}
-                            </dd>
-
-                            <dt>
-                                Qualities
-                            </dt>
-                            <dd>
-                                <quality-component v-bind:quality="item.Quality"></quality-component>
-                            </dd>
-                            <dt v-if="tune(item.Tune)">
-                                Tune
-                            </dt>
-                            <dd>
-                                {{tune(item.Tune)}}
-                            </dd>
-                        </dl>
-                    </details>
+                        </details>
+                    </div>
+                    <div class="" v-bind:title="'Cancel ' + item.SourcePath" v-if="item.Complete !== true">
+                        <button class="btn text-mute-warn btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
+                    </div>
                 </div>
                 <div class="card-footer p-0" v-if="item.Complete !== true">
                     <progress-component v-bind:progress="item.Progress"></progress-component>
