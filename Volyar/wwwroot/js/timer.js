@@ -11,6 +11,10 @@ var timerCounter = 0; // Free running clock of timer executions.
 
 var testMode = false;
 
+function sortQueueItems(a, b) {
+    return a.CreateTime > b.CreateTime;
+}
+
 function updateStatus() {
     var statusFunc = testMode ? getTestStatus : getStatus;
 
@@ -18,8 +22,8 @@ function updateStatus() {
         let result = JSON.parse(data);
         throttleWait += (result.queued.length + result.processing.length) * throttleWaitMultiplier;
 
-        mainVue.waiting = result.queued;
-        mainVue.inProgress = result.processing;
+        mainVue.waiting = result.queued.sort(sortQueueItems);
+        mainVue.inProgress = result.processing.sort(sortQueueItems);
     }, null);
 
     getComplete(function (data) {
@@ -30,7 +34,7 @@ function updateStatus() {
             result[i].Complete = true;
         }
 
-        mainVue.complete = result;
+        mainVue.complete = result.sort(sortQueueItems);
     }, null);
 }
 
