@@ -52,9 +52,7 @@ var queueComponent = {
             }
         },
         cancel: function (x) {
-            $.post(
-                "/external/api/conversion/cancel?name=" + encodeURIComponent(x)
-            );
+            cancelItem(x);
         }
     },
     components: {

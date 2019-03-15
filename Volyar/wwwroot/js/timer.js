@@ -19,7 +19,7 @@ function updateStatus() {
     var statusFunc = testMode ? getTestStatus : getStatus;
 
     statusFunc(function (data) {
-        let result = JSON.parse(data);
+        let result = JSON.parse(data.responseText);
         throttleWait += (result.queued.length + result.processing.length) * throttleWaitMultiplier;
 
         mainVue.waiting = result.queued.sort(sortQueueItems);
@@ -27,7 +27,7 @@ function updateStatus() {
     }, null);
 
     getComplete(function (data) {
-        let result = JSON.parse(data);
+        let result = JSON.parse(data.responseText);
         throttleWait += result.length * throttleWaitMultiplier;
 
         for (var i = 0; i < result.length; i++) {
