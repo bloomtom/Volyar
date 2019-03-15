@@ -64,10 +64,16 @@
     .card-body {
         padding: 0.4rem;
     }
+
     .queue-item-body {
         margin-left: 0.25rem;
         display: flex;
         justify-content: space-between;
+    }
+
+    .hidden-details {
+        color: transparent;
+        line-height: 0;
     }
 </style>
 
@@ -76,21 +82,33 @@
         <h3 class="card-title dropdown">
             Conversion Status
         </h3>
-        <button class="btn btn-primary btn-sm" onclick="postFullscan(null, null);">Trigger Conversion</button>
+        <button class="btn btn-primary btn-sm" onclick="postFullscan();">Trigger Conversion</button>
         <button class="btn btn-warning btn-sm" onclick="pauseQueue();">Pause Queue</button>
         <button class="btn btn-success btn-sm" onclick="resumeQueue();">Resume Queue</button>
-        <button class="btn btn-danger btn-sm" onclick="cancelAll()">Cancel All</button>
+        <button class="btn btn-danger btn-sm" onclick="cancelAll();">Cancel All</button>
     </div>
 </div>
 
 
 <div class="container-full p-3" id="vuebox">
-    <h5 class="alert alert-primary text-center">Processing {{queueSize(inProgress)}}</h5>
-    <progress-queue-component v-bind:items="inProgress"></progress-queue-component>
-    <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
-    <wait-queue-component v-bind:items="waiting"></wait-queue-component>
-    <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
-    <complete-queue-component v-bind:items="complete"></complete-queue-component>
+    <details open>
+        <summary class="hidden-details">
+            <h5 class="alert alert-primary text-center">Processing {{queueSize(inProgress)}}</h5>
+        </summary>
+        <progress-queue-component v-bind:items="inProgress"></progress-queue-component>
+    </details>
+    <details open>
+        <summary class="hidden-details">
+            <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
+        </summary>
+        <wait-queue-component v-bind:items="waiting"></wait-queue-component>
+    </details>
+    <details open>
+        <summary class="hidden-details">
+            <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
+        </summary>
+        <complete-queue-component v-bind:items="complete"></complete-queue-component>
+    </details>
 </div>
 
 <script type="text/x-template" id="queue-template">
