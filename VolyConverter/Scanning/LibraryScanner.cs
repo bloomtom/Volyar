@@ -121,8 +121,11 @@ namespace VolyConverter.Scanning
 
                 if (library.DeleteWithSource)
                 {
-                    // Delete db items not found in scan.
-                    context.Media.RemoveRange(currentLibrary.Values);
+                    // Queue delete for items not found in scan.
+                    var toAdd = currentLibrary.Values.Select(x => x.MediaId);
+                    var inDb = context.PendingDeletions.Where(x => toAdd.Contains(x.MediaId)).Select(y => y.MediaId);
+                    var notInDb = currentLibrary.Values.Where(x => !inDb.Contains(x.MediaId));
+                    context.PendingDeletions.AddRange(notInDb.Select(x => new PendingDeletion() { MediaId = x.MediaId, Requestor = DeleteRequestor.Scan }));
                 }
 
                 context.SaveChanges();
@@ -218,8 +221,8 @@ namespace VolyConverter.Scanning
 
                 using (var innerContext = new VolyContext(dbOptions))
                 {
-                    removedFiles = innerContext.MediaFile.Where(x => x.MediaId == mediaId).Select(x => x.Filename).ToList();
-                    innerContext.MediaFile.RemoveRange(innerContext.MediaFile.Where(x => x.MediaId == mediaId));
+                    removedFiles = innerContext.MediaFiles.Where(x => x.MediaId == mediaId).Select(x => x.Filename).ToList();
+                    innerContext.MediaFiles.RemoveRange(innerContext.MediaFiles.Where(x => x.MediaId == mediaId));
                     var inDb = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault();
                     if (inDb != null)
                     {
@@ -383,7 +386,7 @@ namespace VolyConverter.Scanning
                     continue;
                 }
 
-                context.MediaFile.Add(new MediaFile()
+                context.MediaFiles.Add(new MediaFile()
                 {
                     MediaId = mediaId,
                     Filename = f,

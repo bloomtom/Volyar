@@ -32,6 +32,10 @@ namespace VolyDatabase
             {
                 x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TmdbId] VARCHAR;");
                 x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [AbsoluteEpisodeNumber] INTEGER;");
+            }),
+            new Action<VolyContext>(x =>
+            {
+                x.Database.ExecuteSqlCommand("CREATE TABLE [PendingDeletions] ([MediaId] INTEGER, [Requestor] INTEGER);");
             })
         };
 

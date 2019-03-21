@@ -74,12 +74,17 @@ var completeComponent = {
     template: '#complete-template'
 };
 
-var mainVue = new Vue({
-    el: '#vuebox',
-    data: {
-        waiting: [],
-        inProgress: [],
-        complete: []
+var conversionStatusComponent = {
+    computed: {
+        waiting() {
+            return this.$store.state.waiting;
+        },
+        progress() {
+            return this.$store.state.progress;
+        },
+        complete() {
+            return this.$store.state.complete;
+        }
     },
     components: {
         'wait-queue-component': queueComponent,
@@ -88,8 +93,60 @@ var mainVue = new Vue({
     },
     methods: {
         queueSize: function (x) {
-            if (x.length === 0) { return ''; }
+            if (x.length === 0) { return '(none)'; }
             return '(' + x.length + ')';
+        }
+    },
+    template: '#conversion-status-template'
+};
+
+var pendingDeletionsComponent = {
+    computed: {
+        pendingDelete() {
+            return this.$store.state.pendingDelete;
+        }
+    },
+    components: {
+
+    },
+    methods: {
+
+    },
+    template: '#pending-deletions-template'
+};
+
+const store = new Vuex.Store({
+    state: {
+        waiting: [],
+        progress: [],
+        complete: [],
+        pendingDelete: []
+    },
+    mutations: {
+        setWaiting(store, x) {
+            store.waiting = x;
+        },
+        setProgress(store, x) {
+            store.progress = x;
+        },
+        setComplete(store, x) {
+            store.complete = x;
+        },
+        setPendingDelete(store, x) {
+            store.pendingDelete = x;
         }
     }
 });
+
+const mainVue = new Vue({
+    data: {
+
+    },
+    store,
+    router: new VueRouter({
+        routes: [
+            { path: '/conversionStatus', component: conversionStatusComponent, props: true },
+            { path: '/pendingDeletions', component: pendingDeletionsComponent }
+        ]
+    })
+}).$mount('#app');

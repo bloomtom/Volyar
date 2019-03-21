@@ -11,6 +11,10 @@ function getComplete(done, fail) {
     get("../external/api/conversion/complete", done, fail);
 }
 
+function getPendingDelete(done, fail) {
+    get("../external/api/delete/pending", done, fail);
+}
+
 function cancelItem(item, done, fail) {
     post("../external/api/conversion/cancel?name=" + encodeURIComponent(item), done, fail);
 }
@@ -29,6 +33,10 @@ function resumeQueue(done, fail) {
 
 function postFullscan(done, fail) {
     post("../internal/api/scan/fullscan", done, fail);
+}
+
+function confirmDelete(items, done, fail) {
+    call('POST', "../external/api/delete/confirm", done, fail, items);
 }
 
 function get(url, done, fail) {

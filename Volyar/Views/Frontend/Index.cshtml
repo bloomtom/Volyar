@@ -24,6 +24,10 @@
         margin: 0 0 1em 0;
     }
 
+    body {
+        background-color: #fafafa;
+    }
+
     .wrapper {
         display: grid;
         grid-gap: 1rem;
@@ -33,9 +37,26 @@
         grid-auto-rows: minmax(50px, auto);
     }
 
+    .tab-wrapper {
+        margin: 1rem;
+    }
+
+    .button-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .control-button {
+        margin: 0.2rem;
+        margin-top: 0.75rem;
+        min-width: 10rem;
+    }
+
     .panel {
         margin: 0.1rem;
-        word-break:break-all;
+        word-break: break-all;
     }
 
     .btn-cancel {
@@ -68,40 +89,26 @@
         color: transparent;
         line-height: 0;
     }
+
+    .router-link-active {
+        color: #fff;
+        background-color: #007bff;
+    }
+
+        .router-link-active:hover {
+            color: #fff;
+            background-color: #007bff;
+            cursor: default;
+        }
 </style>
 
-<div class="card">
-    <div class="card-body">
-        <h3 class="card-title dropdown">
-            Conversion Status
-        </h3>
-        <button class="btn btn-primary btn-sm" onclick="postFullscan();">Trigger Conversion</button>
-        <button class="btn btn-warning btn-sm" onclick="pauseQueue();">Pause Queue</button>
-        <button class="btn btn-success btn-sm" onclick="resumeQueue();">Resume Queue</button>
-        <button class="btn btn-danger btn-sm" onclick="cancelAll();">Cancel All</button>
-    </div>
-</div>
-
-
-<div class="container-full p-3" id="vuebox">
-    <details open>
-        <summary class="hidden-details">
-            <h5 class="alert alert-primary text-center">Processing {{queueSize(inProgress)}}</h5>
-        </summary>
-        <progress-queue-component v-bind:items="inProgress"></progress-queue-component>
-    </details>
-    <details open>
-        <summary class="hidden-details">
-            <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
-        </summary>
-        <wait-queue-component v-bind:items="waiting"></wait-queue-component>
-    </details>
-    <details open>
-        <summary class="hidden-details">
-            <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
-        </summary>
-        <complete-queue-component v-bind:items="complete"></complete-queue-component>
-    </details>
+<div id="app">
+    <ul class="nav nav-pills tab-wrapper button-wrapper">
+        <li class="nav-item p-1"><router-link class="nav-link" to="/conversionStatus">Conversion Status</router-link></li>
+        <li class="nav-item p-1"><router-link class="nav-link" to="/pendingDeletions">Pending Deletions</router-link></li>
+    </ul>
+    <hr/>
+    <router-view></router-view>
 </div>
 
 <script type="text/x-template" id="queue-template">
@@ -176,5 +183,40 @@
                 </div>
             </div>
         </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="conversion-status-template">
+    <div>
+        <div class="card-body button-wrapper">
+            <button class="btn btn-primary control-button" onclick="postFullscan();">Trigger Conversion</button>
+            <button class="btn btn-warning control-button" onclick="pauseQueue();">Pause Queue</button>
+            <button class="btn btn-success control-button" onclick="resumeQueue();">Resume Queue</button>
+            <button class="btn btn-danger control-button" onclick="cancelAll();">Cancel All</button>
+        </div>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-primary text-center">Processing {{queueSize(progress)}}</h5>
+            </summary>
+            <progress-queue-component v-bind:items="progress"></progress-queue-component>
+        </details>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
+            </summary>
+            <wait-queue-component v-bind:items="waiting"></wait-queue-component>
+        </details>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
+            </summary>
+            <complete-queue-component v-bind:items="complete"></complete-queue-component>
+        </details>
+    </div>
+</script>
+
+<script type="text/x-template" id="pending-deletions-template">
+    <div>
+        <p>Pending deletions!</p>
     </div>
 </script>

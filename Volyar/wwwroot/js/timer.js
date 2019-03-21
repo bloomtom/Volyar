@@ -15,6 +15,10 @@ function sortQueueItems(a, b) {
     return a.CreateTime > b.CreateTime;
 }
 
+function sortPendingDeletions(a, b) {
+    return a.mediaId > b.mediaId;
+}
+
 function updateStatus() {
     var statusFunc = testMode ? getTestStatus : getStatus;
 
@@ -22,8 +26,8 @@ function updateStatus() {
         let result = JSON.parse(data.responseText);
         throttleWait += (result.queued.length + result.processing.length) * throttleWaitMultiplier;
 
-        mainVue.waiting = result.queued.sort(sortQueueItems);
-        mainVue.inProgress = result.processing.sort(sortQueueItems);
+        store.commit('setWaiting', result.queued.sort(sortQueueItems));
+        store.commit('setProgress', result.processing.sort(sortQueueItems));
     }, null);
 
     getComplete(function (data) {
@@ -34,7 +38,14 @@ function updateStatus() {
             result[i].Complete = true;
         }
 
-        mainVue.complete = result.sort(sortQueueItems);
+        store.commit('setComplete', result.sort(sortQueueItems));
+    }, null);
+
+    getPendingDelete(function (data) {
+        let result = JSON.parse(data.responseText);
+        throttleWait += result.length * throttleWaitMultiplier;
+
+        store.commit('setPendingDelete', result.sort(sortPendingDeletions));
     }, null);
 }
 
