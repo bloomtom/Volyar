@@ -100,17 +100,71 @@ var conversionStatusComponent = {
     template: '#conversion-status-template'
 };
 
+var deletionItemComponent = {
+    data: function () {
+        return {
+            checked: false
+        };
+    },
+    props: {
+        item: {}
+    },
+    methods: {
+        checkChanged() {
+            this.$emit('checked', this.checked);
+        }
+    },
+    template: '#deletion-item-template'
+};
+
 var pendingDeletionsComponent = {
+    data: function () {
+        return {
+            indeterminate: false,
+            masterCheck: false
+        };
+    },
     computed: {
         pendingDelete() {
             return this.$store.state.pendingDelete;
         }
     },
     components: {
-
+        'deletion-item-component': deletionItemComponent
     },
     methods: {
-
+        invalidateMasterCheck(checked) {
+            this.indeterminate = true;
+        },
+        masterCheckChanged() {
+            this.indeterminate = false;
+            for (var i = 0; i < this.$children.length; i++) {
+                this.$children[i].checked = this.masterCheck;
+            }
+        },
+        confirmDelete() {
+            let confirmed = this.getChecked();
+            if (confirmed.length > 0) {
+                confirmDelete(confirmed);
+                updatePendingDelete();
+            }
+        },
+        revertDelete() {
+            let confirmed = this.getChecked();
+            if (confirmed.length > 0) {
+                revertDelete(confirmed);
+                updatePendingDelete();
+            }
+        },
+        getChecked() {
+            let confirmed = [];
+            for (var i = 0; i < this.$children.length; i++) {
+                if (this.$children[i].checked) {
+                    confirmed.push(this.$children[i]._props.item.MediaId);
+                }
+            }
+            return confirmed;
+        }
     },
     template: '#pending-deletions-template'
 };

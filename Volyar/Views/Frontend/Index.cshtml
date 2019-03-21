@@ -59,6 +59,43 @@
         word-break: break-all;
     }
 
+    .deletion-wrapper {
+        display: flex;
+        flex-direction: column;
+        margin: 0.2rem 0 0 1rem;
+        padding: 0.2rem 0 0 1rem;
+        word-break: break-all;
+    }
+
+    .deletion-item {
+        display: flex;
+        flex-direction: row;
+        margin: 0.5rem 0 0 0.5rem;
+    }
+
+    .deletion-details {
+        margin-top: 0px;
+        margin-left: 0.5rem;
+    }
+
+        .deletion-details ul {
+            border: 1px solid #d8d8d8;
+            margin: 0.5rem;
+            padding: 0.5rem;
+        }
+
+            .deletion-details ul li {
+                display: flex;
+                flex-direction: row;
+                text-align: right;
+            }
+
+                .deletion-details ul li p {
+                    color: #6c757d;
+                    min-width: 4rem;
+                    margin: 0 0.5rem 0 0;
+                }
+
     .btn-cancel {
         float: right;
         margin: -2px;
@@ -107,7 +144,7 @@
         <li class="nav-item p-1"><router-link class="nav-link" to="/conversionStatus">Conversion Status</router-link></li>
         <li class="nav-item p-1"><router-link class="nav-link" to="/pendingDeletions">Pending Deletions</router-link></li>
     </ul>
-    <hr/>
+    <hr />
     <router-view></router-view>
 </div>
 
@@ -217,6 +254,40 @@
 
 <script type="text/x-template" id="pending-deletions-template">
     <div>
-        <p>Pending deletions!</p>
+        <div class="card-body button-wrapper">
+            <button class="btn btn-primary control-button" v-on:click="revertDelete">Undo Deletion</button>
+            <button class="btn btn-danger control-button" v-on:click="confirmDelete">Delete</button>
+        </div>
+        <div class="deletion-wrapper">
+            <div class="deletion-item">
+                <input v-model="masterCheck" :indeterminate.prop="indeterminate" v-on:change="masterCheckChanged" class="form-check-input" type="checkbox">
+                <p>All</p>
+            </div>
+        </div>
+        <div class="deletion-wrapper" v-for="item in pendingDelete">
+            <deletion-item-component v-bind:item="item" v-on:checked="invalidateMasterCheck"></deletion-item-component>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="deletion-item-template">
+    <div class="deletion-item">
+        <div>
+            <input v-model="checked" v-on:change="checkChanged" class="form-check-input" type="checkbox">
+        </div>
+        <details class="deletion-details">
+            <summary class="card-title">
+                {{item.Name}}
+            </summary>
+            <ul>
+                <li><p>ID:</p> {{item.MediaId}}</li>
+                <li><p>Library:</p> {{item.LibraryName}}</li>
+                <li><p>Series:</p> {{item.SeriesName}}</li>
+                <li v-if="item.SeasonNumber"><p>Season:</p> {{item.SeasonNumber}}</li>
+                <li v-if="item.EpisodeNumber"><p>Episode:</p> {{item.EpisodeNumber}}</li>
+                <li><p>Source:</p> {{item.SourcePath}}</li>
+                <li><p>Created:</p> {{item.CreateDate}}</li>
+            </ul>
+        </details>
     </div>
 </script>

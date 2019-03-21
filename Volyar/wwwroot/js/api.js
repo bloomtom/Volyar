@@ -36,7 +36,11 @@ function postFullscan(done, fail) {
 }
 
 function confirmDelete(items, done, fail) {
-    call('POST', "../external/api/delete/confirm", done, fail, items);
+    call('POST', "../external/api/delete/confirm", done, fail, JSON.stringify(items));
+}
+
+function revertDelete(items, done, fail) {
+    call('POST', "../external/api/delete/revert", done, fail, JSON.stringify(items));
 }
 
 function get(url, done, fail) {
@@ -71,7 +75,7 @@ function call(type, url, done = null, fail = null, data = null) {
     request.open(type, url, true);
 
     if (data !== null) {
-        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         request.send(data);
     }
     else {
