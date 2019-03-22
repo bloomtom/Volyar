@@ -54,6 +54,7 @@ namespace VolyDatabase
             modelBuilder.Entity<MediaItem>().HasIndex(a => new { a.LibraryName, a.SeriesName });
             modelBuilder.Entity<MediaItem>().HasIndex(a => a.IndexName).IsUnique(true);
             modelBuilder.Entity<TransactionLog>().HasIndex(a => a.Type);
+            modelBuilder.Entity<PendingDeletion>().HasKey(a => new { a.MediaId, a.Version });
 
             base.OnModelCreating(modelBuilder);
         }
@@ -139,6 +140,8 @@ namespace VolyDatabase
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MediaId { get; set; }
+
+        public int Version { get; set; }
 
         /// <summary>
         /// The full path to the index file.
@@ -277,8 +280,10 @@ namespace VolyDatabase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int VariantId { get; set; }
+        public long VariantId { get; set; }
         public int MediaId { get; set; }
+
+        public int Version { get; set; }
 
         /// <summary>
         /// The filename (not path) for this file on disk.
@@ -292,8 +297,8 @@ namespace VolyDatabase
 
     public class PendingDeletion : Entity
     {
-        [Key]
         public int MediaId { get; set; }
+        public int Version { get; set; }
         public DeleteRequestor Requestor { get; set; }
     }
 }

@@ -35,7 +35,9 @@ namespace VolyDatabase
             }),
             new Action<VolyContext>(x =>
             {
-                x.Database.ExecuteSqlCommand("CREATE TABLE [PendingDeletions] ([MediaId] INTEGER, [Requestor] INTEGER);");
+                x.Database.ExecuteSqlCommand("CREATE TABLE [PendingDeletions] ([MediaId] INTEGER, [Version] INTEGER NOT NULL, [Requestor] INTEGER, PRIMARY KEY([MediaId], [Version]));");
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaVariant] ADD [Version] INTEGER NOT NULL DEFAULT (0);");
+                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [Version] INTEGER NOT NULL DEFAULT (0);");
             })
         };
 

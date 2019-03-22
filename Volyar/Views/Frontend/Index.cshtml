@@ -281,6 +281,8 @@
             </summary>
             <ul>
                 <li><p>ID:</p> {{item.MediaId}}</li>
+                <li v-if="item.Version != -1"><p>Version:</p> {{item.Version}}</li>
+                <li v-if="item.Version === -1"><p>Version:</p> All</li>
                 <li><p>Library:</p> {{item.LibraryName}}</li>
                 <li><p>Series:</p> {{item.SeriesName}}</li>
                 <li v-if="item.SeasonNumber"><p>Season:</p> {{item.SeasonNumber}}</li>

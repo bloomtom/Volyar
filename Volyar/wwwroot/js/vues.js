@@ -160,7 +160,7 @@ var pendingDeletionsComponent = {
             let confirmed = [];
             for (var i = 0; i < this.$children.length; i++) {
                 if (this.$children[i].checked) {
-                    confirmed.push(this.$children[i]._props.item.MediaId);
+                    confirmed.push({ MediaId: this.$children[i]._props.item.MediaId, Version:this.$children[i]._props.item.Version });
                 }
             }
             return confirmed;
