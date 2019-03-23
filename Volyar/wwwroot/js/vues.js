@@ -1,4 +1,18 @@
-﻿var qualityComponent = {
+﻿function conversionStatusRouteNavigate() {
+    if (typeof updateStatus === "function") {
+        updateStatus();
+        enableStatusTimer();
+    }
+}
+
+function deletionRouteNavigate() {
+    if (typeof updateStatus === "function") {
+        updatePendingDelete();
+        enablePendingDeleteTimer();
+    }
+}
+
+var qualityComponent = {
     props: {
         quality: {}
     },
@@ -75,6 +89,14 @@ var completeComponent = {
 };
 
 var conversionStatusComponent = {
+    beforeRouteEnter(to, from, next) {
+        conversionStatusRouteNavigate();
+        next();
+    },
+    beforeRouteUpdate(to, from, next) {
+        conversionStatusRouteNavigate();
+        next();
+    },
     computed: {
         waiting() {
             return this.$store.state.waiting;
@@ -112,6 +134,9 @@ var deletionItemComponent = {
     methods: {
         checkChanged() {
             this.$emit('checked', this.checked);
+        },
+        timeago: function (x) {
+            return moment(x).fromNow();
         }
     },
     template: '#deletion-item-template'
@@ -124,6 +149,14 @@ var pendingDeletionsComponent = {
             masterCheck: false
         };
     },
+    beforeRouteEnter(to, from, next) {
+        deletionRouteNavigate();
+        next();
+    },
+    beforeRouteUpdate(to, from, next) {
+        deletionRouteNavigate();
+        next();
+    },
     computed: {
         pendingDelete() {
             return this.$store.state.pendingDelete;
@@ -134,7 +167,14 @@ var pendingDeletionsComponent = {
     },
     methods: {
         invalidateMasterCheck(checked) {
-            this.indeterminate = true;
+            var allChecked = true;
+            var anyChecked = false;
+            for (var i = 0; i < this.$children.length; i++) {
+                allChecked &= this.$children[i].checked;
+                anyChecked |= this.$children[i].checked;
+            }
+            this.indeterminate = anyChecked && !allChecked;
+            this.masterCheck = allChecked;
         },
         masterCheckChanged() {
             this.indeterminate = false;
@@ -145,22 +185,30 @@ var pendingDeletionsComponent = {
         confirmDelete() {
             let confirmed = this.getChecked();
             if (confirmed.length > 0) {
-                confirmDelete(confirmed);
-                updatePendingDelete();
+                confirmDelete(confirmed, function () {
+                    updatePendingDelete();
+                });
             }
+            this.uncheckAll();
         },
         revertDelete() {
             let confirmed = this.getChecked();
             if (confirmed.length > 0) {
-                revertDelete(confirmed);
-                updatePendingDelete();
+                revertDelete(confirmed, function () {
+                    updatePendingDelete();
+                });
             }
+            this.uncheckAll();
+        },
+        uncheckAll() {
+            this.masterCheck = false;
+            this.masterCheckChanged();
         },
         getChecked() {
             let confirmed = [];
             for (var i = 0; i < this.$children.length; i++) {
                 if (this.$children[i].checked) {
-                    confirmed.push({ MediaId: this.$children[i]._props.item.MediaId, Version:this.$children[i]._props.item.Version });
+                    confirmed.push({ MediaId: this.$children[i]._props.item.MediaId, Version: this.$children[i]._props.item.Version });
                 }
             }
             return confirmed;

@@ -3,11 +3,30 @@ const baseTimerPeriod = 2000;
 const backgroundThrottle = 10;
 const throttleWaitMultiplier = 2; // Number of milliseconds extra to wait per item retrieved from the api.
 const throttleWaitFilledDivider = 2;
+var runTimer = true;
 var throttleWait = 0;
 var iterationThrottle = 1;
 
 var timerRunning = false;
 var timerCounter = 0; // Free running clock of timer executions.
+
+var statusTimerEnabled = true;
+var pendingDeleteTimerEnabled = true;
+
+function invalidateTimerEnables() {
+    statusTimerEnabled = false;
+    pendingDeleteTimerEnabled = false;
+}
+
+function enableStatusTimer() {
+    invalidateTimerEnables();
+    statusTimerEnabled = true;
+}
+
+function enablePendingDeleteTimer() {
+    invalidateTimerEnables();
+    pendingDeleteTimerEnabled = true;
+}
 
 var testMode = false;
 
@@ -40,7 +59,6 @@ function updateStatus() {
         }
 
         store.commit('setComplete', result.sort(sortQueueItems));
-        console.log('Updated complete');
     }, null);
 }
 
@@ -64,11 +82,13 @@ function startTimer(force, single = false) {
         timerCounter++;
 
         try {
-            if (timerCounter % iterationThrottle === 0) {
-                updateStatus();
-            }
-            if (timerCounter % (iterationThrottle * 2) === 0) {
-                updatePendingDelete();
+            if (runTimer) {
+                if (statusTimerEnabled && timerCounter % iterationThrottle === 0) {
+                    updateStatus();
+                }
+                if (pendingDeleteTimerEnabled && timerCounter % (iterationThrottle * 10) === 0) {
+                    updatePendingDelete();
+                }
             }
         }
         finally {
@@ -87,6 +107,15 @@ try {
 } finally {
     //
 }
+
+function enableTimerConversionStatus() {
+    iterationThrottle = backgroundThrottle;
+}
+
+function enableTimerPendingDeletions() {
+    iterationThrottle = backgroundThrottle;
+}
+
 
 window.addEventListener("focus", function () {
     iterationThrottle = 1;
