@@ -16,12 +16,21 @@ namespace VolyDatabase
         Delete = 2
     }
 
+    public enum DeleteRequestor
+    {
+        None = 0,
+        Scan = 1,
+        Integration = 2,
+        User = 3
+    }
+
     public class VolyContext : DbContext, IVolyContext
     {
         public DbSet<Configuration> Configuration { get; set; }
         public DbSet<TransactionLog> TransactionLog { get; set; }
         public DbSet<MediaItem> Media { get; set; }
-        public DbSet<MediaFile> MediaFile { get; set; }
+        public DbSet<MediaFile> MediaFiles { get; set; }
+        public DbSet<PendingDeletion> PendingDeletions { get; set; }
 
         public VolyContext(DbContextOptions<VolyContext> options) : base(options)
         {
@@ -35,6 +44,7 @@ namespace VolyDatabase
             modelBuilder.Entity<MediaItem>().ToTable("MediaItem");
             modelBuilder.Entity<MediaFile>().ToTable("MediaVariant");
             modelBuilder.Entity<TransactionLog>().ToTable("TransactionLog");
+            modelBuilder.Entity<PendingDeletion>().ToTable("PendingDeletions");
 
             // Set relationships.
             modelBuilder.Entity<MediaItem>().HasMany<MediaFile>().WithOne().HasForeignKey(x => x.MediaId).OnDelete(DeleteBehavior.Cascade);
@@ -44,6 +54,7 @@ namespace VolyDatabase
             modelBuilder.Entity<MediaItem>().HasIndex(a => new { a.LibraryName, a.SeriesName });
             modelBuilder.Entity<MediaItem>().HasIndex(a => a.IndexName).IsUnique(true);
             modelBuilder.Entity<TransactionLog>().HasIndex(a => a.Type);
+            modelBuilder.Entity<PendingDeletion>().HasKey(a => new { a.MediaId, a.Version });
 
             base.OnModelCreating(modelBuilder);
         }
@@ -129,6 +140,8 @@ namespace VolyDatabase
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MediaId { get; set; }
+
+        public int Version { get; set; }
 
         /// <summary>
         /// The full path to the index file.
@@ -267,8 +280,10 @@ namespace VolyDatabase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int VariantId { get; set; }
+        public long VariantId { get; set; }
         public int MediaId { get; set; }
+
+        public int Version { get; set; }
 
         /// <summary>
         /// The filename (not path) for this file on disk.
@@ -278,5 +293,12 @@ namespace VolyDatabase
         /// Filesize in bytes.
         /// </summary>
         public long Filesize { get; set; }
+    }
+
+    public class PendingDeletion : Entity
+    {
+        public int MediaId { get; set; }
+        public int Version { get; set; }
+        public DeleteRequestor Requestor { get; set; }
     }
 }

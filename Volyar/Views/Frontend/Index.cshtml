@@ -8,8 +8,8 @@
 @section head {
     <script src="~/external/static/lib/moment.js"></script>
     <script src="~/external/static/js/api.js"></script>
+    <script src="~/external/static/js/timer.js"></script>
     <script defer src="~/external/static/js/vues.js"></script>
-    <script defer src="~/external/static/js/timer.js"></script>
 }
 
 <style>
@@ -24,6 +24,11 @@
         margin: 0 0 1em 0;
     }
 
+    body {
+        background-color: #fafafa;
+        padding: 0.25rem;
+    }
+
     .wrapper {
         display: grid;
         grid-gap: 1rem;
@@ -33,10 +38,81 @@
         grid-auto-rows: minmax(50px, auto);
     }
 
+    .tab-wrapper {
+        margin: 1rem;
+    }
+
+    .button-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .control-button {
+        margin: 0.2rem;
+        margin-top: 0.75rem;
+        min-width: 10rem;
+    }
+
     .panel {
         margin: 0.1rem;
-        word-break:break-all;
+        word-break: break-all;
     }
+
+
+    .checkbox-margin {
+        margin-top: 8px;
+    }
+
+    .deletion-wrapper {
+        display: grid;
+        grid-gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        grid-auto-rows: minmax(50px, auto);
+        word-break: break-all;
+    }
+
+    .deletion-item {
+        display: flex;
+        flex-direction: row;
+        margin: 0.5rem 0 0 0.5rem;
+    }
+
+    .deletion-details-checked {
+        border-color: #d8b0b0 !important;
+    }
+
+    .deletion-details {
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem;
+        margin: 0;
+    }
+
+
+        .deletion-details ul li {
+            display: flex;
+            flex-direction: row;
+        }
+
+            .deletion-details ul li p {
+                text-align: right;
+            }
+
+            .deletion-details ul li h5 {
+                width: 100%;
+                text-align: center;
+                padding-left: 1rem;
+            }
+
+            .deletion-details ul li p {
+                color: #6c757d;
+                min-width: 4rem;
+                margin: 0 0.5rem 0 0;
+            }
 
     .btn-cancel {
         float: right;
@@ -68,40 +144,35 @@
         color: transparent;
         line-height: 0;
     }
+
+    .nav-link {
+        color: #6800ff;
+    }
+
+        .nav-link:hover {
+            color: #5e00e6;
+            background-color: rgba(152, 81, 255, 0.18)
+        }
+
+    .router-link-active {
+        color: #fff;
+        background-color: #6800ff;
+    }
+
+        .router-link-active:hover {
+            color: #fff;
+            background-color: #6800ff;
+            cursor: default;
+        }
 </style>
 
-<div class="card">
-    <div class="card-body">
-        <h3 class="card-title dropdown">
-            Conversion Status
-        </h3>
-        <button class="btn btn-primary btn-sm" onclick="postFullscan();">Trigger Conversion</button>
-        <button class="btn btn-warning btn-sm" onclick="pauseQueue();">Pause Queue</button>
-        <button class="btn btn-success btn-sm" onclick="resumeQueue();">Resume Queue</button>
-        <button class="btn btn-danger btn-sm" onclick="cancelAll();">Cancel All</button>
-    </div>
-</div>
-
-
-<div class="container-full p-3" id="vuebox">
-    <details open>
-        <summary class="hidden-details">
-            <h5 class="alert alert-primary text-center">Processing {{queueSize(inProgress)}}</h5>
-        </summary>
-        <progress-queue-component v-bind:items="inProgress"></progress-queue-component>
-    </details>
-    <details open>
-        <summary class="hidden-details">
-            <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
-        </summary>
-        <wait-queue-component v-bind:items="waiting"></wait-queue-component>
-    </details>
-    <details open>
-        <summary class="hidden-details">
-            <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
-        </summary>
-        <complete-queue-component v-bind:items="complete"></complete-queue-component>
-    </details>
+<div id="app">
+    <ul class="nav nav-pills tab-wrapper button-wrapper">
+        <li class="nav-item p-1"><router-link class="nav-link" to="/conversionStatus">Conversion Status</router-link></li>
+        <li class="nav-item p-1"><router-link class="nav-link" to="/pendingDeletions">Pending Deletions</router-link></li>
+    </ul>
+    <hr />
+    <router-view></router-view>
 </div>
 
 <script type="text/x-template" id="queue-template">
@@ -109,7 +180,7 @@
         <div class="panel" v-for="item in items">
             <div class="card">
                 <div class="card-body queue-item-body">
-                    <div>
+                    <div class="w-100">
                         <b v-if="item.Series">{{item.Series}}</b>
                         <details>
                             <summary class="card-title">
@@ -124,10 +195,10 @@
                                 </dl>
                             </summary>
                             <dl style="margin-left:8%;">
-                                <dt class="card-text" data-toggle="tooltip" v-bind:title="item.CreateTime">
+                                <dt class="card-text" data-toggle="tooltip">
                                     Added
                                 </dt>
-                                <dd>
+                                <dd v-bind:title="item.CreateTime">
                                     {{timeago(item.CreateTime)}}
                                 </dd>
 
@@ -175,6 +246,80 @@
                 <div class="progress-bar" v-bind:style="{ width: progressInt(p.Progress) + '%' }" style="width: 25%" role="progressbar" v-bind:aria-valuenow="progressInt(p.Progress)" aria-valuemin="0" aria-valuemax="100">
                 </div>
             </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="conversion-status-template">
+    <div>
+        <div class="card-body button-wrapper">
+            <button class="btn btn-primary control-button" onclick="postFullscan();">Trigger Conversion</button>
+            <button class="btn btn-warning control-button" onclick="pauseQueue();">Pause Queue</button>
+            <button class="btn btn-success control-button" onclick="resumeQueue();">Resume Queue</button>
+            <button class="btn btn-danger control-button" onclick="cancelAll();">Cancel All</button>
+        </div>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-primary text-center">Processing {{queueSize(progress)}}</h5>
+            </summary>
+            <progress-queue-component v-bind:items="progress"></progress-queue-component>
+        </details>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
+            </summary>
+            <wait-queue-component v-bind:items="waiting"></wait-queue-component>
+        </details>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
+            </summary>
+            <complete-queue-component v-bind:items="complete"></complete-queue-component>
+        </details>
+    </div>
+</script>
+
+<script type="text/x-template" id="pending-deletions-template">
+    <div>
+        <div class="card-body button-wrapper">
+            <button class="btn btn-secondary control-button" v-on:click="revertDelete">Cancel Deletion</button>
+            <button class="btn btn-danger control-button" v-on:click="confirmDelete">Delete</button>
+        </div>
+        <div class="button-wrapper p-2">
+            <h5 style="margin-left:1rem;">
+                <input class="form-check-input checkbox-margin" type="checkbox" v-model="masterCheck" :indeterminate.prop="indeterminate" v-on:change="masterCheckChanged">
+                <span class="form-check-label">All</span>
+            </h5>
+
+        </div>
+        <div class="deletion-wrapper">
+            <div v-for="item in pendingDelete">
+                <deletion-item-component v-bind:item="item" v-on:checked="invalidateMasterCheck"></deletion-item-component>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="deletion-item-template">
+    <div class="card">
+        <div class="card-body deletion-details">
+            <ul class="deletion-details">
+                <li>
+                    <h5>
+                        <input v-model="checked" v-on:change="checkChanged" class="form-check-input checkbox-margin" type="checkbox">
+                        <span>{{item.Name}}</span>
+                    </h5>
+                </li>
+                <li><p>ID:</p> {{item.MediaId}}</li>
+                <li v-if="item.Version != -1"><p>Version:</p> {{item.Version}}</li>
+                <li><p>Library:</p> {{item.LibraryName}}</li>
+                <li><p>Series:</p> {{item.SeriesName}}</li>
+                <li v-if="item.SeasonNumber && item.EpisodeNumber"><p>Episode:</p> {{item.SeasonNumber}}x{{item.EpisodeNumber}}</li>
+                <li v-if="item.SeasonNumber && !item.EpisodeNumber"><p>Season:</p> {{item.SeasonNumber}}</li>
+                <li v-if="!item.SeasonNumber && item.EpisodeNumber"><p>Episode:</p> {{item.EpisodeNumber}}</li>
+                <li><p>Source:</p> {{item.SourcePath}}</li>
+                <li v-bind:title="item.CreateDate"><p>Created:</p> {{timeago(item.CreateDate)}}</li>
+            </ul>
         </div>
     </div>
 </script>

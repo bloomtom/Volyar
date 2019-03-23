@@ -16,6 +16,7 @@ using VolyDatabase;
 using Microsoft.EntityFrameworkCore;
 using MStorage.WebStorage;
 using VolyConverter.Plugin;
+using VolyFiles;
 
 namespace VolyConverter.Scanning
 {
@@ -121,8 +122,11 @@ namespace VolyConverter.Scanning
 
                 if (library.DeleteWithSource)
                 {
-                    // Delete db items not found in scan.
-                    context.Media.RemoveRange(currentLibrary.Values);
+                    // Queue delete for items not found in scan.
+                    var toAdd = currentLibrary.Values.Select(x => x.MediaId);
+                    var inDb = context.PendingDeletions.Where(x => toAdd.Contains(x.MediaId)).Select(y => y.MediaId);
+                    var notInDb = currentLibrary.Values.Where(x => !inDb.Contains(x.MediaId));
+                    context.PendingDeletions.AddRange(notInDb.Select(x => new PendingDeletion() { MediaId = x.MediaId, Version = -1, Requestor = DeleteRequestor.Scan }));
                 }
 
                 context.SaveChanges();
@@ -169,7 +173,11 @@ namespace VolyConverter.Scanning
                     });
 
                     // Add associated files to the db.
-                    AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, result.MediaFiles);
+                    var files = new List<string>(result.MediaFiles)
+                    {
+                        Path.GetFileName(result.DashFilePath)
+                    };
+                    AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, files);
 
                     HandleSourceFate(sourcePath);
 
@@ -183,7 +191,8 @@ namespace VolyConverter.Scanning
                     progress.AddRange(uploadProgress);
                     sender.Progress = progress;
 
-                    UploadFiles(addedFiles, uploadProgress);
+                    var fileManagement = new FileManagement(storageBackend, log);
+                    fileManagement.UploadFiles(addedFiles, uploadProgress);
 
                     RunPostPlugins(library, innerContext, sender, newMedia, result, ConversionType.Conversion);
 
@@ -214,12 +223,12 @@ namespace VolyConverter.Scanning
             var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
                 var addedFiles = new List<string>();
-                var removedFiles = new List<string>();
 
                 using (var innerContext = new VolyContext(dbOptions))
                 {
-                    removedFiles = innerContext.MediaFile.Where(x => x.MediaId == mediaId).Select(x => x.Filename).ToList();
-                    innerContext.MediaFile.RemoveRange(innerContext.MediaFile.Where(x => x.MediaId == mediaId));
+                    int oldVersion = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault().Version;
+                    int newVersion = innerContext.MediaFiles.Where(x => x.MediaId == mediaId).Max(y => y.Version) + 1;
+
                     var inDb = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault();
                     if (inDb != null)
                     {
@@ -234,8 +243,8 @@ namespace VolyConverter.Scanning
                         if (newMedia.AbsoluteEpisodeNumber != 0) { inDb.AbsoluteEpisodeNumber = newMedia.AbsoluteEpisodeNumber; }
                         if (newMedia.ImdbId != null) { inDb.ImdbId = newMedia.ImdbId; }
                         if (newMedia.TmdbId != null) { inDb.TmdbId = newMedia.TmdbId; }
-                        if (newMedia.TmdbId != null) { inDb.TvdbId = newMedia.TvdbId; }
-                        if (newMedia.TmdbId != null) { inDb.TvmazeId = newMedia.TvmazeId; }
+                        if (newMedia.TvdbId != null) { inDb.TvdbId = newMedia.TvdbId; }
+                        if (newMedia.TvmazeId != null) { inDb.TvmazeId = newMedia.TvmazeId; }
 
                         inDb.Duration = result.FileDuration;
                         inDb.IndexName = Path.GetFileName(result.DashFilePath);
@@ -243,7 +252,11 @@ namespace VolyConverter.Scanning
                         inDb.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata);
                         innerContext.Update(inDb);
 
-                        AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, result.MediaFiles);
+                        var files = new List<string>(result.MediaFiles)
+                        {
+                            Path.GetFileName(result.DashFilePath)
+                        };
+                        AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, result.MediaFiles, newVersion);
 
                         HandleSourceFate(sourcePath);
                     }
@@ -260,20 +273,17 @@ namespace VolyConverter.Scanning
                     var progress = sender.Progress.ToList();
                     var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
                     progress.AddRange(uploadProgress);
-                    var deleteProgress = new DescribedProgress("Delete Old", 0);
-                    progress.Add(deleteProgress);
                     sender.Progress = progress;
 
-                    UploadFiles(addedFiles, uploadProgress);
+                    var fileManagement = new FileManagement(storageBackend, log);
+                    fileManagement.UploadFiles(addedFiles, uploadProgress);
 
-                    // Delete files.
-                    int deleteCount = 0;
-                    foreach (var file in removedFiles)
+                    innerContext.PendingDeletions.Add(new PendingDeletion()
                     {
-                        DeleteFromBackend(file);
-                        deleteCount++;
-                        deleteProgress.Progress = deleteCount / removedFiles.Count;
-                    }
+                        MediaId = mediaId,
+                        Version = oldVersion,
+                        Requestor = DeleteRequestor.Scan
+                    });
 
                     RunPostPlugins(library, innerContext, sender, inDb, result, ConversionType.Conversion);
 
@@ -289,33 +299,6 @@ namespace VolyConverter.Scanning
             RunPrePlugins(library, conversionItem, newMedia, ConversionType.Reconversion);
 
             converter.AddItem(conversionItem);
-        }
-
-        private void DeleteFromBackend(string file)
-        {
-            try
-            {
-                TryDo.Try(new Action(() => { storageBackend.DeleteAsync(Path.GetFileName(file)).Wait(); }), 4, TimeSpan.FromSeconds(15), log);
-            }
-            catch (FileNotFoundException)
-            {
-                return; // Hey, it's already deleted.
-            }
-        }
-
-        private void UploadFiles(List<string> addedFiles, List<DescribedProgress> uploadProgress)
-        {
-            for (int i = 0; i < addedFiles.Count; i++)
-            {
-                // Avoid including i directly in the following without Waiting on the task, or i will be changed during execution.
-                TryDo.Try(new Action(() =>
-                {
-                    storageBackend.UploadAsync(Path.GetFileName(addedFiles[i]), addedFiles[i], true, progress: new NaiveProgress<ICopyProgress>(new Action<ICopyProgress>((e) =>
-                    {
-                        uploadProgress[i].Progress = e.PercentComplete;
-                    }))).Wait();
-                }), 10, TimeSpan.FromSeconds(30), log);
-            }
         }
 
         private void HandleSourceFate(string sourcePath)
@@ -372,7 +355,7 @@ namespace VolyConverter.Scanning
             }
         }
 
-        private void AddMediaFilesToMedia(VolyContext context, int mediaId, string basePath, IEnumerable<string> mediaFiles)
+        private void AddMediaFilesToMedia(VolyContext context, int mediaId, string basePath, IEnumerable<string> mediaFiles, int version = 0)
         {
             foreach (var f in mediaFiles)
             {
@@ -383,11 +366,12 @@ namespace VolyConverter.Scanning
                     continue;
                 }
 
-                context.MediaFile.Add(new MediaFile()
+                context.MediaFiles.Add(new MediaFile()
                 {
                     MediaId = mediaId,
                     Filename = f,
-                    Filesize = fInfo.Length
+                    Filesize = fInfo.Length,
+                    Version = version
                 });
             }
         }

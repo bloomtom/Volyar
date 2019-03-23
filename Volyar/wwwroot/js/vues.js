@@ -1,4 +1,18 @@
-﻿var qualityComponent = {
+﻿function conversionStatusRouteNavigate() {
+    if (typeof updateStatus === "function") {
+        updateStatus();
+        enableStatusTimer();
+    }
+}
+
+function deletionRouteNavigate() {
+    if (typeof updateStatus === "function") {
+        updatePendingDelete();
+        enablePendingDeleteTimer();
+    }
+}
+
+var qualityComponent = {
     props: {
         quality: {}
     },
@@ -74,12 +88,25 @@ var completeComponent = {
     template: '#complete-template'
 };
 
-var mainVue = new Vue({
-    el: '#vuebox',
-    data: {
-        waiting: [],
-        inProgress: [],
-        complete: []
+var conversionStatusComponent = {
+    beforeRouteEnter(to, from, next) {
+        conversionStatusRouteNavigate();
+        next();
+    },
+    beforeRouteUpdate(to, from, next) {
+        conversionStatusRouteNavigate();
+        next();
+    },
+    computed: {
+        waiting() {
+            return this.$store.state.waiting;
+        },
+        progress() {
+            return this.$store.state.progress;
+        },
+        complete() {
+            return this.$store.state.complete;
+        }
     },
     components: {
         'wait-queue-component': queueComponent,
@@ -88,8 +115,140 @@ var mainVue = new Vue({
     },
     methods: {
         queueSize: function (x) {
-            if (x.length === 0) { return ''; }
+            if (x.length === 0) { return '(none)'; }
             return '(' + x.length + ')';
+        }
+    },
+    template: '#conversion-status-template'
+};
+
+var deletionItemComponent = {
+    data: function () {
+        return {
+            checked: false
+        };
+    },
+    props: {
+        item: {}
+    },
+    methods: {
+        checkChanged() {
+            this.$emit('checked', this.checked);
+        },
+        timeago: function (x) {
+            return moment(x).fromNow();
+        }
+    },
+    template: '#deletion-item-template'
+};
+
+var pendingDeletionsComponent = {
+    data: function () {
+        return {
+            indeterminate: false,
+            masterCheck: false
+        };
+    },
+    beforeRouteEnter(to, from, next) {
+        deletionRouteNavigate();
+        next();
+    },
+    beforeRouteUpdate(to, from, next) {
+        deletionRouteNavigate();
+        next();
+    },
+    computed: {
+        pendingDelete() {
+            return this.$store.state.pendingDelete;
+        }
+    },
+    components: {
+        'deletion-item-component': deletionItemComponent
+    },
+    methods: {
+        invalidateMasterCheck(checked) {
+            var allChecked = true;
+            var anyChecked = false;
+            for (var i = 0; i < this.$children.length; i++) {
+                allChecked &= this.$children[i].checked;
+                anyChecked |= this.$children[i].checked;
+            }
+            this.indeterminate = anyChecked && !allChecked;
+            this.masterCheck = allChecked;
+        },
+        masterCheckChanged() {
+            this.indeterminate = false;
+            for (var i = 0; i < this.$children.length; i++) {
+                this.$children[i].checked = this.masterCheck;
+            }
+        },
+        confirmDelete() {
+            let confirmed = this.getChecked();
+            if (confirmed.length > 0) {
+                confirmDelete(confirmed, function () {
+                    updatePendingDelete();
+                });
+            }
+            this.uncheckAll();
+        },
+        revertDelete() {
+            let confirmed = this.getChecked();
+            if (confirmed.length > 0) {
+                revertDelete(confirmed, function () {
+                    updatePendingDelete();
+                });
+            }
+            this.uncheckAll();
+        },
+        uncheckAll() {
+            this.masterCheck = false;
+            this.masterCheckChanged();
+        },
+        getChecked() {
+            let confirmed = [];
+            for (var i = 0; i < this.$children.length; i++) {
+                if (this.$children[i].checked) {
+                    confirmed.push({ MediaId: this.$children[i]._props.item.MediaId, Version: this.$children[i]._props.item.Version });
+                }
+            }
+            return confirmed;
+        }
+    },
+    template: '#pending-deletions-template'
+};
+
+const store = new Vuex.Store({
+    state: {
+        waiting: [],
+        progress: [],
+        complete: [],
+        pendingDelete: []
+    },
+    mutations: {
+        setWaiting(store, x) {
+            store.waiting = x;
+        },
+        setProgress(store, x) {
+            store.progress = x;
+        },
+        setComplete(store, x) {
+            store.complete = x;
+        },
+        setPendingDelete(store, x) {
+            store.pendingDelete = x;
         }
     }
 });
+
+const mainVue = new Vue({
+    data: {
+
+    },
+    store,
+    router: new VueRouter({
+        routes: [
+            { path: '/conversionStatus', component: conversionStatusComponent, props: true },
+            { path: '/pendingDeletions', component: pendingDeletionsComponent }
+        ]
+    })
+}).$mount('#app');
