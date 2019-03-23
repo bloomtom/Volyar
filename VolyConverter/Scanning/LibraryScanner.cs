@@ -243,8 +243,8 @@ namespace VolyConverter.Scanning
                         if (newMedia.AbsoluteEpisodeNumber != 0) { inDb.AbsoluteEpisodeNumber = newMedia.AbsoluteEpisodeNumber; }
                         if (newMedia.ImdbId != null) { inDb.ImdbId = newMedia.ImdbId; }
                         if (newMedia.TmdbId != null) { inDb.TmdbId = newMedia.TmdbId; }
-                        if (newMedia.TmdbId != null) { inDb.TvdbId = newMedia.TvdbId; }
-                        if (newMedia.TmdbId != null) { inDb.TvmazeId = newMedia.TvmazeId; }
+                        if (newMedia.TvdbId != null) { inDb.TvdbId = newMedia.TvdbId; }
+                        if (newMedia.TvmazeId != null) { inDb.TvmazeId = newMedia.TvmazeId; }
 
                         inDb.Duration = result.FileDuration;
                         inDb.IndexName = Path.GetFileName(result.DashFilePath);
