@@ -166,23 +166,26 @@ namespace Volyar
         private MediaDatabase AddDatabase(IServiceCollection services)
         {
             MediaDatabase dbOptions = new MediaDatabase();
+
+            string connectionString = Settings.DatabaseConnection;
+            if (Settings.DatabaseType == "temp")
+            {
+                string litePath = Path.Combine(Environment.CurrentDirectory, "temp.sqlite");
+                if (File.Exists(litePath)) { File.Delete(litePath); }
+                connectionString = $"Data Source={litePath}";
+            }
+
+            services.AddSingleton<IDapperConnection>(new DapperConnection(Settings.DatabaseType, connectionString));
             services.AddDbContextPool<VolyContext>((o) =>
             {
                 switch (Settings.DatabaseType)
                 {
+                    case "temp":
                     case "sqlite":
-                        o.UseSqlite(Settings.DatabaseConnection);
+                        o.UseSqlite(connectionString);
                         break;
                     case "sqlserver":
-                        o.UseSqlServer(Settings.DatabaseConnection);
-                        break;
-                    case "mysql":
-                        o.UseMySql(Settings.DatabaseConnection);
-                        break;
-                    case "temp":
-                        string litePath = Path.Combine(Environment.CurrentDirectory, "temp.sqlite");
-                        if (File.Exists(litePath)) { File.Delete(litePath); }
-                        o.UseSqlite($"Data Source={litePath}");
+                        o.UseSqlServer(connectionString);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException($"The database settings {Settings.DatabaseType} is not a valid option. Only sqlite, sqlserver, mysql, and temp are allowed.");

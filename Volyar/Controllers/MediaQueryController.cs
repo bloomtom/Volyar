@@ -8,19 +8,103 @@ using System.Threading.Tasks;
 using Volyar.Models;
 using VolyDatabase;
 using VolyExports;
+using Dapper;
 
 namespace Volyar.Controllers
 {
+    internal class QueryParameter
+    {
+        public long TransactionId { get; set; }
+        public long MaxLogKey { get; set; }
+        public string Library { get; set; }
+    }
+
     [Route("external/api/media")]
     public class MediaQueryController
     {
+        private const string selectMaxKey = "SELECT MAX([Key]) FROM TransactionLog";
+        private const string selectDeletedQuery = @"
+                    SELECT DISTINCT [Key]
+                    FROM TransactionLog TL 
+                    WHERE
+                        TL.Type = 2 AND
+                        TL.TableName = 'MediaItem' AND
+                        TL.TransactionId > @TransactionId AND
+                        TL.TransactionId <= @MaxLogKey";
+        private const string selectAddedQuery = @"
+                    SELECT 
+                        MediaItem.*
+                    FROM
+                        MediaItem
+                    INNER JOIN
+                    (
+                        SELECT DISTINCT [Key]
+                        FROM TransactionLog TL 
+                        WHERE
+                            TL.Type = 0 AND
+                            TL.TableName = 'MediaItem' AND
+                            TL.TransactionId > @TransactionId AND
+                            TL.TransactionId <= @MaxLogKey
+                    ) TKeys
+                    ON TKeys.[Key] = MediaItem.MediaId
+                    LEFT JOIN
+                    (
+                        SELECT [Key]
+                        FROM TransactionLog TL
+                        WHERE
+                        TL.Type = 2 AND
+                        TL.TableName = 'MediaItem' AND
+                        TL.TransactionId > @TransactionId AND
+                        TL.TransactionId <= @MaxLogKey
+                    ) TExcept
+                    ON TExcept.[Key] = MediaItem.MediaId
+                    WHERE TExcept.[Key] IS NULL";
+        private const string selectModifiedQuery = @"
+                    SELECT MediaItem.*
+                    FROM MediaItem
+                    INNER JOIN
+                    (
+                        SELECT DISTINCT [Key]
+                        FROM TransactionLog TL
+                        WHERE
+                            TL.Type = 1 AND
+                            TL.TableName = 'MediaItem' AND
+                            TL.TransactionId > @TransactionId AND
+                            TL.TransactionId <= @MaxLogKey
+                    ) TKeys
+                    ON TKeys.[Key] = MediaItem.MediaId
+                    LEFT JOIN
+                    (
+                        SELECT [Key]
+                        FROM TransactionLog TL
+                        WHERE
+                            TL.Type IN (0, 2) AND
+                            TL.TableName = 'MediaItem' AND
+                            TL.TransactionId > @TransactionId AND
+                            TL.TransactionId <= @MaxLogKey
+                    ) TExcept ON TExcept.[Key] = MediaItem.MediaId
+                    WHERE TExcept.[Key] IS NULL";
+
         private readonly VolyContext db;
+        private readonly IDapperConnection dapper;
         protected readonly ILogger<ScannerController> log;
 
-        public MediaQueryController(VolyContext context, ILogger<ScannerController> logger)
+        public MediaQueryController(VolyContext context, IDapperConnection dapper, ILogger<ScannerController> logger)
         {
             db = context;
+            this.dapper = dapper;
             log = logger;
+        }
+
+        [HttpGet("diff/{library}/{transactionId:long?}")]
+        public IActionResult LibraryDiff(string library, long transactionId)
+        {
+            library = System.Net.WebUtility.UrlDecode(library);
+            log.LogInformation($"Diff requested against library {library} transaction ID {transactionId}");
+
+            Differential result = SelectDifferential(transactionId, library);
+
+            return new JsonResult(result);
         }
 
         [HttpGet("diff/{transactionId:long?}")]
@@ -28,35 +112,54 @@ namespace Volyar.Controllers
         {
             log.LogInformation($"Diff requested against transaction ID {transactionId}");
 
-            Differential result;
+            Differential result = SelectDifferential(transactionId);
 
-            using (var transaction = db.Database.BeginTransaction())
+            return new JsonResult(result);
+        }
+
+        private Differential SelectDifferential(long transactionId, string library = null)
+        {
+            string selectMaxKey = MediaQueryController.selectMaxKey;
+            string selectDeletedQuery = MediaQueryController.selectDeletedQuery;
+            string selectAddedQuery = MediaQueryController.selectAddedQuery;
+            string selectModifiedQuery = MediaQueryController.selectModifiedQuery;
+            QueryParameter paramters = new QueryParameter() { TransactionId = transactionId, Library = library };
+            if (library != null)
             {
-                long maxLogKey = db.TransactionLog.DefaultIfEmpty().Max(x => x.TransactionId);
+                selectAddedQuery += " AND MediaItem.LibraryName = @Library";
+                selectModifiedQuery += " AND MediaItem.LibraryName = @Library";
+            }
+
+            Differential result;
+            var connection = dapper.NewConnection();
+            connection.Open();
+            SqlMapper.AddTypeHandler(typeof(TimeSpan), new TimeSpanHandler());
+            SqlMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetHandler());
+            using (var transaction = connection.BeginTransaction(System.Data.IsolationLevel.RepeatableRead))
+            {
+                paramters.MaxLogKey = connection.QuerySingle<long>(selectMaxKey);
 
                 // Select items deleted.
-                IEnumerable<Deletion> removed = db.TransactionLog
-                    .Where(x => x.TransactionId > transactionId && x.TransactionId <= maxLogKey && x.Type == TransactionType.Delete)
-                    .Select(x => new Deletion(x.TableName, x.Key));
+                var removed = connection.Query<Deletion>(selectDeletedQuery, paramters);
 
                 // Select distinct media items added but not deleted.
-                IEnumerable<IMediaItem> added = db.Media.FromSql("SELECT MediaItem.* FROM MediaItem" +
-                    " INNER JOIN (SELECT DISTINCT [Key] FROM TransactionLog TL WHERE TL.Type = 0 AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TKeys ON TKeys.[Key] = MediaItem.MediaId" +
-                    " LEFT JOIN (SELECT [Key] FROM TransactionLog TL WHERE TL.Type = 2 AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TExcept ON TExcept.[Key] = MediaItem.MediaId WHERE TExcept.[Key] IS NULL",
-                    transactionId, maxLogKey);
+                var added = connection.Query<VolyExports.MediaItem>(selectAddedQuery, paramters);
 
                 // Select distinct media items changed but not added or deleted.
-                IEnumerable<IMediaItem> changed = db.Media.FromSql("SELECT MediaItem.* FROM MediaItem" +
-                    " INNER JOIN (SELECT DISTINCT [Key] FROM TransactionLog TL WHERE TL.Type = 1 AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TKeys ON TKeys.[Key] = MediaItem.MediaId" +
-                    " LEFT JOIN (SELECT [Key] FROM TransactionLog TL WHERE TL.Type IN (0, 2) AND TL.TableName = 'MediaItem' AND TL.TransactionId > {0} AND TL.TransactionId <= {1}) TExcept ON TExcept.[Key] = MediaItem.MediaId WHERE TExcept.[Key] IS NULL",
-                    transactionId, maxLogKey);
+                var changed = connection.Query<VolyExports.MediaItem>(selectModifiedQuery, paramters);
 
-                result = new Differential() { CurrentKey = maxLogKey, Deletions = removed, Additions = added.Select(x => VolyExports.MediaItem.Convert(x)), Modifications = changed.Select(x => VolyExports.MediaItem.Convert(x)) };
+                result = new Differential()
+                {
+                    CurrentKey = paramters.MaxLogKey,
+                    Deletions = removed,
+                    Additions = added,
+                    Modifications = changed
+                };
 
                 transaction.Rollback(); // This was a read only transaction.
             }
 
-            return new JsonResult(result);
+            return result;
         }
 
         [HttpGet()]

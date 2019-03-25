@@ -27,5 +27,13 @@ namespace VolyExports
             Table = table;
             Key = key;
         }
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public Deletion()
+        {
+
+        }
     }
 }

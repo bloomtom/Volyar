@@ -90,34 +90,8 @@ namespace VolyExports
         public string Metadata { get; set; }
 
         /// <summary>
-        /// Generate a MediaItem from an IMediaItem.
+        /// Default constructor
         /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public static MediaItem Convert(IMediaItem item)
-        {
-            return new MediaItem()
-            {
-                CreateDate = item.CreateDate,
-                Duration = item.Duration,
-                IndexHash = item.IndexHash,
-                IndexName = item.IndexName,
-                LibraryName = item.LibraryName,
-                MediaId = item.MediaId,
-                Name = item.Name,
-                SeasonNumber = item.SeasonNumber,
-                EpisodeNumber = item.EpisodeNumber,
-                AbsoluteEpisodeNumber = item.AbsoluteEpisodeNumber,
-                SeriesName = item.SeriesName,
-                ImdbId = item.ImdbId,
-                TvdbId = item.TvdbId,
-                TmdbId = item.TmdbId,
-                TvmazeId = item.TvmazeId,
-                SourceHash = item.SourceHash,
-                SourceModified = item.SourceModified,
-                SourcePath = item.SourcePath,
-                Metadata = item.Metadata,
-            };
-        }
+        public MediaItem() { }
     }
 }
