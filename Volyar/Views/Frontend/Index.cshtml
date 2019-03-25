@@ -182,7 +182,7 @@
                 <div class="card-body queue-item-body">
                     <div class="w-100">
                         <b v-if="item.Series">{{item.Series}}</b>
-                        <details v-bind:title="item.OutputPath">
+                        <details v-bind:title="item.SourcePath">
                             <summary class="card-title">
                                 {{title(item)}}
                                 <dl style="margin-left:8%;" v-if="item.ErrorText !== null">
