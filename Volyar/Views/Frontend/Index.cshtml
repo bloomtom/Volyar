@@ -182,7 +182,7 @@
                 <div class="card-body queue-item-body">
                     <div class="w-100">
                         <b v-if="item.Series">{{item.Series}}</b>
-                        <details>
+                        <details v-bind:title="item.OutputPath">
                             <summary class="card-title">
                                 {{title(item)}}
                                 <dl style="margin-left:8%;" v-if="item.ErrorText !== null">
@@ -195,7 +195,7 @@
                                 </dl>
                             </summary>
                             <dl style="margin-left:8%;">
-                                <dt class="card-text" data-toggle="tooltip">
+                                <dt class="card-text">
                                     Added
                                 </dt>
                                 <dd v-bind:title="item.CreateTime">
