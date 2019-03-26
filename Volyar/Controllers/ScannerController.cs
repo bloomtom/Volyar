@@ -44,7 +44,7 @@ namespace Volyar.Controllers
             }
         }
 
-        [HttpPost("scanlib")]
+        [HttpPost("scanlib/{libraryName}")]
         public IActionResult FullScan(string libraryName)
         {
             log.LogInformation($"Scan of library {libraryName} requested.");
