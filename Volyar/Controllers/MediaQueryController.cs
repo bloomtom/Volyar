@@ -123,7 +123,7 @@ namespace Volyar.Controllers
             string selectDeletedQuery = MediaQueryController.selectDeletedQuery;
             string selectAddedQuery = MediaQueryController.selectAddedQuery;
             string selectModifiedQuery = MediaQueryController.selectModifiedQuery;
-            QueryParameter paramters = new QueryParameter() { TransactionId = transactionId, Library = library };
+            QueryParameter parameters = new QueryParameter() { TransactionId = transactionId, Library = library };
             if (library != null)
             {
                 selectAddedQuery += " AND MediaItem.LibraryName = @Library";
@@ -137,20 +137,20 @@ namespace Volyar.Controllers
             SqlMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetHandler());
             using (var transaction = connection.BeginTransaction(System.Data.IsolationLevel.RepeatableRead))
             {
-                paramters.MaxLogKey = connection.QuerySingle<long>(selectMaxKey);
+                parameters.MaxLogKey = connection.QuerySingle<long>(selectMaxKey);
 
                 // Select items deleted.
-                var removed = connection.Query<Deletion>(selectDeletedQuery, paramters);
+                var removed = connection.Query<Deletion>(selectDeletedQuery, parameters);
 
                 // Select distinct media items added but not deleted.
-                var added = connection.Query<VolyExports.MediaItem>(selectAddedQuery, paramters);
+                var added = connection.Query<VolyExports.MediaItem>(selectAddedQuery, parameters);
 
                 // Select distinct media items changed but not added or deleted.
-                var changed = connection.Query<VolyExports.MediaItem>(selectModifiedQuery, paramters);
+                var changed = connection.Query<VolyExports.MediaItem>(selectModifiedQuery, parameters);
 
                 result = new Differential()
                 {
-                    CurrentKey = paramters.MaxLogKey,
+                    CurrentKey = parameters.MaxLogKey,
                     Deletions = removed,
                     Additions = added,
                     Modifications = changed
