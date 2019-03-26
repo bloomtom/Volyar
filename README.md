@@ -22,6 +22,8 @@ Volyar is a media library transcoder built to fill the gap.
       - [WebHooks](#library-webhook-configuration)
       - [API Integration](#library-api-integration-configuration)
   - [Web UI](#web-ui)
+    - [Conversion Status](#web-ui-conversion)
+    - [Pending Deletions](#web-ui-deletion)
   - [Web API](#web-api)
   - [Differentials](#differentials)
 
@@ -123,7 +125,7 @@ Libraries are given as a collection of the following properties.
 	   - Source files will be deleted.
 	   - Avoid using this with DeleteWithSource: true.
  - `DeleteWithSource`
-   - If true, transcoded media objects are deleted from the database and storage backend when the source file cannot be found. Avoid using this with SourceHandling: "delete" unless you don't care about your files.
+   - If true, transcoded media objects are scheduled for deletion from the database and storage backend when the source file cannot be found. Avoid using this with SourceHandling: "delete" unless you don't care about your files.
  - `TempPath`
    - The temporary path to store intermediate files when encoding.
  - `ForceFramerate`
@@ -279,6 +281,19 @@ A library's API integration is called whenever a media item is transcoded. It's 
 
 The Web UI can be accessed by default at [http://localhost:7014/voly/external/ui](http://localhost:7014/voly/external/ui). The port and "/voly/" (`BasePath`) component of the URL are configurable. See [Web Configuration](#web-configuration) section for more info.
 
+The Web UI is split into tabs for organization of function. The following explains what each tab does.
+
+<a name="web-ui-conversion"></a>
+#### Conversions
+The conversions tab can be used to trigger a global library scan, check conversion in progress, and see the last few items which were converted. You can also pause and resume the queue, as well as cancel items. All operations are completely safe to do at any time, although obviously if you cancel a conversion in progress you'll lose that progress.
+
+##### A note on pause/resume
+Pausing the conversion queue doesn't pause conversions, it pauses the queue. What's the difference? When you pause the queue, the conversion currently in `Processing` will continue on, but when they finish no items from the `Waiting` area will begin processing until the queue is resumed.
+
+<a name="web-ui-deletion"></a>
+#### Deletions
+When items are deleted, by default they aren't -actually- deleted, they're put into the pending deletions queue. This is done to provide a trade-off between automation and safety. To actually delete things, you'll typically review the pending deletions tab on the web UI, and approve or cancel deletions manually.
+
 <a name="web-api"></a>
 ## Web API
 
@@ -302,9 +317,11 @@ The Web UI can be accessed by default at [http://localhost:7014/voly/external/ui
      - Returns a collection of all indexed media from all libraries.
 
 
- - `/external/api/media/diff/[transactionId]`
+ - `/external/api/media/diff/[library?]/[transactionId]`
    - GET
      - Returns a [differential](#differentials) between some point, given by the transaction ID, and now.
+	 - The library component of the path is optional. Simply omit it to get a diff across all libraries.
+	 - When a library is queried, the API will only return additions and deletions for that library, but will return all deletions. This is done because the library a deleted item belonged to is not stored.
 
  - `/internal/api/scan/fullscan`
    - POST
