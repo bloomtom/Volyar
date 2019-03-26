@@ -49,8 +49,8 @@ namespace VolyDatabaseTests
 
                     context.TransactionLog.Add(new TransactionLog()
                     {
-                        TableName = "MediaItem",
-                        Type = TransactionType.Insert,
+                        TableName = VolyExports.TransactionTableType.MediaItem,
+                        Type = VolyExports.TransactionType.Insert,
                         Key = newMedia.MediaId
                     });
 

@@ -9,13 +9,6 @@ using VolyExports;
 
 namespace VolyDatabase
 {
-    public enum TransactionType
-    {
-        Insert = 0,
-        Update = 1,
-        Delete = 2
-    }
-
     public enum DeleteRequestor
     {
         None = 0,
@@ -114,7 +107,7 @@ namespace VolyDatabase
         /// <summary>
         /// The name of the table that was modified.
         /// </summary>
-        public string TableName { get; set; }
+        public TransactionTableType TableName { get; set; }
         /// <summary>
         /// The primary key for the given table.
         /// </summary>
@@ -126,11 +119,11 @@ namespace VolyDatabase
         /// <summary>
         /// The specific title for this media.
         /// </summary>
-        public DateTime Date { get; set; }
+        public long Date { get; set; }
 
         public override void OnBeforeInsert(VolyContext context)
         {
-            Date = DateTime.UtcNow;
+            Date = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             base.OnBeforeInsert(context);
         }
     }
@@ -243,7 +236,7 @@ namespace VolyDatabase
         {
             context.TransactionLog.Add(new TransactionLog()
             {
-                TableName = "MediaItem",
+                TableName = TransactionTableType.MediaItem,
                 Type = TransactionType.Update,
                 Key = MediaId
             });
@@ -254,7 +247,7 @@ namespace VolyDatabase
         {
             context.TransactionLog.Add(new TransactionLog()
             {
-                TableName = "MediaItem",
+                TableName = TransactionTableType.MediaItem,
                 Type = TransactionType.Delete,
                 Key = MediaId
             });

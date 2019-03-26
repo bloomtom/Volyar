@@ -167,7 +167,7 @@ namespace VolyConverter.Scanning
                     // Update the transaction log.
                     innerContext.TransactionLog.Add(new TransactionLog()
                     {
-                        TableName = "MediaItem",
+                        TableName = TransactionTableType.MediaItem,
                         Type = TransactionType.Insert,
                         Key = newMedia.MediaId
                     });

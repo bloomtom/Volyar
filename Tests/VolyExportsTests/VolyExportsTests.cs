@@ -14,7 +14,7 @@ namespace VolyExportsTests
         {
             var deletion = new List<Deletion>()
             {
-                new Deletion("MediaItem", 2)
+                new Deletion(TransactionTableType.MediaItem, 2)
             };
             var addition = new List<MediaItem>()
             {

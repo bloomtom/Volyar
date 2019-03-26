@@ -13,7 +13,7 @@ namespace VolyExports
         /// <summary>
         /// The table this item belonged to (MediaItem).
         /// </summary>
-        public string Table { get; set; }
+        public TransactionTableType Table { get; set; }
         /// <summary>
         /// The key for the table this item belonged to.
         /// </summary>
@@ -22,7 +22,7 @@ namespace VolyExports
         /// <summary>
         /// Creates a typical deletion instance.
         /// </summary>
-        public Deletion(string table, int key)
+        public Deletion(TransactionTableType table, int key)
         {
             Table = table;
             Key = key;

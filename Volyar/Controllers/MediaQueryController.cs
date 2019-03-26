@@ -28,7 +28,7 @@ namespace Volyar.Controllers
                     FROM TransactionLog TL 
                     WHERE
                         TL.Type = 2 AND
-                        TL.TableName = 'MediaItem' AND
+                        TL.TableName = 1 AND
                         TL.TransactionId > @TransactionId AND
                         TL.TransactionId <= @MaxLogKey";
         private const string selectAddedQuery = @"
@@ -42,7 +42,7 @@ namespace Volyar.Controllers
                         FROM TransactionLog TL 
                         WHERE
                             TL.Type = 0 AND
-                            TL.TableName = 'MediaItem' AND
+                            TL.TableName = 1 AND
                             TL.TransactionId > @TransactionId AND
                             TL.TransactionId <= @MaxLogKey
                     ) TKeys
@@ -53,7 +53,7 @@ namespace Volyar.Controllers
                         FROM TransactionLog TL
                         WHERE
                         TL.Type = 2 AND
-                        TL.TableName = 'MediaItem' AND
+                        TL.TableName = 1 AND
                         TL.TransactionId > @TransactionId AND
                         TL.TransactionId <= @MaxLogKey
                     ) TExcept
@@ -68,7 +68,7 @@ namespace Volyar.Controllers
                         FROM TransactionLog TL
                         WHERE
                             TL.Type = 1 AND
-                            TL.TableName = 'MediaItem' AND
+                            TL.TableName = 1 AND
                             TL.TransactionId > @TransactionId AND
                             TL.TransactionId <= @MaxLogKey
                     ) TKeys
@@ -79,7 +79,7 @@ namespace Volyar.Controllers
                         FROM TransactionLog TL
                         WHERE
                             TL.Type IN (0, 2) AND
-                            TL.TableName = 'MediaItem' AND
+                            TL.TableName = 1 AND
                             TL.TransactionId > @TransactionId AND
                             TL.TransactionId <= @MaxLogKey
                     ) TExcept ON TExcept.[Key] = MediaItem.MediaId
