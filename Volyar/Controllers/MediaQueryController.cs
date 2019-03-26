@@ -22,9 +22,9 @@ namespace Volyar.Controllers
     [Route("external/api/media")]
     public class MediaQueryController
     {
-        private const string selectMaxKey = "SELECT MAX([Key]) FROM TransactionLog";
+        private const string selectMaxKey = "SELECT MAX([TransactionId]) FROM TransactionLog";
         private const string selectDeletedQuery = @"
-                    SELECT DISTINCT [Key]
+                    SELECT DISTINCT [Key], [TableName] 'Table'
                     FROM TransactionLog TL 
                     WHERE
                         TL.Type = 2 AND
