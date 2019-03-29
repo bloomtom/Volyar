@@ -61,10 +61,19 @@ namespace VolyConverter.Scanning
 
             using (var context = new VolyContext(dbOptions))
             {
-                var currentLibrary = context.Media
+                var contextMediaItems = context.Media
                     .Where(x => x.LibraryName == library.Name)
-                    .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash })
-                    .ToDictionary(k => k.SourcePath);
+                    .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash });
+
+                var currentLibrary = new Dictionary<string, VolyDatabase.MediaItem>();
+                var dbMediaItemsNotFound = new HashSet<int>();
+                foreach (var item in contextMediaItems)
+                {
+                    currentLibrary.Add(item.SourcePath, item);
+                    dbMediaItemsNotFound.Add(item.MediaId);
+                }
+
+
                 var quality = new HashSet<IQuality>(library.Qualities);
 
                 log.LogInformation($"Scanning library {library.Name}...");
@@ -89,7 +98,7 @@ namespace VolyConverter.Scanning
                     if (!library.ValidExtensions.Contains(extension)) { continue; }
 
                     bool existsInDb = currentLibrary.TryGetValue(file.Path, out var existingEntry);
-                    if (existsInDb) { currentLibrary.Remove(file.Path); } // Remove to track missing entries for later.
+                    if (existsInDb) { dbMediaItemsNotFound.Remove(existingEntry.MediaId); } // Remove to track missing entries for later.
 
                     if (file.zeroLength)
                     {
@@ -97,36 +106,36 @@ namespace VolyConverter.Scanning
                     }
                     else if (existsInDb)
                     {
-                        // Item exists, check if update is needed.
-                        if (file.lastModified > existingEntry.SourceModified)
-                        {
-                            string sourceHash = Hashing.HashFileMd5(file.Path);
-                            if (sourceHash != existingEntry.SourceHash)
-                            {
-                                // Update needed.
-                                log.LogInformation($"Scheduling re-conversion of {file.Path}");
-                                string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
-                                ScheduleReconversion(library, quality, file.Path, file.lastModified, existingEntry.MediaId, sourceHash, outFilename);
-                            }
-                        }
+                        TryReconvert(quality, file, existingEntry);
                     }
                     else
                     {
-                        // Media doesn't exist in db, make it.
-                        log.LogInformation($"Scheduling conversion of {file.Path}");
                         string sourceHash = Hashing.HashFileMd5(file.Path);
-                        string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
-                        ScheduleConversion(library, quality, file.Path, file.lastModified, (new DirectoryInfo(Directory.GetParent(file.Path).FullName)).Name, sourceHash, outFilename);
+                        var oldVersion = context.Media.Where(x => x.SourceHash == sourceHash).SingleOrDefault();
+                        if (oldVersion != null)
+                        {
+                            log.LogInformation($"Discovered renamed file. {oldVersion.SourcePath} => {file.Path}");
+                            dbMediaItemsNotFound.Remove(oldVersion.MediaId);
+                            oldVersion.SourcePath = file.Path;
+                            context.Media.Update(oldVersion);
+                            TryReconvert(quality, file, oldVersion);
+                        }
+                        else
+                        {
+                            // Media doesn't exist in db, make it.
+                            log.LogInformation($"Scheduling conversion of {file.Path}");
+                            string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
+                            ScheduleConversion(library, quality, file.Path, file.lastModified,
+                                (new DirectoryInfo(Directory.GetParent(file.Path).FullName)).Name, sourceHash, outFilename);
+                        }
                     }
                 }
 
                 if (library.DeleteWithSource)
                 {
                     // Queue delete for items not found in scan.
-                    var toAdd = currentLibrary.Values.Select(x => x.MediaId);
-                    var inDb = context.PendingDeletions.Where(x => toAdd.Contains(x.MediaId)).Select(y => y.MediaId);
-                    var notInDb = currentLibrary.Values.Where(x => !inDb.Contains(x.MediaId));
-                    context.PendingDeletions.AddRange(notInDb.Select(x => new PendingDeletion() { MediaId = x.MediaId, Version = -1, Requestor = DeleteRequestor.Scan }));
+                    var inDb = context.PendingDeletions.Where(x => dbMediaItemsNotFound.Contains(x.MediaId)).Select(y => y.MediaId);
+                    context.PendingDeletions.AddRange(dbMediaItemsNotFound.Select(x => new PendingDeletion() { MediaId = x, Version = -1, Requestor = DeleteRequestor.Scan }));
                 }
 
                 context.SaveChanges();
@@ -134,6 +143,22 @@ namespace VolyConverter.Scanning
                 log.LogInformation($"Scanning library {library.Name} complete.");
 
                 return true;
+            }
+        }
+
+        private void TryReconvert(HashSet<IQuality> quality, (string Path, DateTimeOffset lastModified, bool zeroLength) file, VolyDatabase.MediaItem existingEntry)
+        {
+            // Item exists, check if update is needed.
+            if (file.lastModified > existingEntry.SourceModified)
+            {
+                string sourceHash = Hashing.HashFileMd5(file.Path);
+                if (sourceHash != existingEntry.SourceHash)
+                {
+                    // Update needed.
+                    log.LogInformation($"Scheduling re-conversion of {file.Path}");
+                    string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
+                    ScheduleReconversion(library, quality, file.Path, file.lastModified, existingEntry.MediaId, sourceHash, outFilename);
+                }
             }
         }
 
@@ -150,8 +175,6 @@ namespace VolyConverter.Scanning
             };
             var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
-                var addedFiles = new List<string>();
-
                 using (var innerContext = new VolyContext(dbOptions))
                 {
                     // Save the new media item to db.
@@ -182,6 +205,7 @@ namespace VolyConverter.Scanning
                     HandleSourceFate(sourcePath);
 
                     // Set files on disk variable for the storage backend operations below.
+                    var addedFiles = new List<string>();
                     addedFiles.Add(result.DashFilePath);
                     addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
 
@@ -222,8 +246,6 @@ namespace VolyConverter.Scanning
             };
             var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
-                var addedFiles = new List<string>();
-
                 using (var innerContext = new VolyContext(dbOptions))
                 {
                     int oldVersion = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault().Version;
@@ -232,6 +254,7 @@ namespace VolyConverter.Scanning
                     var inDb = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault();
                     if (inDb != null)
                     {
+                        inDb.Version = newVersion;
                         inDb.SourcePath = newMedia.SourcePath;
                         inDb.SourceModified = newMedia.SourceModified;
                         inDb.SourceHash = newMedia.SourceHash;
@@ -266,8 +289,9 @@ namespace VolyConverter.Scanning
                     }
 
                     // Set files on disk variable for the storage backend operations below.
+                    var addedFiles = new List<string>();
                     addedFiles.Add(result.DashFilePath);
-                    addedFiles.AddRange(result.MediaFiles);
+                    addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
 
                     // Set up progress reporting.
                     var progress = sender.Progress.ToList();

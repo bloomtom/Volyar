@@ -238,7 +238,8 @@ namespace VolyDatabase
             {
                 TableName = TransactionTableType.MediaItem,
                 Type = TransactionType.Update,
-                Key = MediaId
+                Key = MediaId,
+                Date = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             });
             base.OnBeforeUpdate(context);
         }
@@ -249,7 +250,8 @@ namespace VolyDatabase
             {
                 TableName = TransactionTableType.MediaItem,
                 Type = TransactionType.Delete,
-                Key = MediaId
+                Key = MediaId,
+                Date = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             });
             base.OnBeforeDelete(context);
         }
