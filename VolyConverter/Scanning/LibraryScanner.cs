@@ -279,7 +279,7 @@ namespace VolyConverter.Scanning
                         {
                             Path.GetFileName(result.DashFilePath)
                         };
-                        AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, result.MediaFiles, newVersion);
+                        AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, files, newVersion);
 
                         HandleSourceFate(sourcePath);
                     }
