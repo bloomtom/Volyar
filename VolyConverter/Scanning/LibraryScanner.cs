@@ -118,7 +118,13 @@ namespace VolyConverter.Scanning
                             dbMediaItemsNotFound.Remove(oldVersion.MediaId);
                             oldVersion.SourcePath = file.Path;
                             context.Media.Update(oldVersion);
-                            TryReconvert(quality, file, oldVersion);
+                            if (!TryReconvert(quality, file, oldVersion))
+                            {
+                                // Not being reconverted, just update metadata.
+                                RunPrePlugins(library, null, oldVersion, ConversionType.MetadataOnly);
+                                context.Media.Update(oldVersion);
+                                RunPostPlugins(library, context, null, oldVersion, null, ConversionType.MetadataOnly);
+                            }
                         }
                         else
                         {
@@ -146,20 +152,29 @@ namespace VolyConverter.Scanning
             }
         }
 
-        private void TryReconvert(HashSet<IQuality> quality, (string Path, DateTimeOffset lastModified, bool zeroLength) file, VolyDatabase.MediaItem existingEntry)
+        /// <summary>
+        /// Returns true if 
+        /// </summary>
+        /// <param name="quality"></param>
+        /// <param name="file"></param>
+        /// <param name="existingEntry"></param>
+        /// <returns></returns>
+        private bool TryReconvert(HashSet<IQuality> quality, (string Path, DateTimeOffset lastModified, bool zeroLength) file, VolyDatabase.MediaItem existingEntry)
         {
             // Item exists, check if update is needed.
             if (file.lastModified > existingEntry.SourceModified)
             {
                 string sourceHash = Hashing.HashFileMd5(file.Path);
+                string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
                 if (sourceHash != existingEntry.SourceHash)
                 {
                     // Update needed.
                     log.LogInformation($"Scheduling re-conversion of {file.Path}");
-                    string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
                     ScheduleReconversion(library, quality, file.Path, file.lastModified, existingEntry.MediaId, sourceHash, outFilename);
+                    return true;
                 }
             }
+            return false;
         }
 
         private void ScheduleConversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, string sourceHash, string outFilename)
@@ -355,7 +370,7 @@ namespace VolyConverter.Scanning
                     }
                     catch (Exception ex)
                     {
-                        log.LogWarning($"Failed to run pre-plugin {plugin.Name} on item {conversionItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
+                        log.LogWarning($"Failed to run pre-plugin {plugin.Name} on item {conversionItem?.SourcePath ?? mediaItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
                     }
                 }
             }
@@ -373,7 +388,7 @@ namespace VolyConverter.Scanning
                     }
                     catch (Exception ex)
                     {
-                        log.LogWarning($"Failed to run post-plugin {plugin.Name} on item {conversionItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
+                        log.LogWarning($"Failed to run post-plugin {plugin.Name} on item {conversionItem?.SourcePath ?? mediaItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
                     }
                 }
             }

@@ -11,6 +11,7 @@ namespace VolyConverter.Plugin
     {
         None,
         Conversion,
-        Reconversion
+        Reconversion,
+        MetadataOnly
     }
 }

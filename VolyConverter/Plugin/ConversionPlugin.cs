@@ -18,6 +18,9 @@ namespace VolyConverter.Plugin
     /// </summary>
     public delegate void PostConversionPluginAction(PostConversionPluginArgs args);
 
+    /// <summary>
+    /// A plugin that's run before any conversion is performed.
+    /// </summary>
     public class PreConversionPlugin : IConversionPlugin
     {
         /// <summary>
@@ -36,6 +39,9 @@ namespace VolyConverter.Plugin
         }
     }
 
+    /// <summary>
+    /// A plugin that's run after a conversion has been completed and the database has been updated.
+    /// </summary>
     public class PostConversionPlugin : IConversionPlugin
     {
         /// <summary>

@@ -27,11 +27,11 @@ namespace VolyConverter.Plugin
         /// </summary>
         public MediaItem MediaItem { get; }
         /// <summary>
-        /// The item that was converted.
+        /// The item that was converted. This will be null if no conversion will take place (e.g. MetadataOnly conversion)
         /// </summary>
         public IConversionItem ConversionItem { get; }
         /// <summary>
-        /// The result of the conversion.
+        /// The result of the conversion. This will be null if no conversion will take place (e.g. MetadataOnly conversion)
         /// </summary>
         public DashEncodeResult ConversionResult { get; }
         /// <summary>

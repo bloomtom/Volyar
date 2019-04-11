@@ -106,7 +106,7 @@ namespace Volyar
                         try
                         {
                             var fetcher = new VolyExternalApiAccess.ApiFetch(g.Type, g.Url, g.ApiKey, g.Username, g.Password);
-                            metadata = fetcher.RetrieveInfo(args.ConversionItem.SourcePath);
+                            metadata = fetcher.RetrieveInfo(args.ConversionItem?.SourcePath ?? args.MediaItem.SourcePath);
                             if (metadata != null)
                             {
                                 args.MediaItem.SeriesName = metadata.SeriesTitle ?? args.MediaItem.SeriesName;
@@ -119,7 +119,7 @@ namespace Volyar
                                 args.MediaItem.TvdbId = metadata.TvdbId?.ToString();
                                 args.MediaItem.TvmazeId = metadata.TvMazeId?.ToString();
 
-                                if (args.ConversionItem is ConversionItem conversionItem)
+                                if (args.ConversionItem != null && args.ConversionItem is ConversionItem conversionItem)
                                 {
                                     if (g.Type == "radarr")
                                     {
@@ -135,12 +135,15 @@ namespace Volyar
                             }
                             else
                             {
-                                if(g.CancelIfUnavailable) {args.ConversionItem.CancellationToken.Cancel(); }
+                                if (g.CancelIfUnavailable && args.ConversionItem != null)
+                                {
+                                    args.ConversionItem.CancellationToken.Cancel();
+                                }
                             }
                         }
                         finally
                         {
-                            if(metadata == null && g.CancelIfUnavailable)
+                            if(metadata == null && g.CancelIfUnavailable && args.ConversionItem != null)
                             {
                                 args.ConversionItem.ErrorText = "Cancelled: No API data found.";
                                 args.Log.LogWarning($"ApiIntegration retrieve failed for {args.ConversionItem.SourcePath}. Cancelling item.");
