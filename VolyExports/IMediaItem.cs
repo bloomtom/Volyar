@@ -48,6 +48,10 @@ namespace VolyExports
         /// </summary>
         int AbsoluteEpisodeNumber { get; set; }
         /// <summary>
+        /// The media variant version of this item.
+        /// </summary>
+        int Version { get; set; }
+        /// <summary>
         /// The name of the series this media item belongs to. If the media item is a movie, this may be the same as Name.
         /// </summary>
         string SeriesName { get; set; }

@@ -46,6 +46,10 @@ namespace VolyExports
         /// </summary>
         public int EpisodeNumber { get; set; }
         /// <summary>
+        ///  The media variant version of this item.
+        /// </summary>
+        public int Version { get; set; }
+        /// <summary>
         /// The absolute episode number if this was retrieved from an integration.
         /// </summary>
         public int AbsoluteEpisodeNumber { get; set; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Dapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,12 +21,14 @@ namespace Volyar.Controllers
     public class DeletionApiController : Controller
     {
         private readonly VolyContext db;
+        private readonly IDapperConnection dapper;
         private readonly VSettings settings;
         private readonly ILogger<ConversionApiController> log;
 
-        public DeletionApiController(VolyContext context, VSettings settings, ILogger<ConversionApiController> logger)
+        public DeletionApiController(VolyContext context, IDapperConnection dapper, VSettings settings, ILogger<ConversionApiController> logger)
         {
             db = context;
+            this.dapper = dapper;
             this.settings = settings;
             log = logger;
         }
@@ -33,7 +36,13 @@ namespace Volyar.Controllers
         [HttpGet("pending")]
         public IActionResult GetPending()
         {
-            IEnumerable<IMediaItem> added = db.Media.FromSql(@"
+            using (var connection = dapper.NewConnection())
+            {
+                connection.Open();
+
+                SqlMapper.AddTypeHandler(typeof(TimeSpan), new TimeSpanHandler());
+                SqlMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetHandler());
+                var added = connection.Query<VolyExports.MediaItem>(@"
                     SELECT
                         PendingDeletions.MediaId,
                         PendingDeletions.Version,
@@ -61,7 +70,8 @@ namespace Volyar.Controllers
                         MediaItem ON PendingDeletions.MediaId = MediaItem.MediaId
                 ");
 
-            return new ObjectResult(Newtonsoft.Json.JsonConvert.SerializeObject(added));
+                return new ObjectResult(Newtonsoft.Json.JsonConvert.SerializeObject(added));
+            }
         }
 
         [HttpPost("revert")]
