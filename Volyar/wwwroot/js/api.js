@@ -32,7 +32,7 @@ function resumeQueue(done, fail) {
 }
 
 function postFullscan(done, fail) {
-    post("../internal/api/scan/fullscan", done, fail);
+    post("../internal/api/scan/full", done, fail);
 }
 
 function confirmDelete(items, done, fail) {

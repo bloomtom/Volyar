@@ -323,14 +323,23 @@ When items are deleted, by default they aren't -actually- deleted, they're put i
 	 - The library component of the path is optional. Simply omit it to get a diff across all libraries.
 	 - When a library is queried, the API will only return additions and deletions for that library, but will return all deletions. This is done because the library a deleted item belonged to is not stored.
 
- - `/internal/api/scan/fullscan`
+ - `/internal/api/scan/full`
    - POST
      - Starts a scan across all libraries.
 
 
- - `/internal/api/scan/scanlib/[library]`
+ - `/internal/api/scan/library/[library]`
    - POST
      - Starts a scan of a single library.
+
+ - `/internal/api/scan/library/[library]/filtered`
+   - POST
+     - Starts a scan of a single library, and restricts the scan to a set of files.
+     - Takes a json array of strings as the HTTP body.
+
+ - `/internal/api/scan/sonarr/[library]`
+   - POST
+     - Starts a scan of a single file, as specified by a Sonarr or Radarr [WebHook](https://github.com/Sonarr/Sonarr/wiki/Webhook) body.
 
 <a name="differentials"></a>
 ## Differentials

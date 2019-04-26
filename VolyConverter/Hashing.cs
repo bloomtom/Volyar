@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -14,25 +15,32 @@ namespace VolyConverter
 
         public static string HashFileMd5(string filePath)
         {
-            return ComputeHash(filePath, MD5.Create);
+            return ComputeFileHash(filePath, MD5.Create);
         }
 
         public static string HashFileSha1(string filePath)
         {
-            return ComputeHash(filePath, SHA1.Create);
+            return ComputeFileHash(filePath, SHA1.Create);
         }
 
         public static string HashFileSha256(string filePath)
         {
-            return ComputeHash(filePath, SHA256.Create);
+            return ComputeFileHash(filePath, SHA256.Create);
         }
 
-        private static string ComputeHash(string path, Hasher hasher)
+        private static string ComputeFileHash(string path, Hasher hasher)
+        {
+            using (var stream = File.OpenRead(path))
+            {
+                return ComputeStreamHash(stream, hasher);
+            }
+        }
+
+        private static string ComputeStreamHash(Stream s, Hasher hasher)
         {
             using (HashAlgorithm method = hasher.Invoke())
-            using (var stream = System.IO.File.OpenRead(path))
             {
-                var h = method.ComputeHash(stream);
+                var h = method.ComputeHash(s);
                 return ConvertToHex(h);
             }
         }

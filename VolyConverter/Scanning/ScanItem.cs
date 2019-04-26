@@ -9,7 +9,8 @@ namespace VolyConverter.Scanning
     public enum ScanType
     {
         None,
-        Library
+        Library,
+        FilteredLibrary
     }
 
     public interface IScanItem
@@ -24,7 +25,7 @@ namespace VolyConverter.Scanning
     public abstract class ScanItem : IScanItem
     {
         public ScanType Type { get; private set; }
-        public string Name { get; private set; }
+        public string Name { get; protected set; }
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
         public ScanItem(ScanType type, string name)

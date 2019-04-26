@@ -30,6 +30,7 @@ namespace Volyar
         {
             switch (connectionType)
             {
+                case "temp":
                 case "sqlite":
                     return new SqliteConnection(connectionString);
                 case "sqlserver":

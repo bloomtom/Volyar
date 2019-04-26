@@ -20,6 +20,20 @@ using VolyFiles;
 
 namespace VolyConverter.Scanning
 {
+    public class ScanFile
+    {
+        public string Path { get; private set; }
+        public DateTimeOffset LastModified { get; private set; }
+        public bool ZeroLength { get; private set; }
+
+        public ScanFile(string path, DateTimeOffset lastModified, bool zeroLength)
+        {
+            Path = path;
+            LastModified = lastModified;
+            ZeroLength = zeroLength;
+        }
+    }
+
     public class LibraryScanner : ScanItem
     {
         private readonly IDistinctQueueProcessor<IConversionItem> converter;
@@ -30,6 +44,7 @@ namespace VolyConverter.Scanning
         private readonly IEnumerable<IConversionPlugin> conversionPlugins;
 
         private readonly ILibrary library;
+        private readonly HashSet<string> scanTheseFilesOnly = null;
 
         public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, IEnumerable<IConversionPlugin> conversionPlugins, ILogger log) : base(ScanType.Library, library.Name)
         {
@@ -39,6 +54,36 @@ namespace VolyConverter.Scanning
             this.dbOptions = dbOptions;
             this.conversionPlugins = conversionPlugins;
             this.log = log;
+        }
+
+        public LibraryScanner(ILibrary library, IStorage storageBackend, IDistinctQueueProcessor<IConversionItem> converter, DbContextOptions<VolyContext> dbOptions, IEnumerable<IConversionPlugin> conversionPlugins, ILogger log, IEnumerable<string> scanTheseFilesOnly) : base(ScanType.FilteredLibrary, library.Name)
+        {
+            this.library = library;
+            this.storageBackend = storageBackend;
+            this.converter = converter;
+            this.dbOptions = dbOptions;
+            this.conversionPlugins = conversionPlugins;
+            this.log = log;
+            this.scanTheseFilesOnly = new HashSet<string>(scanTheseFilesOnly);
+            Name = GenerateFilteredName(library.Name, this.scanTheseFilesOnly); // This is needed to allow multiple
+        }
+
+        private static string GenerateFilteredName(string name, HashSet<string> scanTheseFilesOnly)
+        {
+            if (scanTheseFilesOnly.Count == 0)
+            {
+                return name;
+            }
+            if (scanTheseFilesOnly.Count == 1)
+            {
+                return name + " " + scanTheseFilesOnly.First();
+            }
+            long hash = 1009;
+            foreach (var item in scanTheseFilesOnly)
+            {
+                hash = unchecked(hash * 7979 + item.GetHashCode());
+            }
+            return name + " " + hash.ToString();
         }
 
         public override bool Scan()
@@ -61,10 +106,19 @@ namespace VolyConverter.Scanning
 
             using (var context = new VolyContext(dbOptions))
             {
-                var contextMediaItems = context.Media
-                    .Where(x => x.LibraryName == library.Name)
-                    .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash });
-
+                IEnumerable<VolyDatabase.MediaItem> contextMediaItems;
+                if (scanTheseFilesOnly == null)
+                {
+                    contextMediaItems = context.Media
+                        .Where(x => x.LibraryName == library.Name)
+                        .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash });
+                }
+                else
+                {
+                    contextMediaItems = context.Media
+                        .Where(x => x.LibraryName == library.Name && scanTheseFilesOnly.Contains(x.SourcePath))
+                        .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash });
+                }
                 var currentLibrary = new Dictionary<string, VolyDatabase.MediaItem>();
                 var dbMediaItemsNotFound = new HashSet<int>();
                 foreach (var item in contextMediaItems)
@@ -76,15 +130,22 @@ namespace VolyConverter.Scanning
 
                 var quality = new HashSet<IQuality>(library.Qualities);
 
-                log.LogInformation($"Scanning library {library.Name}...");
-
-                var o = new EnumerationOptions() { RecurseSubdirectories = true, IgnoreInaccessible = true };
-                var foundFiles =
-                    new FileSystemEnumerable<(string Path, DateTimeOffset lastModified, bool zeroLength)>(library.OriginPath,
-                    (ref FileSystemEntry entry) => (entry.ToFullPath(), entry.CreationTimeUtc > entry.LastWriteTimeUtc ? entry.CreationTimeUtc : entry.LastWriteTimeUtc, entry.Length == 0), o)
-                    {
-                        ShouldIncludePredicate = (ref FileSystemEntry entry) => { return !entry.IsDirectory; }
-                    };
+                IEnumerable<ScanFile> foundFiles;
+                if (scanTheseFilesOnly == null)
+                {
+                    log.LogInformation($"Scanning library {library.Name}...");
+                    foundFiles = GetLibraryFiles(library.OriginPath);
+                }
+                else if (scanTheseFilesOnly.Count() == 0)
+                {
+                    log.LogWarning("Library scan was started with a specified scan set, but the scan set was empty.");
+                    return false;
+                }
+                else
+                {
+                    log.LogInformation($"Scanning library {library.Name} for {scanTheseFilesOnly.Count()} files...");
+                    foundFiles = GetLibraryFiles(library.OriginPath, scanTheseFilesOnly);
+                }
 
                 foreach (var file in foundFiles)
                 {
@@ -100,7 +161,7 @@ namespace VolyConverter.Scanning
                     bool existsInDb = currentLibrary.TryGetValue(file.Path, out var existingEntry);
                     if (existsInDb) { dbMediaItemsNotFound.Remove(existingEntry.MediaId); } // Remove to track missing entries for later.
 
-                    if (file.zeroLength)
+                    if (file.ZeroLength)
                     {
                         continue;
                     }
@@ -131,7 +192,7 @@ namespace VolyConverter.Scanning
                             // Media doesn't exist in db, make it.
                             log.LogInformation($"Scheduling conversion of {file.Path}");
                             string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
-                            ScheduleConversion(library, quality, file.Path, file.lastModified,
+                            ScheduleConversion(library, quality, file.Path, file.LastModified,
                                 (new DirectoryInfo(Directory.GetParent(file.Path).FullName)).Name, sourceHash, outFilename);
                         }
                     }
@@ -141,6 +202,7 @@ namespace VolyConverter.Scanning
                 {
                     // Queue delete for items not found in scan.
                     var inDb = context.PendingDeletions.Where(x => dbMediaItemsNotFound.Contains(x.MediaId)).Select(y => y.MediaId);
+                    dbMediaItemsNotFound.ExceptWith(inDb);
                     context.PendingDeletions.AddRange(dbMediaItemsNotFound.Select(x => new PendingDeletion() { MediaId = x, Version = -1, Requestor = DeleteRequestor.Scan }));
                 }
 
@@ -152,6 +214,46 @@ namespace VolyConverter.Scanning
             }
         }
 
+        private static IEnumerable<ScanFile> GetLibraryFiles(string libraryPath)
+        {
+            var enumerationOptions = new EnumerationOptions() { RecurseSubdirectories = true, IgnoreInaccessible = true };
+            return
+                new FileSystemEnumerable<(string Path, DateTimeOffset lastModified, bool zeroLength)>(libraryPath,
+                (ref FileSystemEntry entry) => (entry.ToFullPath(), CalculateLastAccess(entry.CreationTimeUtc, entry.LastWriteTimeUtc), entry.Length == 0), enumerationOptions)
+                {
+                    ShouldIncludePredicate = (ref FileSystemEntry entry) => { return !entry.IsDirectory; }
+                }.Select(x => new ScanFile(x.Path, x.lastModified, x.zeroLength));
+        }
+
+        private static DateTimeOffset CalculateLastAccess(DateTimeOffset created, DateTimeOffset lastWritten)
+        {
+            return created > lastWritten ? created : lastWritten;
+        }
+
+        private IEnumerable<ScanFile> GetLibraryFiles(string libraryPath, IEnumerable<string> filter)
+        {
+            foreach (var file in filter)
+            {
+                if (file.StartsWith(libraryPath))
+                {
+                    FileInfo info = new FileInfo(file);
+                    if (info.Exists)
+                    {
+                        try
+                        {
+                            using (info.OpenRead()) { }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.LogWarning($"Failed to open file {file} exception {ex.Message}");
+                            continue;
+                        }
+                        yield return new ScanFile(info.FullName, CalculateLastAccess(info.CreationTimeUtc, info.LastWriteTimeUtc), info.Length == 0);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Returns true if 
         /// </summary>
@@ -159,10 +261,10 @@ namespace VolyConverter.Scanning
         /// <param name="file"></param>
         /// <param name="existingEntry"></param>
         /// <returns></returns>
-        private bool TryReconvert(HashSet<IQuality> quality, (string Path, DateTimeOffset lastModified, bool zeroLength) file, VolyDatabase.MediaItem existingEntry)
+        private bool TryReconvert(HashSet<IQuality> quality, ScanFile file, VolyDatabase.MediaItem existingEntry)
         {
             // Item exists, check if update is needed.
-            if (file.lastModified > existingEntry.SourceModified)
+            if (file.LastModified > existingEntry.SourceModified)
             {
                 string sourceHash = Hashing.HashFileMd5(file.Path);
                 string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
@@ -170,7 +272,7 @@ namespace VolyConverter.Scanning
                 {
                     // Update needed.
                     log.LogInformation($"Scheduling re-conversion of {file.Path}");
-                    ScheduleReconversion(library, quality, file.Path, file.lastModified, existingEntry.MediaId, sourceHash, outFilename);
+                    ScheduleReconversion(library, quality, file.Path, file.LastModified, existingEntry.MediaId, sourceHash, outFilename);
                     return true;
                 }
             }

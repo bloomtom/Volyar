@@ -36,6 +36,11 @@ namespace VolyConverter.Scanning
             AddItem(new LibraryScanner(library, storageBackend, converter, dbOptions.Database, conversionPlugins, log));
         }
 
+        public void ScheduleLibraryScan(Library library, IStorage storageBackend, VolyContext context, IEnumerable<string> scanTheseFilesOnly)
+        {
+            AddItem(new LibraryScanner(library, storageBackend, converter, dbOptions.Database, conversionPlugins, log, scanTheseFilesOnly));
+        }
+
         protected override void Process(IScanItem item)
         {
             item.Scan();

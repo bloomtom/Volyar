@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Volyar.Models;
 using VolyConverter.Scanning;
 using VolyDatabase;
+using VolyExternalApiAccess.Darr;
 
 namespace Volyar.Controllers
 {
@@ -30,7 +31,7 @@ namespace Volyar.Controllers
             log = logger;
         }
 
-        [HttpPost("fullscan")]
+        [HttpPost("full")]
         public void FullScan()
         {
             log.LogInformation($"Full scan requested.");
@@ -44,8 +45,14 @@ namespace Volyar.Controllers
             }
         }
 
-        [HttpPost("scanlib/{libraryName}")]
-        public IActionResult FullScan(string libraryName)
+        [HttpPost("library/{libraryName}")]
+        public IActionResult LibraryScan(string libraryName)
+        {
+            return LibraryScan(libraryName, null);
+        }
+
+        [HttpPost("library/{libraryName}/filtered")]
+        public IActionResult LibraryScan(string libraryName, [FromBody]List<string> scanFilter)
         {
             log.LogInformation($"Scan of library {libraryName} requested.");
 
@@ -54,7 +61,7 @@ namespace Volyar.Controllers
             {
                 using (var outerContext = new VolyContext(dbOptions))
                 {
-                    scanner.ScheduleLibraryScan(library, library.StorageBackend.RetrieveBackend(), outerContext);
+                    scanner.ScheduleLibraryScan(library, library.StorageBackend.RetrieveBackend(), outerContext, scanFilter);
                 }
                 return Ok();
             }
@@ -62,6 +69,31 @@ namespace Volyar.Controllers
             {
                 return BadRequest();
             }
+        }
+
+        [HttpPost("sonarr/{libraryName}")]
+        public IActionResult SonarrScan(string libraryName, [FromBody]WebHookBody body)
+        {
+            if (body == null) { return StatusCode(400); }
+            if (body.EventType == "Test") { return Ok(); }
+            if (body.EventType != "Download") { return StatusCode(400); }
+
+            string path = null;
+            if (body.EpisodeFile != null)
+            {
+                path = body.EpisodeFile.Path;
+            }
+            else if (body.MovieFile != null)
+            {
+                path = body.MovieFile.Path;
+            }
+            else
+            {
+                return StatusCode(400);
+            }
+            if (path == null) { return StatusCode(400); }
+
+            return LibraryScan(libraryName, new List<string>() { path });
         }
     }
 }
