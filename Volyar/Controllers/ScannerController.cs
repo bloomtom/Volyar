@@ -81,11 +81,11 @@ namespace Volyar.Controllers
             string path = null;
             if (body.EpisodeFile != null)
             {
-                path = body.EpisodeFile.Path;
+                path = Path.Combine(body.Series.Path, body.EpisodeFile.RelativePath);
             }
             else if (body.MovieFile != null)
             {
-                path = body.MovieFile.Path;
+                path = Path.Combine(body.Movie.FolderPath, body.MovieFile.RelativePath);
             }
             else
             {

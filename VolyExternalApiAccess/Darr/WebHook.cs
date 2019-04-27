@@ -80,6 +80,8 @@ namespace VolyExternalApiAccess.Darr
         public string Title { get; set; }
         [JsonProperty("releaseDate")]
         public string ReleaseDate { get; set; }
+        [JsonProperty("folderPath")]
+        public string FolderPath { get; set; }
     }
 
     public class WebHookMoviefile
