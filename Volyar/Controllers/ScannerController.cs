@@ -91,7 +91,13 @@ namespace Volyar.Controllers
             {
                 return StatusCode(400);
             }
-            if (path == null) { return StatusCode(400); }
+            if (path == null)
+            {
+                log.LogInformation($"Sonarr scan requested, but the parsed path was null.");
+                return StatusCode(400);
+            }
+
+            log.LogInformation($"Sonarr scan requested for file: {path}");
 
             return LibraryScan(libraryName, new List<string>() { path });
         }
