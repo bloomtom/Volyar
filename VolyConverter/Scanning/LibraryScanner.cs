@@ -123,7 +123,7 @@ namespace VolyConverter.Scanning
                 var dbMediaItemsNotFound = new HashSet<int>();
                 foreach (var item in contextMediaItems)
                 {
-                    currentLibrary.Add(item.SourcePath, item);
+                    currentLibrary.Add(Path.GetFileNameWithoutExtension(item.SourcePath), item);
                     dbMediaItemsNotFound.Add(item.MediaId);
                 }
 
@@ -158,7 +158,7 @@ namespace VolyConverter.Scanning
                     var extension = Path.GetExtension(file.Path);
                     if (!library.ValidExtensions.Contains(extension)) { continue; }
 
-                    bool existsInDb = currentLibrary.TryGetValue(file.Path, out var existingEntry);
+                    bool existsInDb = currentLibrary.TryGetValue(Path.GetFileNameWithoutExtension(file.Path), out var existingEntry);
                     if (existsInDb) { dbMediaItemsNotFound.Remove(existingEntry.MediaId); } // Remove to track missing entries for later.
 
                     if (file.ZeroLength)
