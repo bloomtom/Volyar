@@ -65,7 +65,7 @@ namespace VolyConverter.Scanning
             this.conversionPlugins = conversionPlugins;
             this.log = log;
             this.scanTheseFilesOnly = new HashSet<string>(scanTheseFilesOnly);
-            Name = GenerateFilteredName(library.Name, this.scanTheseFilesOnly); // This is needed to allow multiple
+            Name = GenerateFilteredName(library.Name, this.scanTheseFilesOnly); // This is needed to allow multiple queued scans with different file filters.
         }
 
         private static string GenerateFilteredName(string name, HashSet<string> scanTheseFilesOnly)
@@ -255,12 +255,8 @@ namespace VolyConverter.Scanning
         }
 
         /// <summary>
-        /// Returns true if 
+        /// Returns true if conversion was performed
         /// </summary>
-        /// <param name="quality"></param>
-        /// <param name="file"></param>
-        /// <param name="existingEntry"></param>
-        /// <returns></returns>
         private bool TryReconvert(HashSet<IQuality> quality, ScanFile file, VolyDatabase.MediaItem existingEntry)
         {
             // Item exists, check if update is needed.
