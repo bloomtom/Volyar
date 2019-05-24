@@ -123,10 +123,9 @@ namespace VolyConverter.Scanning
                 var dbMediaItemsNotFound = new HashSet<int>();
                 foreach (var item in contextMediaItems)
                 {
-                    currentLibrary.Add(Path.GetFileNameWithoutExtension(item.SourcePath), item);
+                    currentLibrary[Path.GetFileNameWithoutExtension(item.SourcePath)] = item;
                     dbMediaItemsNotFound.Add(item.MediaId);
                 }
-
 
                 var quality = new HashSet<IQuality>(library.Qualities);
 
