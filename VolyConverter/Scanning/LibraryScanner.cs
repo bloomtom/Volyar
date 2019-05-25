@@ -292,12 +292,13 @@ namespace VolyConverter.Scanning
                     // Save the new media item to db.
                     newMedia.Duration = result.FileDuration;
                     newMedia.IndexName = Path.GetFileName(result.DashFilePath);
-                    newMedia.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
+                    newMedia.IndexHash = "";
                     newMedia.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata);
-
                     innerContext.Media.Add(newMedia);
+                    innerContext.SaveChanges(); // Need to save changes now to yield a MediaId from the database.
 
-                    innerContext.SaveChanges();
+                    // Must be done after initial push to allow reconvert on error.
+                    newMedia.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
 
                     // Update the transaction log.
                     innerContext.TransactionLog.Add(new TransactionLog()
