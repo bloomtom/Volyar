@@ -107,18 +107,17 @@ namespace VolyConverter.Scanning
             using (var context = new VolyContext(dbOptions))
             {
                 IEnumerable<VolyDatabase.MediaItem> contextMediaItems;
-                if (scanTheseFilesOnly == null)
+                contextMediaItems = context.Media
+                    .Where(x => x.LibraryName == library.Name)
+                    .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash });
+
+                if (scanTheseFilesOnly != null)
                 {
-                    contextMediaItems = context.Media
-                        .Where(x => x.LibraryName == library.Name)
-                        .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash });
+                    // Reduce the data set to only items which are in our scan selection.
+                    var extensionlessSTFO = scanTheseFilesOnly.Select(x => Path.GetFileNameWithoutExtension(x)).ToHashSet();
+                    contextMediaItems = contextMediaItems.Where(x => extensionlessSTFO.Contains(Path.GetFileNameWithoutExtension(x.SourcePath)));
                 }
-                else
-                {
-                    contextMediaItems = context.Media
-                        .Where(x => x.LibraryName == library.Name && scanTheseFilesOnly.Contains(x.SourcePath))
-                        .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash });
-                }
+
                 var currentLibrary = new Dictionary<string, VolyDatabase.MediaItem>();
                 var dbMediaItemsNotFound = new HashSet<int>();
                 foreach (var item in contextMediaItems)
@@ -160,13 +159,14 @@ namespace VolyConverter.Scanning
                     bool existsInDb = currentLibrary.TryGetValue(Path.GetFileNameWithoutExtension(file.Path), out var existingEntry);
                     if (existsInDb) { dbMediaItemsNotFound.Remove(existingEntry.MediaId); } // Remove to track missing entries for later.
 
+                    string seriesName = new DirectoryInfo(Directory.GetParent(file.Path).FullName).Name;
                     if (file.ZeroLength)
                     {
                         continue;
                     }
                     else if (existsInDb)
                     {
-                        TryReconvert(quality, file, existingEntry);
+                        TryReconvert(quality, file, existingEntry, seriesName);
                     }
                     else
                     {
@@ -178,7 +178,7 @@ namespace VolyConverter.Scanning
                             dbMediaItemsNotFound.Remove(oldVersion.MediaId);
                             oldVersion.SourcePath = file.Path;
                             context.Media.Update(oldVersion);
-                            if (!TryReconvert(quality, file, oldVersion))
+                            if (!TryReconvert(quality, file, oldVersion, seriesName))
                             {
                                 // Not being reconverted, just update metadata.
                                 RunPrePlugins(library, null, oldVersion, ConversionType.MetadataOnly);
@@ -192,7 +192,7 @@ namespace VolyConverter.Scanning
                             log.LogInformation($"Scheduling conversion of {file.Path}");
                             string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
                             ScheduleConversion(library, quality, file.Path, file.LastModified,
-                                (new DirectoryInfo(Directory.GetParent(file.Path).FullName)).Name, sourceHash, outFilename);
+                                seriesName, sourceHash, outFilename);
                         }
                     }
                 }
@@ -231,9 +231,10 @@ namespace VolyConverter.Scanning
 
         private IEnumerable<ScanFile> GetLibraryFiles(string libraryPath, IEnumerable<string> filter)
         {
+            libraryPath = Path.GetFullPath(libraryPath);
             foreach (var file in filter)
             {
-                if (file.StartsWith(libraryPath))
+                if (Path.GetFullPath(file).StartsWith(libraryPath))
                 {
                     FileInfo info = new FileInfo(file);
                     if (info.Exists)
@@ -256,7 +257,7 @@ namespace VolyConverter.Scanning
         /// <summary>
         /// Returns true if conversion was performed
         /// </summary>
-        private bool TryReconvert(HashSet<IQuality> quality, ScanFile file, VolyDatabase.MediaItem existingEntry)
+        private bool TryReconvert(HashSet<IQuality> quality, ScanFile file, VolyDatabase.MediaItem existingEntry, string seriesName)
         {
             // Item exists, check if update is needed.
             if (file.LastModified > existingEntry.SourceModified)
@@ -267,7 +268,7 @@ namespace VolyConverter.Scanning
                 {
                     // Update needed.
                     log.LogInformation($"Scheduling re-conversion of {file.Path}");
-                    ScheduleReconversion(library, quality, file.Path, file.LastModified, existingEntry.MediaId, sourceHash, outFilename);
+                    ScheduleReconversion(library, quality, file.Path, file.LastModified, existingEntry.MediaId, seriesName, sourceHash, outFilename);
                     return true;
                 }
             }
@@ -347,7 +348,7 @@ namespace VolyConverter.Scanning
             converter.AddItem(conversionItem);
         }
 
-        private void ScheduleReconversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string sourceHash, string outFilename)
+        private void ScheduleReconversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string seriesName, string sourceHash, string outFilename)
         {
             var newMedia = new VolyDatabase.MediaItem()
             {
@@ -356,6 +357,7 @@ namespace VolyConverter.Scanning
                 SourceHash = sourceHash,
                 LibraryName = library.Name,
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
+                SeriesName = seriesName
             };
             var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
             {
