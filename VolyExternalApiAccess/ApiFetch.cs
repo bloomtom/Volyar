@@ -50,8 +50,8 @@ namespace VolyExternalApiAccess
             {
                 SeriesTitle = mediaInfo.Series.Title,
                 Title = episode?.Title,
-                SeasonNumber = episode?.SeasonNumber ?? 0,
-                EpisodeNumber = episode?.EpisodeNumber ?? 0,
+                SeasonNumber = mediaInfo.ParsedEpisodeInfo?.SeasonNumber ?? episode?.SeasonNumber ?? 0,
+                EpisodeNumber = mediaInfo.ParsedEpisodeInfo?.EpisodeNumbers?.Count > 0 ? mediaInfo.ParsedEpisodeInfo.EpisodeNumbers.First() : episode?.EpisodeNumber ?? 0,
                 AbsoluteEpisodeNumber = episode?.AbsoluteEpisodeNumber ?? 0,
                 ImdbId = mediaInfo.Series.ImdbId,
                 TvdbId = mediaInfo.Series.TvdbId,
