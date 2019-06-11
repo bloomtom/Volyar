@@ -52,7 +52,7 @@ namespace VolyExternalApiAccess
                 Title = episode?.Title,
                 SeasonNumber = mediaInfo.ParsedEpisodeInfo?.SeasonNumber ?? episode?.SeasonNumber ?? 0,
                 EpisodeNumber = mediaInfo.ParsedEpisodeInfo?.EpisodeNumbers?.Count > 0 ? mediaInfo.ParsedEpisodeInfo.EpisodeNumbers.First() : episode?.EpisodeNumber ?? 0,
-                AbsoluteEpisodeNumber = episode?.AbsoluteEpisodeNumber ?? 0,
+                AbsoluteEpisodeNumber = mediaInfo.ParsedEpisodeInfo.IsAbsoluteNumbering && mediaInfo.ParsedEpisodeInfo?.AbsoluteEpisodeNumbers.Count > 0 ? mediaInfo.ParsedEpisodeInfo.AbsoluteEpisodeNumbers.First() : 0,
                 ImdbId = mediaInfo.Series.ImdbId,
                 TvdbId = mediaInfo.Series.TvdbId,
                 TvMazeId = mediaInfo.Series.TvMazeId,
