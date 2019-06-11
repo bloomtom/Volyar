@@ -42,9 +42,10 @@ namespace VolyExternalApiAccess
             var api = new SonarrQuery(url, apiKey, username, password);
             var mediaInfo = api.Find(path);
 
-            if (mediaInfo == null) { return null; }
+            if (mediaInfo == null || mediaInfo.Title == null) { return null; }
 
-            var episode = mediaInfo.Episodes.FirstOrDefault();
+            var episode = mediaInfo.Episodes?.FirstOrDefault();
+
             return new ApiValue()
             {
                 SeriesTitle = mediaInfo.Series.Title,
@@ -67,7 +68,7 @@ namespace VolyExternalApiAccess
             var api = new RadarrQuery(url, apiKey, username, password);
             var mediaInfo = api.Where((x) => x.FolderName == directory && x.MovieFile.RelativePath == filename).FirstOrDefault();
 
-            if (mediaInfo == null) { return null; }
+            if (mediaInfo == null || mediaInfo.Title == null) { return null; }
 
             return new ApiValue()
             {
