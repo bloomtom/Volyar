@@ -42,16 +42,16 @@ namespace VolyExternalApiAccess
             var api = new SonarrQuery(url, apiKey, username, password);
             var mediaInfo = api.Find(path);
 
-            if (mediaInfo == null || mediaInfo.Title == null) { return null; }
+            if (mediaInfo == null || mediaInfo.Series == null || mediaInfo.ParsedEpisodeInfo == null) { return null; }
 
             var episode = mediaInfo.Episodes?.FirstOrDefault();
 
             return new ApiValue()
             {
-                SeriesTitle = mediaInfo.Series.Title,
+                SeriesTitle = mediaInfo.Series.Title ?? mediaInfo.ParsedEpisodeInfo?.SeriesTitle ?? mediaInfo.Title,
                 Title = episode?.Title,
-                SeasonNumber = mediaInfo.ParsedEpisodeInfo?.SeasonNumber ?? episode?.SeasonNumber ?? 0,
-                EpisodeNumber = mediaInfo.ParsedEpisodeInfo?.EpisodeNumbers?.Count > 0 ? mediaInfo.ParsedEpisodeInfo.EpisodeNumbers.First() : episode?.EpisodeNumber ?? 0,
+                SeasonNumber = mediaInfo.ParsedEpisodeInfo.SeasonNumber != 0 ? mediaInfo.ParsedEpisodeInfo.SeasonNumber : (episode?.SeasonNumber ?? 0),
+                EpisodeNumber = mediaInfo.ParsedEpisodeInfo.EpisodeNumbers?.Count > 0 ? mediaInfo.ParsedEpisodeInfo.EpisodeNumbers.First() : episode?.EpisodeNumber ?? 0,
                 AbsoluteEpisodeNumber = mediaInfo.ParsedEpisodeInfo.IsAbsoluteNumbering && mediaInfo.ParsedEpisodeInfo?.AbsoluteEpisodeNumbers.Count > 0 ? mediaInfo.ParsedEpisodeInfo.AbsoluteEpisodeNumbers.First() : 0,
                 ImdbId = mediaInfo.Series.ImdbId,
                 TvdbId = mediaInfo.Series.TvdbId,
