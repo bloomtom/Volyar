@@ -164,11 +164,41 @@
             background-color: #6800ff;
             cursor: default;
         }
+
+    .VuePagination {
+        text-align: center;
+        display: block;
+    }
+
+    .vue-title {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .vue-pagination-ad {
+        text-align: center;
+    }
+
+    .VuePagination__pagination {
+        display: inline-flex;
+    }
+
+    .VueTables__search {
+        text-align:left;
+        display: inline-flex;
+        padding: 3px;
+    }
+
+    .VueTables__limit {
+        display: inline-flex;
+        padding: 3px;
+    }
 </style>
 
 <div id="app">
     <ul class="nav nav-pills tab-wrapper button-wrapper">
         <li class="nav-item p-1"><router-link class="nav-link" to="/conversionStatus">Conversion Status</router-link></li>
+        <li class="nav-item p-1"><router-link class="nav-link" to="/mediaManager">Media Manager</router-link></li>
         <li class="nav-item p-1"><router-link class="nav-link" to="/pendingDeletions">Pending Deletions</router-link></li>
     </ul>
     <hr />
@@ -320,6 +350,21 @@
                 <li><p>Source:</p> {{item.SourcePath}}</li>
                 <li v-bind:title="item.CreateDate"><p>Created:</p> {{timeago(item.CreateDate)}}</li>
             </ul>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="media-manager-template">
+    <div>
+        <div id="mediaManager">
+            <v-client-table class="panel text-center" :data="data" :columns="columns" :options="options">
+                <div slot="createDate" slot-scope="props" v-bind:title="props.row.createDate">
+                    {{timeago(props.row.createDate)}}
+                </div>
+                <div class="btn btn-sm btn-secondary text-center" slot="mediaId" slot-scope="props" v-on:click="edit(props.row)">
+                    {{props.row.mediaId}}
+                </div>
+            </v-client-table>
         </div>
     </div>
 </script>

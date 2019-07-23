@@ -72,6 +72,10 @@ function updatePendingDelete() {
     }, null);
 }
 
+function updateMediaManager() {
+    //
+}
+
 function startTimer(force, single = false) {
     // Only allow one running timer.
     if (timerRunning && !force) { return; }

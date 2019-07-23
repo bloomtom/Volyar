@@ -91,7 +91,7 @@ namespace VolyExternalApiAccess.Darr.Radarr
             if (result.Count() == 0)
             {
                 // Try again if Radarr hasn't been queried very recently.
-                movies = GetCached(TimeSpan.FromSeconds(30));
+                movies = GetCached(TimeSpan.FromSeconds(10));
                 result = movies.Where(condition);
             }
             return result;
