@@ -179,5 +179,45 @@ namespace Volyar.Controllers
 
             return new JsonResult(result);
         }
+
+        [HttpGet("manager")]
+        public IActionResult Manager(string query, int limit, int page, string orderBy, int ascending, int byColumn)
+        {
+            List<VolyDatabase.MediaItem> result;
+            int totalCount = 0;
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                var q = new MediaManagerQuery(query);
+                totalCount = Filter(q).Count();
+                result = Filter(q)
+                    .OrderBy(orderBy, ascending == 0)
+                    .Skip(totalCount <= limit * page ? 0 : limit * page).Take(limit)
+                    .AsNoTracking().ToList();
+            }
+            else
+            {
+                totalCount = db.Media.Count();
+                result = db.Media
+                    .OrderBy(orderBy, ascending == 0)
+                    .Skip(totalCount <= limit * page ? 0 : limit * page).Take(limit)
+                    .AsNoTracking().ToList();
+            }
+
+            return new JsonResult(new Dictionary<string, object>
+                {
+                    { "data", result },
+                    { "count", totalCount }
+                });
+        }
+
+        private IQueryable<VolyDatabase.MediaItem> Filter(MediaManagerQuery q)
+        {
+            return db.Media.Where(x =>
+                                q.ID != null ? x.MediaId == q.ID : true &&
+                                q.LibraryName != null ? x.LibraryName == q.LibraryName : true &&
+                                q.SeriesName != null ? x.SeriesName == q.SeriesName : true &&
+                                q.EpisodeName != null ? x.Name == q.EpisodeName : true &&
+                                q.GeneralQuery != null ? x.Name.Contains(q.GeneralQuery) : true);
+        }
     }
 }

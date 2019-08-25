@@ -184,7 +184,7 @@
     }
 
     .VueTables__search {
-        text-align:left;
+        text-align: left;
         display: inline-flex;
         padding: 3px;
     }
@@ -357,14 +357,14 @@
 <script type="text/x-template" id="media-manager-template">
     <div>
         <div id="mediaManager">
-            <v-client-table class="panel text-center" :data="data" :columns="columns" :options="options">
+            <v-server-table url="/external/api/media/manager" class="panel text-center" :data="data" :columns="columns" :options="options">
                 <div slot="createDate" slot-scope="props" v-bind:title="props.row.createDate">
                     {{timeago(props.row.createDate)}}
                 </div>
                 <div class="btn btn-sm btn-secondary text-center" slot="mediaId" slot-scope="props" v-on:click="edit(props.row)">
                     {{props.row.mediaId}}
                 </div>
-            </v-client-table>
+            </v-server-table>
         </div>
     </div>
 </script>
