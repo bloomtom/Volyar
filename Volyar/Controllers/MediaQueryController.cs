@@ -191,7 +191,7 @@ namespace Volyar.Controllers
                 totalCount = Filter(q).Count();
                 result = Filter(q)
                     .OrderBy(orderBy, ascending == 0)
-                    .Skip(totalCount <= limit * page ? 0 : limit * page).Take(limit)
+                    .Skip(limit * (page - 1)).Take(limit)
                     .AsNoTracking().ToList();
             }
             else
@@ -199,9 +199,10 @@ namespace Volyar.Controllers
                 totalCount = db.Media.Count();
                 result = db.Media
                     .OrderBy(orderBy, ascending == 0)
-                    .Skip(totalCount <= limit * page ? 0 : limit * page).Take(limit)
+                    .Skip(limit * (page - 1)).Take(limit)
                     .AsNoTracking().ToList();
             }
+            result = result.TakeLast(limit).ToList();
 
             return new JsonResult(new Dictionary<string, object>
                 {
@@ -215,9 +216,9 @@ namespace Volyar.Controllers
             return db.Media.Where(x =>
                                 q.ID != null ? x.MediaId == q.ID : true &&
                                 q.LibraryName != null ? x.LibraryName == q.LibraryName : true &&
-                                q.SeriesName != null ? x.SeriesName == q.SeriesName : true &&
-                                q.EpisodeName != null ? x.Name == q.EpisodeName : true &&
-                                q.GeneralQuery != null ? x.Name.Contains(q.GeneralQuery) : true);
+                                q.SeriesName != null ? x.SeriesName.Contains(q.SeriesName, StringComparison.CurrentCultureIgnoreCase) : true &&
+                                q.EpisodeName != null ? x.Name.Contains(q.GeneralQuery, StringComparison.CurrentCultureIgnoreCase) : true &&
+                                q.GeneralQuery != null ? x.Name.Contains(q.GeneralQuery, StringComparison.CurrentCultureIgnoreCase) : true);
         }
     }
 }

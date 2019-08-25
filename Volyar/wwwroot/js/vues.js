@@ -270,34 +270,7 @@ var mediaManagerComponent = {
                 },
                 columnsClasses: {
                     mediaId: 'text-center'
-                },
-                multiSorting: {
-                    Series: [
-                        {
-                            column: 'seasonNumber',
-                            matchDir: false
-                        },
-                        {
-                            column: 'episodeNumber',
-                            matchDir: false
-                        },
-                        {
-                            column: 'version',
-                            matchDir: false
-                        }
-                    ],
-                    seasonNumber: [
-                        {
-                            column: 'episodeNumber',
-                            matchDir: false
-                        },
-                        {
-                            column: 'version',
-                            matchDir: false
-                        }
-                    ]
-                },
-                filterable: ['mediaId', 'seriesName', 'name']
+                }
             }
         };
     },
@@ -324,7 +297,7 @@ Vue.use(VueTables.ServerTable,
     {
         options:
         {
-            perPage: 25
+            perPage: 100
         },
         useVuex: true,
         theme: 'bootstrap4'
