@@ -231,7 +231,7 @@ var mediaManagerComponent = {
     data: function () {
         return {
             columns: ['mediaId', 'seriesName', 'name', 'seasonNumber', 'episodeNumber', 'version', 'createDate'],
-            data: this.$store.state.mediaManager,
+            data: [],
             css: {
                 table: {
                     tableClass: 'table table-striped table-bordered table-hovered',

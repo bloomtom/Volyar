@@ -357,7 +357,7 @@
 <script type="text/x-template" id="media-manager-template">
     <div>
         <div id="mediaManager">
-            <v-server-table url="/external/api/media/manager" class="panel text-center" :data="data" :columns="columns" :options="options">
+            <v-server-table url="@System.IO.Path.Join(Context.Request.PathBase.ToString(), "/external/api/media/manager")" class="panel text-center" :data="data" :columns="columns" :options="options">
                 <div slot="createDate" slot-scope="props" v-bind:title="props.row.createDate">
                     {{timeago(props.row.createDate)}}
                 </div>
