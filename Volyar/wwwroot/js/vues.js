@@ -226,7 +226,7 @@ var pendingDeletionsComponent = {
 
 var mediaManagerComponent = {
     props: {
-        name: 'mediaManager'
+        name: String
     },
     data: function () {
         return {
@@ -257,7 +257,12 @@ var mediaManagerComponent = {
             },
             options:
             {
-                preserveState: true,
+                theme: 'bootstrap4',
+                pagination: { chunk: 20 },
+                perPageValues: [10, 25, 50, 100, 200],
+                useVuex: true,
+                saveState: true,
+                storage: 'session',
                 uniqueKey: 'mediaId',
                 headings: {
                     mediaId: 'Media ID',
@@ -270,6 +275,20 @@ var mediaManagerComponent = {
                 },
                 columnsClasses: {
                     mediaId: 'text-center'
+                },
+                texts: {
+                    count: "{from} to {to} of {count}|{count} records|One record",
+                    first: 'First',
+                    last: 'Last',
+                    filter: "",
+                    filterPlaceholder: "Search",
+                    limit: "",
+                    page: "Page:",
+                    noResults: "No matching records",
+                    filterBy: "Filter by {column}",
+                    loading: 'Loading...',
+                    defaultOption: 'Select {column}',
+                    columns: 'Columns'
                 }
             }
         };
@@ -293,15 +312,7 @@ var mediaManagerComponent = {
     template: '#media-manager-template'
 };
 
-Vue.use(VueTables.ServerTable,
-    {
-        options:
-        {
-            perPage: 100
-        },
-        useVuex: true,
-        theme: 'bootstrap4'
-    });
+Vue.use(VueTables.ServerTable);
 
 const store = new Vuex.Store({
     state: {
@@ -333,9 +344,20 @@ const mainVue = new Vue({
     store,
     router: new VueRouter({
         routes: [
-            { path: '/conversionStatus', component: conversionStatusComponent, props: true },
-            { path: '/pendingDeletions', component: pendingDeletionsComponent },
-            { path: '/mediaManager', component: mediaManagerComponent }
+            {
+                path: '/conversionStatus',
+                component: conversionStatusComponent,
+                props: true
+            },
+            {
+                path: '/pendingDeletions',
+                component: pendingDeletionsComponent
+            },
+            {
+                path: '/mediaManager',
+                component: mediaManagerComponent,
+                props: { name: 'mediaManager' }
+            }
         ]
     })
 }).$mount('#app');
