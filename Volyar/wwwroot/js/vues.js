@@ -233,13 +233,6 @@ var mediaManagerComponent = {
             columns: ['mediaId', 'seriesName', 'name', 'seasonNumber', 'episodeNumber', 'version', 'createDate'],
             data: [],
             css: {
-                table: {
-                    tableClass: 'table table-striped table-bordered table-hovered',
-                    loadingClass: 'loading',
-                    ascendingIcon: 'glyphicon glyphicon-chevron-up',
-                    descendingIcon: 'glyphicon glyphicon-chevron-down',
-                    handleIcon: 'glyphicon glyphicon-menu-hamburger'
-                },
                 pagination: {
                     infoClass: 'pull-left',
                     wrapperClass: 'vuetable-pagination pull-right',
@@ -289,7 +282,15 @@ var mediaManagerComponent = {
                     loading: 'Loading...',
                     defaultOption: 'Select {column}',
                     columns: 'Columns'
-                }
+                },
+                skin: 'table table-striped table-bordered table-hovered',
+                sortIcon:
+                {
+                    base: 'fas chevron-margin',
+                    up: 'fa-chevron-up',
+                    down: 'fa-chevron-down',
+                    is: ''
+                },
             }
         };
     },
