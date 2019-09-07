@@ -26,7 +26,10 @@ namespace Volyar.Models
         {
             if (AmazonS3 != null)
             {
-                return new S3Storage(AmazonS3.AccessKey, AmazonS3.ApiKey, AmazonS3.Endpoint, AmazonS3.Bucket);
+                return new S3Storage(AmazonS3.AccessKey, AmazonS3.ApiKey, AmazonS3.Endpoint, AmazonS3.Bucket)
+                {
+                    accessControl = AmazonS3.CannedACL
+                };
             }
             else if(Azure != null)
             {
@@ -83,6 +86,7 @@ namespace Volyar.Models
         public string ApiKey { get; set; }
         public string Endpoint { get; set; }
         public string Bucket { get; set; }
+        public string CannedACL { get; set; } = null;
 
         public override string ToString()
         {

@@ -198,6 +198,8 @@ You should only set one of the following, and leave the rest as `null`. Setting 
     - The [endpoint](https://docs.aws.amazon.com/general/latest/gr/rande.html) domain to connect to.
   - `Bucket`
     - The S3 bucket to store files in.
+  - `CannedACL`
+    - An optional [canned ACL](https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl) string.
 <a name="library-storage-azure-configuration"></a>
 ##### `Azure`
 ```
