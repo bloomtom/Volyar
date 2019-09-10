@@ -26,6 +26,28 @@ namespace VolyConverter.Scanning
         public DateTimeOffset LastModified { get; private set; }
         public bool ZeroLength { get; private set; }
 
+        private string sourceHash = null;
+        public string SourceHash
+        {
+            get
+            {
+                if (sourceHash != null) { return sourceHash; }
+                sourceHash = Hashing.HashFileMd5(Path);
+                return sourceHash;
+            }
+        }
+
+        private string outFilename = null;
+        public string OutFilename
+        {
+            get
+            {
+                if (outFilename != null) { return outFilename; }
+                outFilename = $"{SourceHash.Substring(0, 8)}_{System.IO.Path.GetFileNameWithoutExtension(Path)}";
+                return outFilename;
+            }
+        }
+
         public ScanFile(string path, DateTimeOffset lastModified, bool zeroLength)
         {
             Path = path;
@@ -109,7 +131,7 @@ namespace VolyConverter.Scanning
                 IEnumerable<VolyDatabase.MediaItem> contextMediaItems;
                 contextMediaItems = context.Media
                     .Where(x => x.LibraryName == library.Name)
-                    .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash });
+                    .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash, IndexHash = x.IndexHash });
 
                 if (scanTheseFilesOnly != null)
                 {
@@ -164,14 +186,23 @@ namespace VolyConverter.Scanning
                     {
                         continue;
                     }
+                    else if (existsInDb && string.IsNullOrWhiteSpace(existingEntry.IndexHash)) // Indicates previous failed conversion.
+                    {
+                        log.LogInformation($"Scheduling conversion of previously failed item at path {file.Path}");
+                        using (var deletionContext = new VolyContext(dbOptions))
+                        {
+                            deletionContext.Media.Remove(existingEntry);
+                            deletionContext.SaveChanges();
+                        }
+                        ScheduleConversion(library, quality, file.Path, file.LastModified, seriesName, file);
+                    }
                     else if (existsInDb)
                     {
                         TryReconvert(quality, file, existingEntry, seriesName);
                     }
                     else
                     {
-                        string sourceHash = Hashing.HashFileMd5(file.Path);
-                        var oldVersion = context.Media.Where(x => x.SourceHash == sourceHash).SingleOrDefault();
+                        var oldVersion = context.Media.Where(x => x.SourceHash == file.SourceHash).SingleOrDefault();
                         if (oldVersion != null)
                         {
                             log.LogInformation($"Discovered renamed file. {oldVersion.SourcePath} => {file.Path}");
@@ -190,9 +221,7 @@ namespace VolyConverter.Scanning
                         {
                             // Media doesn't exist in db, make it.
                             log.LogInformation($"Scheduling conversion of {file.Path}");
-                            string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
-                            ScheduleConversion(library, quality, file.Path, file.LastModified,
-                                seriesName, sourceHash, outFilename);
+                            ScheduleConversion(library, quality, file.Path, file.LastModified, seriesName, file);
                         }
                     }
                 }
@@ -262,80 +291,104 @@ namespace VolyConverter.Scanning
             // Item exists, check if update is needed.
             if (file.LastModified > existingEntry.SourceModified)
             {
-                string sourceHash = Hashing.HashFileMd5(file.Path);
-                string outFilename = $"{sourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
-                if (sourceHash != existingEntry.SourceHash)
+                string outFilename = $"{file.SourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
+                if (file.SourceHash != existingEntry.SourceHash)
                 {
                     // Update needed.
                     log.LogInformation($"Scheduling re-conversion of {file.Path}");
-                    ScheduleReconversion(library, quality, file.Path, file.LastModified, existingEntry.MediaId, seriesName, sourceHash, outFilename);
+                    ScheduleReconversion(library, quality, file.Path, file.LastModified, existingEntry.MediaId, seriesName, file);
                     return true;
                 }
             }
             return false;
         }
 
-        private void ScheduleConversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, string sourceHash, string outFilename)
+        private void ScheduleConversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, ScanFile file)
         {
             var newMedia = new VolyDatabase.MediaItem()
             {
                 SourcePath = sourcePath,
                 SourceModified = lastWrite,
-                SourceHash = sourceHash,
+                SourceHash = file.SourceHash,
                 LibraryName = library.Name,
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
                 SeriesName = seriesName
             };
-            var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
+            var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, quality, library.ForceFramerate, (sender, result) =>
             {
-                using (var innerContext = new VolyContext(dbOptions))
+                int? addedKey = null;
+                try
                 {
-                    // Save the new media item to db.
-                    newMedia.Duration = result.FileDuration;
-                    newMedia.IndexName = Path.GetFileName(result.DashFilePath);
-                    newMedia.IndexHash = "";
-                    newMedia.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata);
-                    innerContext.Media.Add(newMedia);
-                    innerContext.SaveChanges(); // Need to save changes now to yield a MediaId from the database.
-
-                    // Must be done after initial push to allow reconvert on error.
-                    newMedia.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
-
-                    // Update the transaction log.
-                    innerContext.TransactionLog.Add(new TransactionLog()
+                    using (var innerContext = new VolyContext(dbOptions))
                     {
-                        TableName = TransactionTableType.MediaItem,
-                        Type = TransactionType.Insert,
-                        Key = newMedia.MediaId
-                    });
+                        // Save the new media item to db.
+                        newMedia.Duration = result.FileDuration;
+                        newMedia.IndexName = Path.GetFileName(result.DashFilePath);
+                        newMedia.IndexHash = "";
+                        newMedia.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata);
+                        innerContext.Media.Add(newMedia);
+                        innerContext.SaveChanges(); // Need to save changes now to yield a MediaId from the database.
 
-                    // Add associated files to the db.
-                    var files = new List<string>(result.MediaFiles)
+                        // Set to allow deletion of this key on failure.
+                        addedKey = newMedia.MediaId;
+
+                        // Must be done after initial push to allow reconvert on error.
+                        newMedia.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
+
+                        // Update the transaction log.
+                        innerContext.TransactionLog.Add(new TransactionLog()
+                        {
+                            TableName = TransactionTableType.MediaItem,
+                            Type = TransactionType.Insert,
+                            Key = newMedia.MediaId
+                        });
+
+                        // Add associated files to the db.
+                        var files = new List<string>(result.MediaFiles)
+                        {
+                            Path.GetFileName(result.DashFilePath)
+                        };
+                        AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, files);
+
+                        HandleSourceFate(sourcePath);
+
+                        // Set files on disk variable for the storage backend operations below.
+                        var addedFiles = new List<string>();
+                        addedFiles.Add(result.DashFilePath);
+                        addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
+
+                        // Set up progress reporting.
+                        var progress = sender.Progress.ToList();
+                        var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
+                        progress.AddRange(uploadProgress);
+                        sender.Progress = progress;
+
+                        var fileManagement = new FileManagement(storageBackend, log);
+                        fileManagement.UploadFiles(addedFiles, uploadProgress);
+
+                        RunPostPlugins(library, innerContext, sender, newMedia, result, ConversionType.Conversion);
+
+                        innerContext.SaveChanges();
+                        log.LogInformation($"Converted {sourcePath}");
+                    }
+                }
+                catch (Exception)
+                {
+                    if (addedKey != null)
                     {
-                        Path.GetFileName(result.DashFilePath)
-                    };
-                    AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, files);
-
-                    HandleSourceFate(sourcePath);
-
-                    // Set files on disk variable for the storage backend operations below.
-                    var addedFiles = new List<string>();
-                    addedFiles.Add(result.DashFilePath);
-                    addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
-
-                    // Set up progress reporting.
-                    var progress = sender.Progress.ToList();
-                    var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
-                    progress.AddRange(uploadProgress);
-                    sender.Progress = progress;
-
-                    var fileManagement = new FileManagement(storageBackend, log);
-                    fileManagement.UploadFiles(addedFiles, uploadProgress);
-
-                    RunPostPlugins(library, innerContext, sender, newMedia, result, ConversionType.Conversion);
-
-                    innerContext.SaveChanges();
-                    log.LogInformation($"Converted {sourcePath}");
+                        try
+                        {
+                            using (var abortContext = new VolyContext(dbOptions))
+                            {
+                                abortContext.Media.Remove(abortContext.Media.Where(x => x.MediaId == addedKey.Value).SingleOrDefault());
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.LogError($"Failed to abort media ID {addedKey.Value} at path {sourcePath}. This item may require manual reconversion. Ex: {ex.ToString()}");
+                        }
+                    }
+                    throw;
                 }
             },
             (ex) =>
@@ -348,18 +401,18 @@ namespace VolyConverter.Scanning
             converter.AddItem(conversionItem);
         }
 
-        private void ScheduleReconversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string seriesName, string sourceHash, string outFilename)
+        private void ScheduleReconversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string seriesName, ScanFile file)
         {
             var newMedia = new VolyDatabase.MediaItem()
             {
                 SourcePath = sourcePath,
                 SourceModified = lastWrite,
-                SourceHash = sourceHash,
+                SourceHash = file.SourceHash,
                 LibraryName = library.Name,
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
                 SeriesName = seriesName
             };
-            var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, outFilename, quality, library.ForceFramerate, (sender, result) =>
+            var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, quality, library.ForceFramerate, (sender, result) =>
             {
                 using (var innerContext = new VolyContext(dbOptions))
                 {
