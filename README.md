@@ -146,6 +146,28 @@ Libraries are given as a collection of the following properties.
 <a name="library-quality-configuration"></a>
 ##### Qualities
 Qualities determine how media will be encoded. You can configure multiple qualities to take advantage of MPEG DASH adaptive bitrate streaming.
+```
+"Qualities": [
+  {
+    "Width": 1920,
+    "Height": 1080,
+    "Bitrate": 4000,
+    "Preset": "medium",
+    "Profile": "High",
+    "Level": "4.1",
+    "PixelFormat": "yuv420p"
+  },
+  {
+    "Width": 1280,
+    "Height": 720,
+    "Bitrate": 1800,
+    "Preset": "medium",
+    "Profile": "High",
+    "Level": "4.1",
+    "PixelFormat": "yuv420p"
+  }
+],
+```
  - `Width`
    - Width of frame in pixels.
  - `Height`
@@ -185,7 +207,9 @@ You should only set one of the following, and leave the rest as `null`. Setting 
       "AccessKey": "AAAABBBBCCCCDDDDEEEE",
       "ApiKey": "abcdefghijklmnopqrstuvwxyz0123456789ABCD",
       "Endpoint": "apigateway.us-east-1.amazonaws.com",
-      "Bucket": "mybucket"
+      "Bucket": "mybucket",
+      "CannedACL": "public-read",
+      "SignatureVersion": "4",
     }
   }
 },
@@ -200,6 +224,8 @@ You should only set one of the following, and leave the rest as `null`. Setting 
     - The S3 bucket to store files in.
   - `CannedACL`
     - An optional [canned ACL](https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl) string.
+  - `SignatureVersion`
+    - Some S3 providers don't support v4 signatures (e.g. Digital Ocean Spaces). Set this to "2" when using such a provider.
 <a name="library-storage-azure-configuration"></a>
 ##### `Azure`
 ```
