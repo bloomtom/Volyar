@@ -4,12 +4,14 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="~/external/static/lib/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/external/static/lib/bootstrap-vue.min.css" />
     <link rel="stylesheet" href="~/external/static/lib/fontawesome.min.css" />
 
     @if (env.EnvironmentName == "Development")
     {
         <script src="~/external/static/lib/axios.js"></script>
         <script src="~/external/static/lib/vue.js"></script>
+        <script src="~/external/static/lib/bootstrap-vue.js"></script>
         <script src="~/external/static/lib/vue-router.js"></script>
         <script src="~/external/static/lib/vuex.js"></script>
         <script src="~/external/static/lib/vue-tables-2.js"></script>
@@ -18,13 +20,14 @@
     {
         <script src="~/external/static/lib/axios.min.js"></script>
         <script src="~/external/static/lib/vue.min.js"></script>
+        <script src="~/external/static/lib/bootstrap-vue.min.js"></script>
         <script src="~/external/static/lib/vue-router.min.js"></script>
         <script src="~/external/static/lib/vuex.min.js"></script>
         <script src="~/external/static/lib/vue-tables-2.min.js"></script>
     }
 
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@ViewData["Title"]</title>
 
     @RenderSection("head", required: false)
