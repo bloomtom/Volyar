@@ -230,7 +230,7 @@ var mediaManagerComponent = {
     },
     data: function () {
         return {
-            columns: ['mediaId', 'seriesName', 'name', 'seasonNumber', 'episodeNumber', 'version', 'createDate'],
+            columns: ['mediaId', 'libraryName', 'seriesName', 'name', 'seasonNumber', 'episodeNumber', 'version', 'createDate'],
             data: [],
             css: {
                 pagination: {
@@ -259,6 +259,7 @@ var mediaManagerComponent = {
                 uniqueKey: 'mediaId',
                 headings: {
                     mediaId: 'Media ID',
+                    libraryName: 'Library',
                     seriesName: 'Series',
                     name: 'Episode Title',
                     seasonNumber: 'Season',
