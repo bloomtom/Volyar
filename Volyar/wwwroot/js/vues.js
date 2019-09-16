@@ -16,6 +16,7 @@ function deletionRouteNavigate() {
 function managerRouteNavigate() {
     if (typeof updateStatus === "function") {
         updateMediaManager();
+        invalidateTimerEnables();
     }
 }
 
