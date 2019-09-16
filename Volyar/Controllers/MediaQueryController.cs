@@ -211,6 +211,58 @@ namespace Volyar.Controllers
                 });
         }
 
+        [HttpGet("item/{mediaId:int?}")]
+        public IActionResult GetItem(int mediaId)
+        {
+            if (mediaId < 0) { return new StatusCodeResult(400); }
+            var existing = db.Media.Where(x => x.MediaId == mediaId).FirstOrDefault();
+            if (existing == null) { return new StatusCodeResult(404); }
+            return new JsonResult(existing);
+        }
+
+        [HttpPut("item/")]
+        public StatusCodeResult PutItem([FromBody] VolyDatabase.MediaItem updatedItem)
+        {
+            if (updatedItem == null) { return new StatusCodeResult(400); }
+
+            var existing = db.Media.Where(x => x.MediaId == updatedItem.MediaId).FirstOrDefault();
+            if (existing == null) { return new StatusCodeResult(404); }
+
+            if (existing.SeriesName != updatedItem.SeriesName ||
+                existing.Name != updatedItem.Name ||
+                existing.SeasonNumber != updatedItem.SeasonNumber ||
+                existing.EpisodeNumber != updatedItem.EpisodeNumber ||
+                existing.AbsoluteEpisodeNumber != updatedItem.AbsoluteEpisodeNumber ||
+                existing.ImdbId != updatedItem.ImdbId ||
+                existing.TmdbId != updatedItem.TmdbId ||
+                existing.TvdbId != existing.TvdbId ||
+                existing.TvmazeId != existing.TvmazeId ||
+                existing.Version != updatedItem.Version)
+            {
+                if (existing.Version != updatedItem.Version &&
+                    !db.MediaFiles.Where(x => x.MediaId == updatedItem.MediaId && x.Version == updatedItem.Version).Any())
+                {
+                    // Requested assignment to a version which does not exist.
+                    return new StatusCodeResult(400);
+                }
+
+                existing.SeriesName = updatedItem.SeriesName;
+                existing.Name = updatedItem.Name;
+                existing.SeasonNumber = updatedItem.SeasonNumber;
+                existing.EpisodeNumber = updatedItem.EpisodeNumber;
+                existing.AbsoluteEpisodeNumber = updatedItem.AbsoluteEpisodeNumber;
+                existing.ImdbId = updatedItem.ImdbId;
+                existing.TmdbId = updatedItem.TmdbId;
+                existing.TvdbId = existing.TvdbId;
+                existing.TvmazeId = existing.TvmazeId;
+                existing.Version = updatedItem.Version;
+                db.Media.Update(existing);
+                db.SaveChanges();
+            }
+
+            return new StatusCodeResult(204);
+        }
+
         private IQueryable<VolyDatabase.MediaItem> Filter(MediaManagerQuery q)
         {
             return db.Media.Where(x =>

@@ -43,6 +43,18 @@ function revertDelete(items, done, fail) {
     call('POST', "../external/api/delete/revert", done, fail, JSON.stringify(items));
 }
 
+function scheduleDelete(items, done, fail) {
+    call('POST', "../external/api/delete/schedule", done, fail, JSON.stringify(items));
+}
+
+function getItem(itemId, done, fail) {
+    get("../external/api/media/item/" + itemId, done, fail);
+}
+
+function putItem(item, done, fail) {
+    call('PUT', "../external/api/media/item/", done, fail, JSON.stringify(item));
+}
+
 function get(url, done, fail) {
     call('GET', url, done, fail);
 }

@@ -74,6 +74,24 @@ namespace Volyar.Controllers
             }
         }
 
+        [HttpPost("schedule")]
+        public ObjectResult Schedule([FromBody] DeletionInfo[] items)
+        {
+            if (items == null || items.Length == 0)
+            {
+                return BadRequest("{}");
+            }
+
+            foreach (var item in items)
+            {
+                db.PendingDeletions.Add(db.PendingDeletions.Where(x => x.MediaId == item.MediaId && x.Version == item.Version).SingleOrDefault());
+            }
+
+            db.SaveChanges();
+            log.LogInformation($"Scheduled deletion of items {string.Join(';', items.Select(x => $"{x.MediaId},{x.Version}"))}");
+            return Ok("{}");
+        }
+
         [HttpPost("revert")]
         public ObjectResult Revert([FromBody] DeletionInfo[] items)
         {
