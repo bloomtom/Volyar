@@ -188,7 +188,7 @@ namespace Volyar.Controllers
                         if (!managerCache.TryGetValue(mediaItem.LibraryName, out fileManager))
                         {
                             var library = settings.Libraries.Where(x => x.Name == mediaItem.LibraryName).SingleOrDefault();
-                            if (library != null && library.StorageBackend == null)
+                            if (library != null && library.StorageBackend != null)
                             {
                                 fileManager = new FileManagement(library.StorageBackend.RetrieveBackend(), log);
                                 managerCache[mediaItem.LibraryName] = fileManager;
