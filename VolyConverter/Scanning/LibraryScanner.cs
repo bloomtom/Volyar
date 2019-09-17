@@ -231,7 +231,7 @@ namespace VolyConverter.Scanning
                     // Queue delete for items not found in scan.
                     var inDb = context.PendingDeletions.Where(x => dbMediaItemsNotFound.Contains(x.MediaId)).Select(y => y.MediaId);
                     dbMediaItemsNotFound.ExceptWith(inDb);
-                    context.PendingDeletions.AddRange(dbMediaItemsNotFound.Select(x => new PendingDeletion() { MediaId = x, Version = -1, Requestor = DeleteRequestor.Scan }));
+                    context.PendingDeletions.AddRange(dbMediaItemsNotFound.Select(x => new PendingDeletion() { MediaId = x, Version = -1, Requestor = DeleteRequester.Scan }));
                 }
 
                 context.SaveChanges();
@@ -474,7 +474,7 @@ namespace VolyConverter.Scanning
                     {
                         MediaId = mediaId,
                         Version = oldVersion,
-                        Requestor = DeleteRequestor.Scan
+                        Requestor = DeleteRequester.Scan
                     });
 
                     RunPostPlugins(library, innerContext, sender, inDb, result, ConversionType.Conversion);

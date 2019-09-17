@@ -9,7 +9,7 @@ using VolyExports;
 
 namespace VolyDatabase
 {
-    public enum DeleteRequestor
+    public enum DeleteRequester
     {
         None = 0,
         Scan = 1,
@@ -294,6 +294,6 @@ namespace VolyDatabase
     {
         public int MediaId { get; set; }
         public int Version { get; set; }
-        public DeleteRequestor Requestor { get; set; }
+        public DeleteRequester Requestor { get; set; }
     }
 }
