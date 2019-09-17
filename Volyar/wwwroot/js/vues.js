@@ -20,6 +20,24 @@ function managerRouteNavigate() {
     }
 }
 
+function toast(title, body, variant = null) {
+    mainVue.$bvToast.toast(body, {
+        title: title,
+        variant: variant,
+        solid: true,
+        append: true,
+        autoHideDelay: 10000
+    });
+}
+
+function apiFailToast(title, response) {
+    var status = response.status;
+    if (!status) { status = 'Unknown'; }
+    var text = response.responseText;
+    if (!text) { text = 'No message.'; }
+    toast(title + ' (Status ' + status + ')', text, 'danger');
+}
+
 var qualityComponent = {
     props: {
         quality: {}
@@ -133,7 +151,8 @@ var conversionStatusComponent = {
 var deletionItemComponent = {
     data: function () {
         return {
-            checked: false
+            checked: false,
+            error: ''
         };
     },
     props: {
@@ -193,8 +212,22 @@ var pendingDeletionsComponent = {
         confirmDelete() {
             let confirmed = this.getChecked();
             if (confirmed.length > 0) {
+                let localthis = this;
                 confirmDelete(confirmed, function () {
                     updatePendingDelete();
+                }, function (x) {
+                    let errored = JSON.parse(x.response).FailedItems;
+                    let lookup = {};
+                    for (var i = 0; i < errored.length; i++) {
+                        lookup[errored[i].MediaId + ':' + errored[i].Version] = errored[i].Reason;
+                    }
+
+                    for (var j = 0; j < localthis.$children.length; j++) {
+                        var found = lookup[localthis.$children[j]._props.item.MediaId + ':' + localthis.$children[j]._props.item.Version];
+                        if (found) {
+                            localthis.$children[j].error = found;
+                        }
+                    }
                 });
             }
             this.uncheckAll();
@@ -310,6 +343,24 @@ var mediaManagerComponent = {
         },
         timeago: function (x) {
             return moment(x).fromNow();
+        },
+        persistModifications: function (x) {
+            putItem(x, null, null);
+        },
+        bulkReconvert: function (x) {
+            this.$bvToast.toast(`This is toast number ${this.toastCount}`, {
+                title: 'BootstrapVue Toast',
+                autoHideDelay: 5000,
+                appendToast: true
+            });
+        },
+        bulkDelete: function (x) {
+            scheduleDelete(this.$refs.mediaManager._data.data.map(function (x) {
+                return { mediaId: x.mediaId, version: -1 };
+            }), function () {
+                updatePendingDelete();
+                this.$refs.mediaManager.getData();
+            });
         }
     },
     template: '#media-manager-template'

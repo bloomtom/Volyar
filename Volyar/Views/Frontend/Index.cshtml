@@ -165,37 +165,58 @@
             cursor: default;
         }
 
-    .VuePagination {
+    .VueTables .custom-controls {
+        text-align: left !important;
+    }
+
+    .VueTables .col-md-12 {
+        text-align: left !important;
+    }
+
+        .VueTables .col-md-12 .form-group {
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+
+    .VueTables .VuePagination {
         text-align: center;
         display: block;
     }
 
-    .vue-title {
+    .VueTables .vue-title {
         text-align: center;
         margin-bottom: 10px;
     }
 
-    .vue-pagination-ad {
+    .VueTables .vue-pagination-ad {
         text-align: center;
     }
 
-    .VuePagination__pagination {
+    .VueTables .VuePagination__count {
+        text-align: center !important;
+    }
+
+    .VueTables .VuePagination__pagination {
         display: inline-flex;
     }
 
-    .VueTables__search {
+    .VueTables .VueTables__search {
         text-align: left;
         display: inline-flex;
-        padding: 3px;
+        width: 20rem;
     }
 
-    .VueTables__limit {
+        .VueTables .VueTables__search .VueTables__search-field {
+            width: 100%;
+        }
+
+            .VueTables .VueTables__search .VueTables__search-field .form-control {
+                width: 100%;
+            }
+
+    .VueTables .VueTables__limit {
         display: inline-flex;
-        padding: 3px;
-    }
-
-    .chevron-margin {
-        margin-left: 0.4rem;
     }
 </style>
 
@@ -353,22 +374,100 @@
                 <li v-if="!item.SeasonNumber && item.EpisodeNumber"><p>Episode:</p> {{item.EpisodeNumber}}</li>
                 <li><p>Source:</p> {{item.SourcePath}}</li>
                 <li v-bind:title="item.CreateDate"><p>Created:</p> {{timeago(item.CreateDate)}}</li>
+                <li v-if="error"><p>Error:</p> {{error}}</li>
             </ul>
         </div>
     </div>
 </script>
 
 <script type="text/x-template" id="media-manager-template">
-    <div>
-        <div id="mediaManager">
-            <v-server-table v-bind:name="name" url="@System.IO.Path.Join(Context.Request.PathBase.ToString(), "/external/api/media/manager")" class="panel text-center" :data="data" :columns="columns" :options="options">
-                <div slot="createDate" slot-scope="props" v-bind:title="props.row.createDate">
-                    {{timeago(props.row.createDate)}}
+    <div id="mediaManager">
+        <v-server-table v-bind:name="name" url="@System.IO.Path.Join(Context.Request.PathBase.ToString(), "/external/api/media/manager")" class="panel text-center" :data="data" :columns="columns" :options="options" ref="mediaManager">
+            <div slot="beforeTable" class="custom-controls">
+                <div class="form-group form-inline">
+                    <b-dropdown dropright size="sm" id="media-bulk-dropdown" text="Bulk Actions" class="">
+                        <b-dropdown-item v-on:click="bulkReconvert">Schedule Reconversion</b-dropdown-item>
+                        <b-dropdown-item v-on:click="bulkDelete" variant="danger">Schedule Deletion</b-dropdown-item>
+                        <b-dropdown-divider></b-dropdown-divider>
+                        <b-dropdown-text style="width: 15rem; word-break: break-word;">
+                            These actions only cover items visible on the screen.
+                        </b-dropdown-text>
+                    </b-dropdown>
                 </div>
-                <div class="btn btn-sm btn-secondary text-center" slot="mediaId" slot-scope="props" v-on:click="edit(props.row)">
+            </div>
+
+            <div slot="createDate" slot-scope="props" v-bind:title="props.row.createDate">
+                {{timeago(props.row.createDate)}}
+            </div>
+            <b-container slot="mediaId" slot-scope="props">
+                <b-button class="btn btn-sm btn-secondary text-center" v-on:click="$bvModal.show('modal-' + props.row.mediaId)">
                     {{props.row.mediaId}}
-                </div>
-            </v-server-table>
-        </div>
+                </b-button>
+                <b-modal size="xl" centered v-bind:id="'modal-' + props.row.mediaId">
+                    <div slot="modal-title">
+                        ID {{props.row.mediaId}} in library ({{props.row.libraryName}})
+                    </div>
+                    <b-container fluid>
+                        <b-form-group inline id="input-group-names" label-for="input-season">
+                            <b-form-row>
+                                <b-col>
+                                    <label>Series</label>
+                                    <b-form-input size="sm" id="input-season" v-model="props.row.seriesName"></b-form-input>
+                                </b-col>
+                                <b-col>
+                                    <label>Name</label>
+                                    <b-form-input size="sm" id="input-episode" v-model="props.row.name"></b-form-input>
+                                </b-col>
+                            </b-form-row>
+                        </b-form-group>
+                        <b-form-group inline id="input-group-season" label-for="input-season">
+                            <b-form-row>
+                                <b-col>
+                                    <label>Season</label>
+                                    <b-form-input size="sm" id="input-season" v-model="props.row.seasonNumber"></b-form-input>
+                                </b-col>
+                                <b-col>
+                                    <label>Episode</label>
+                                    <b-form-input size="sm" id="input-episode" v-model="props.row.episodeNumber"></b-form-input>
+                                </b-col>
+                                <b-col>
+                                    <label>Absolute</label>
+                                    <b-form-input size="sm" id="input-absolute-episode" v-model="props.row.absoluteEpisodeNumber"></b-form-input>
+                                </b-col>
+                            </b-form-row>
+                        </b-form-group>
+                        <b-form-group inline id="input-group-remote-db" label-for="input-remote-db">
+                            <b-form-row>
+                                <b-col>
+                                    <label v-if="props.row.imdbId"><a v-bind:href="'https://www.imdb.com/title/' + props.row.imdbId">IMDB</a></label>
+                                    <label v-if="!props.row.imdbId">IMDB</label>
+                                    <b-form-input size="sm" id="input-imdb" v-model="props.row.imdbId"></b-form-input>
+                                </b-col>
+                                <b-col>
+                                    <label v-if="props.row.tmdbId"><a v-bind:href="'https://www.themoviedb.org/movie/' + props.row.tmdbId">TMDb</a></label>
+                                    <label v-if="!props.row.tmdbId">TMDb</label>
+                                    <b-form-input size="sm" id="input-tmdb" v-model="props.row.tmdbId"></b-form-input>
+                                </b-col>
+                                <b-col>
+                                    <label v-if="props.row.tvdbId"><a v-bind:href="'http://www.thetvdb.com/?tab=series&id=' + props.row.tvdbId">TVDB</a></label>
+                                    <label v-if="!props.row.tvdbId">TVDB</label>
+                                    <b-form-input size="sm" id="input-tvdb" v-model="props.row.tvdbId"></b-form-input>
+                                </b-col>
+                                <b-col>
+                                    <label v-if="props.row.tvmazeId"><a v-bind:href="'http://www.tvmaze.com/shows/' + props.row.tvmazeId + '/_'">TVmaze</a></label>
+                                    <label v-if="!props.row.tvmazeId">TVmaze</label>
+                                    <b-form-input size="sm" id="input-tvmaze" v-model="props.row.tvmazeId"></b-form-input>
+                                </b-col>
+                            </b-form-row>
+                        </b-form-group>
+
+                    </b-container>
+
+                    <div slot="modal-footer">
+                        <b-button type="submit" variant="primary" v-on:click="persistModifications(props.row)">Save</b-button>
+                    </div>
+                </b-modal>
+            </b-container>
+        </v-server-table>
     </div>
 </script>
