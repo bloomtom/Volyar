@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Volyar
+namespace Volyar.Models
 {
     /// <summary>
     /// Encapsulates settings for a WebHook, and an simple implementation.
