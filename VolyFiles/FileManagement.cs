@@ -28,6 +28,7 @@ namespace VolyFiles
             }
             catch (FileNotFoundException)
             {
+                log.LogTrace($"File not found for deletion (already deleted?): {file}");
                 return; // Hey, it's already deleted.
             }
         }
