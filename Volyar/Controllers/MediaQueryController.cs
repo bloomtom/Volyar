@@ -183,6 +183,7 @@ namespace Volyar.Controllers
         [HttpGet("manager")]
         public IActionResult Manager(string query, int limit, int page, string orderBy, int ascending, int byColumn)
         {
+            if (string.IsNullOrWhiteSpace(orderBy) || orderBy == "null") { orderBy = "MediaId"; }
             List<VolyDatabase.MediaItem> result;
             int totalCount = 0;
             if (!string.IsNullOrWhiteSpace(query))
@@ -268,9 +269,9 @@ namespace Volyar.Controllers
             return db.Media.Where(x =>
                                 q.ID != null ? x.MediaId == q.ID : true &&
                                 q.LibraryName != null ? x.LibraryName == q.LibraryName : true &&
-                                q.SeriesName != null ? x.SeriesName.Contains(q.SeriesName, StringComparison.CurrentCultureIgnoreCase) : true &&
-                                q.EpisodeName != null ? x.Name.Contains(q.GeneralQuery, StringComparison.CurrentCultureIgnoreCase) : true &&
-                                q.GeneralQuery != null ? x.Name.Contains(q.GeneralQuery, StringComparison.CurrentCultureIgnoreCase) : true);
+                                q.SeriesName != null ? EF.Functions.Like(x.Name, $"{q.SeriesName}%") : true &&
+                                q.EpisodeName != null ? EF.Functions.Like(x.Name, $"{q.EpisodeName}%") : true &&
+                                q.GeneralQuery != null ? EF.Functions.Like(x.SeriesName, $"%{q.GeneralQuery}%") || EF.Functions.Like(x.Name, $"%{q.GeneralQuery}%") : true);
         }
     }
 }
