@@ -390,7 +390,7 @@
                         <b-dropdown-item v-on:click="bulkDelete" variant="danger">Schedule Deletion</b-dropdown-item>
                         <b-dropdown-divider></b-dropdown-divider>
                         <b-dropdown-text style="width: 15rem; word-break: break-word;">
-                            These actions only cover items visible on the screen.
+                            These actions cover items visible on the screen.
                         </b-dropdown-text>
                     </b-dropdown>
                 </div>
@@ -400,7 +400,7 @@
                 {{timeago(props.row.createDate)}}
             </div>
             <b-container slot="mediaId" slot-scope="props">
-                <b-button class="btn btn-sm btn-secondary text-center" v-on:click="$bvModal.show('modal-' + props.row.mediaId)">
+                <b-button v-bind:aria-label="props.row.seriesName + ' ' + props.row.name + ' Edit'" class="btn btn-sm btn-secondary text-center" v-on:click="$bvModal.show('modal-' + props.row.mediaId)">
                     {{props.row.mediaId}}
                 </b-button>
                 <b-modal size="xl" centered v-bind:id="'modal-' + props.row.mediaId">
@@ -412,11 +412,11 @@
                             <b-form-row>
                                 <b-col>
                                     <label>Series</label>
-                                    <b-form-input size="sm" id="input-season" v-model="props.row.seriesName"></b-form-input>
+                                    <b-form-input aria-label="Series" size="sm" id="input-season" v-model="props.row.seriesName"></b-form-input>
                                 </b-col>
                                 <b-col>
                                     <label>Name</label>
-                                    <b-form-input size="sm" id="input-episode" v-model="props.row.name"></b-form-input>
+                                    <b-form-input aria-label="Episode Name" size="sm" id="input-episode" v-model="props.row.name"></b-form-input>
                                 </b-col>
                             </b-form-row>
                         </b-form-group>
@@ -424,15 +424,15 @@
                             <b-form-row>
                                 <b-col>
                                     <label>Season</label>
-                                    <b-form-input size="sm" id="input-season" v-model="props.row.seasonNumber"></b-form-input>
+                                    <b-form-input aria-label="Season Number"  size="sm" id="input-season" v-model="props.row.seasonNumber"></b-form-input>
                                 </b-col>
                                 <b-col>
                                     <label>Episode</label>
-                                    <b-form-input size="sm" id="input-episode" v-model="props.row.episodeNumber"></b-form-input>
+                                    <b-form-input aria-label="Episode Number"  size="sm" id="input-episode" v-model="props.row.episodeNumber"></b-form-input>
                                 </b-col>
                                 <b-col>
                                     <label>Absolute Episode</label>
-                                    <b-form-input size="sm" id="input-absolute-episode" v-model="props.row.absoluteEpisodeNumber"></b-form-input>
+                                    <b-form-input aria-label="Absolute Episode Number" size="sm" id="input-absolute-episode" v-model="props.row.absoluteEpisodeNumber"></b-form-input>
                                 </b-col>
                             </b-form-row>
                         </b-form-group>
@@ -441,22 +441,22 @@
                                 <b-col>
                                     <label v-if="props.row.imdbId"><a v-bind:href="'https://www.imdb.com/title/' + props.row.imdbId">IMDB</a></label>
                                     <label v-if="!props.row.imdbId">IMDB</label>
-                                    <b-form-input size="sm" id="input-imdb" v-model="props.row.imdbId"></b-form-input>
+                                    <b-form-input aria-label="IMDB ID" size="sm" id="input-imdb" v-model="props.row.imdbId"></b-form-input>
                                 </b-col>
                                 <b-col>
                                     <label v-if="props.row.tmdbId"><a v-bind:href="'https://www.themoviedb.org/movie/' + props.row.tmdbId">TMDb</a></label>
                                     <label v-if="!props.row.tmdbId">TMDb</label>
-                                    <b-form-input size="sm" id="input-tmdb" v-model="props.row.tmdbId"></b-form-input>
+                                    <b-form-input aria-label="TMDb ID" size="sm" id="input-tmdb" v-model="props.row.tmdbId"></b-form-input>
                                 </b-col>
                                 <b-col>
                                     <label v-if="props.row.tvdbId"><a v-bind:href="'http://www.thetvdb.com/?tab=series&id=' + props.row.tvdbId">TVDB</a></label>
                                     <label v-if="!props.row.tvdbId">TVDB</label>
-                                    <b-form-input size="sm" id="input-tvdb" v-model="props.row.tvdbId"></b-form-input>
+                                    <b-form-input aria-label="TVDB ID" size="sm" id="input-tvdb" v-model="props.row.tvdbId"></b-form-input>
                                 </b-col>
                                 <b-col>
                                     <label v-if="props.row.tvmazeId"><a v-bind:href="'http://www.tvmaze.com/shows/' + props.row.tvmazeId + '/_'">TVmaze</a></label>
                                     <label v-if="!props.row.tvmazeId">TVmaze</label>
-                                    <b-form-input size="sm" id="input-tvmaze" v-model="props.row.tvmazeId"></b-form-input>
+                                    <b-form-input aria-label="TVmaze ID" size="sm" id="input-tvmaze" v-model="props.row.tvmazeId"></b-form-input>
                                 </b-col>
                             </b-form-row>
                         </b-form-group>
@@ -464,7 +464,7 @@
                     </b-container>
 
                     <div slot="modal-footer">
-                        <b-button type="submit" variant="primary" v-on:click="persistModifications(props.row)">Save</b-button>
+                        <b-button aria-label="Save Button" type="submit" variant="primary" v-on:click="$bvModal.hide('modal-' + props.row.mediaId); persistModifications(props.row)">Save</b-button>
                     </div>
                 </b-modal>
             </b-container>
