@@ -269,7 +269,7 @@ namespace Volyar.Controllers
             return db.Media.Where(x =>
                                 q.ID != null ? x.MediaId == q.ID : true &&
                                 q.LibraryName != null ? x.LibraryName == q.LibraryName : true &&
-                                q.SeriesName != null ? EF.Functions.Like(x.Name, $"{q.SeriesName}%") : true &&
+                                q.SeriesName != null ? EF.Functions.Like(x.SeriesName, $"{q.SeriesName}%") : true &&
                                 q.EpisodeName != null ? EF.Functions.Like(x.Name, $"{q.EpisodeName}%") : true &&
                                 q.GeneralQuery != null ? EF.Functions.Like(x.SeriesName, $"%{q.GeneralQuery}%") || EF.Functions.Like(x.Name, $"%{q.GeneralQuery}%") : true);
         }
