@@ -1,0 +1,45 @@
+﻿<template id="pending-deletions-template">
+    <div>
+        <div class="card-body button-wrapper">
+            <button class="btn btn-secondary control-button" v-on:click="revertDelete">Cancel Deletion</button>
+            <button class="btn btn-danger control-button" v-on:click="confirmDelete">Delete</button>
+        </div>
+        <div class="button-wrapper p-2">
+            <h5 style="margin-left:1rem;">
+                <input class="form-check-input checkbox-margin" type="checkbox" v-model="masterCheck" :indeterminate.prop="indeterminate" v-on:change="masterCheckChanged">
+                <span class="form-check-label">All</span>
+            </h5>
+
+        </div>
+        <div class="deletion-wrapper">
+            <div v-for="item in pendingDelete">
+                <deletion-item-component v-bind:item="item" v-on:checked="invalidateMasterCheck"></deletion-item-component>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="deletion-item-template">
+    <div class="card">
+        <div class="card-body deletion-details">
+            <ul class="deletion-details">
+                <li>
+                    <h5>
+                        <input v-model="checked" v-on:change="checkChanged" class="form-check-input checkbox-margin" type="checkbox">
+                        <span>{{item.Name}}</span>
+                    </h5>
+                </li>
+                <li><p>ID:</p> {{item.MediaId}}</li>
+                <li v-if="item.Version != -1"><p>Version:</p> {{item.Version}}</li>
+                <li><p>Library:</p> {{item.LibraryName}}</li>
+                <li><p>Series:</p> {{item.SeriesName}}</li>
+                <li v-if="item.SeasonNumber && item.EpisodeNumber"><p>Episode:</p> {{item.SeasonNumber}}x{{item.EpisodeNumber}}</li>
+                <li v-if="item.SeasonNumber && !item.EpisodeNumber"><p>Season:</p> {{item.SeasonNumber}}</li>
+                <li v-if="!item.SeasonNumber && item.EpisodeNumber"><p>Episode:</p> {{item.EpisodeNumber}}</li>
+                <li><p>Source:</p> {{item.SourcePath}}</li>
+                <li v-bind:title="item.CreateDate"><p>Created:</p> {{timeago(item.CreateDate)}}</li>
+                <li v-if="error"><p>Error:</p> {{error}}</li>
+            </ul>
+        </div>
+    </div>
+</template>

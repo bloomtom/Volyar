@@ -1,0 +1,103 @@
+﻿<template id="queue-template">
+    <div class="wrapper">
+        <div class="panel" v-for="item in items">
+            <div class="card">
+                <div class="card-body queue-item-body">
+                    <div class="w-100">
+                        <b v-if="item.Series">{{item.Series}}</b>
+                        <details v-bind:title="item.SourcePath">
+                            <summary class="card-title">
+                                {{title(item)}}
+                                <dl style="margin-left:8%;" v-if="item.ErrorText !== null">
+                                    <dt class="text-danger">
+                                        Error
+                                    </dt>
+                                    <dd>
+                                        {{item.ErrorText}}
+                                    </dd>
+                                </dl>
+                            </summary>
+                            <dl style="margin-left:8%;">
+                                <dt class="card-text">
+                                    Added
+                                </dt>
+                                <dd v-bind:title="item.CreateTime">
+                                    {{timeago(item.CreateTime)}}
+                                </dd>
+
+                                <dt>
+                                    Qualities
+                                </dt>
+                                <dd>
+                                    <quality-component v-bind:quality="item.Quality"></quality-component>
+                                </dd>
+                                <dt v-if="tune(item.Tune)">
+                                    Tune
+                                </dt>
+                                <dd>
+                                    {{tune(item.Tune)}}
+                                </dd>
+                            </dl>
+                        </details>
+                    </div>
+                    <div class="" v-bind:title="'Cancel ' + item.SourcePath" v-if="item.Complete !== true">
+                        <button class="btn text-mute-warn btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
+                    </div>
+                </div>
+                <div class="card-footer p-0" v-if="item.Complete !== true">
+                    <progress-component v-bind:progress="item.Progress"></progress-component>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="quality-template">
+    <div>
+        <div v-for="q in quality">
+            {{q.Width}}x{{q.Height}}@@{{ q.Bitrate}}k - {{q.Preset}}
+        </div>
+    </div>
+</template>
+
+<template id="progress-template">
+    <div>
+        <div v-for="p in progress">
+            {{shortenDescription(p.Description, 48)}}
+            <br />
+            <div class="progress" style="height: 1px;">
+                <div class="progress-bar" v-bind:style="{ width: progressInt(p.Progress) + '%' }" style="width: 25%" role="progressbar" v-bind:aria-valuenow="progressInt(p.Progress)" aria-valuemin="0" aria-valuemax="100">
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="conversion-status-template">
+    <div>
+        <div class="card-body button-wrapper">
+            <button class="btn btn-primary control-button" onclick="postFullscan();">Trigger Conversion</button>
+            <button class="btn btn-warning control-button" onclick="pauseQueue();">Pause Queue</button>
+            <button class="btn btn-success control-button" onclick="resumeQueue();">Resume Queue</button>
+            <button class="btn btn-danger control-button" onclick="cancelAll();">Cancel All</button>
+        </div>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-primary text-center">Processing {{queueSize(progress)}}</h5>
+            </summary>
+            <progress-queue-component v-bind:items="progress"></progress-queue-component>
+        </details>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
+            </summary>
+            <wait-queue-component v-bind:items="waiting"></wait-queue-component>
+        </details>
+        <details open>
+            <summary class="hidden-details">
+                <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
+            </summary>
+            <complete-queue-component v-bind:items="complete"></complete-queue-component>
+        </details>
+    </div>
+</template>
