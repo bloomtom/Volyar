@@ -353,8 +353,8 @@ var mediaManagerComponent = {
             }, null);
         },
         bulkReconvert: function (x) {
-            this.$bvToast.toast(`This is toast number ${this.toastCount}`, {
-                title: 'BootstrapVue Toast',
+            this.$bvToast.toast(`Scheduling reconversion in the UI is not yet implemented.`, {
+                title: 'Not Implemented',
                 autoHideDelay: 5000,
                 appendToast: true
             });
