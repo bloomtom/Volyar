@@ -23,7 +23,7 @@
             </b-button>
             <b-modal size="xl" centered v-bind:id="'modal-' + props.row.mediaId">
                 <div slot="modal-title">
-                    ID {{props.row.mediaId}} in library ({{props.row.libraryName}})
+                    ID {{props.row.mediaId}}&ensp;({{props.row.libraryName}})
                 </div>
                 <b-container fluid>
                     <b-form-group inline id="input-group-names" label-for="input-season">
@@ -81,8 +81,13 @@
 
                 </b-container>
 
-                <div slot="modal-footer">
-                    <b-button aria-label="Save Button" type="submit" variant="primary" v-on:click="$bvModal.hide('modal-' + props.row.mediaId); persistModifications(props.row)">Save</b-button>
+                <div slot="modal-footer" class="w-100">
+                    <b-container>
+                        <b-row align-h="between">
+                            <b-col cols="6"><b-button aria-label="Schedule Delete Button" variant="danger" v-on:click="$bvModal.hide('modal-' + props.row.mediaId); singleDelete(props.row)">Schedule Delete</b-button></b-col>
+                            <b-col cols="6" class="text-right"><b-button aria-label="Save Button" type="submit" variant="primary" v-on:click="$bvModal.hide('modal-' + props.row.mediaId); persistModifications(props.row)">Save</b-button></b-col>
+                        </b-row>
+                    </b-container>
                 </div>
             </b-modal>
         </b-container>
