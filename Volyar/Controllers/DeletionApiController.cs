@@ -108,20 +108,49 @@ namespace Volyar.Controllers
             var failed = new List<FailedItem>();
             foreach (var item in items)
             {
-                var delete = db.Media.Where(x => x.MediaId == item.MediaId).SingleOrDefault();
-                if (delete != null)
+                try
                 {
-                    db.PendingDeletions.Add(new PendingDeletion() { MediaId = delete.MediaId, Version = item.Version, Requestor = DeleteRequester.User });
-                    scheduled.Add(item);
+                    var delete = db.Media.Where(x => x.MediaId == item.MediaId).SingleOrDefault();
+                    if (delete != null)
+                    {
+                        var existsScheduled = db.PendingDeletions.Where(x => x.MediaId == item.MediaId);
+                        bool skip = false;
+                        foreach (var existingScheduled in existsScheduled)
+                        {
+                            if (existingScheduled.Version == -1 || existingScheduled.Version == item.Version)
+                            {
+                                log.LogWarning($"Failed to schedule deletion of item {item?.MediaId} v{item?.Version} (already scheduled)");
+                                failed.Add(FailedItem.Generate(item, "Already scheduled"));
+                                skip = true;
+                                break;
+                            }
+                        }
+                        if (skip) { continue; }
+
+                        db.PendingDeletions.Add(new PendingDeletion() { MediaId = delete.MediaId, Version = item.Version, Requestor = DeleteRequester.User });
+                        scheduled.Add(item);
+                    }
+                    else
+                    {
+                        failed.Add(FailedItem.Generate(item, "Not found"));
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    failed.Add(FailedItem.Generate(item, "Not found"));
+                    log.LogWarning($"Failed to schedule deletion of item {item?.MediaId} v{item?.Version} Ex: {ex.ToString()}");
+                    failed.Add(FailedItem.Generate(item, $"Unknown error. Exception: {ex.Message}"));
                 }
             }
 
-            db.SaveChanges();
-            log.LogInformation($"Scheduled deletion of items {string.Join(';', scheduled.Select(x => $"{x.MediaId},{x.Version}"))}");
+            if (scheduled.Count > 0)
+            {
+                db.SaveChanges();
+                log.LogInformation($"Scheduled deletion of items: {string.Join(';', scheduled.Select(x => $"{x.MediaId},{x.Version}"))}");
+            }
+            else
+            {
+                log.LogInformation($"A call was made to schedule deletion, but no items could be scheduled.");
+            }
             return GenerateOverallStatus(scheduled, failed, "scheduled");
         }
 
@@ -137,15 +166,23 @@ namespace Volyar.Controllers
             var failed = new List<FailedItem>();
             foreach (var item in items)
             {
-                var revert = db.PendingDeletions.Where(x => x.MediaId == item.MediaId && x.Version == item.Version).SingleOrDefault();
-                if (revert != null)
+                try
                 {
-                    db.PendingDeletions.Remove(revert);
-                    reverted.Add(item);
+                    var revert = db.PendingDeletions.Where(x => x.MediaId == item.MediaId && x.Version == item.Version).SingleOrDefault();
+                    if (revert != null)
+                    {
+                        db.PendingDeletions.Remove(revert);
+                        reverted.Add(item);
+                    }
+                    else
+                    {
+                        failed.Add(FailedItem.Generate(item, "Not found"));
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    failed.Add(FailedItem.Generate(item, "Not found"));
+                    log.LogWarning($"Failed to revert deletion of item {item?.MediaId} v{item?.Version} Ex: {ex.ToString()}");
+                    failed.Add(FailedItem.Generate(item, $"Unknown error. Exception: {ex.Message}"));
                 }
             }
 
@@ -156,7 +193,12 @@ namespace Volyar.Controllers
 
         private ObjectResult NullResponse()
         {
-            return NullResponse();
+            return BadRequest(Newtonsoft.Json.JsonConvert.SerializeObject(new DeletionApiResult()
+            {
+                Message = "Given collection of items was null or empty.",
+                FailedItems = null,
+                SucceededItems = null
+            }));
         }
 
         [HttpPost("confirm")]
@@ -164,12 +206,7 @@ namespace Volyar.Controllers
         {
             if (items == null || items.Length == 0)
             {
-                return BadRequest(Newtonsoft.Json.JsonConvert.SerializeObject(new DeletionApiResult()
-                {
-                    Message = "Given collection of items was null or empty.",
-                    FailedItems = null,
-                    SucceededItems = null
-                }));
+                return NullResponse();
             }
 
             var deleted = new List<DeletionInfo>();
@@ -202,7 +239,9 @@ namespace Volyar.Controllers
                     }
                     catch (Exception ex)
                     {
-                        failed.Add(FailedItem.Generate(item, $"Failed to generate storage backend: {ex.Message}"));
+                        string msg = $"Failed to generate storage backend: {ex.Message}";
+                        log.LogError(msg);
+                        failed.Add(FailedItem.Generate(item, msg));
                         continue;
                     }
 
