@@ -338,9 +338,6 @@ var mediaManagerComponent = {
         next();
     },
     methods: {
-        edit: function (item) {
-            alert(item.mediaId);
-        },
         timeago: function (x) {
             return moment(x).fromNow();
         },
