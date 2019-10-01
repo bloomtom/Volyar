@@ -347,6 +347,14 @@ var mediaManagerComponent = {
         persistModifications: function (x) {
             putItem(x, null, null);
         },
+        singleDelete: function (x) {
+            let delArr = [];
+            delArr.push({ MediaId: x.mediaId, Version: -1 });
+            scheduleDelete(delArr, function () {
+                updatePendingDelete();
+                this.$refs.mediaManager.getData();
+            }, null);
+        },
         bulkReconvert: function (x) {
             this.$bvToast.toast(`This is toast number ${this.toastCount}`, {
                 title: 'BootstrapVue Toast',
