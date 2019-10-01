@@ -18,15 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="Views\Templates\ConversionStatus.cshtml" />
-    <Content Remove="Views\Templates\Deletions.cshtml" />
-    <Content Remove="Views\Templates\MediaManager.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Views\Templates\ConversionStatus.cshtml" />
-    <None Include="Views\Templates\Deletions.cshtml" />
-    <None Include="Views\Templates\MediaManager.cshtml" />
+    <None Include="Views\Frontend\ConversionStatus.cshtml" />
+    <None Include="Views\Frontend\Deletions.cshtml" />
+    <None Include="Views\Frontend\MediaManager.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
