@@ -80,7 +80,10 @@ function call(type, url, done = null, fail = null, data = null) {
 
     request.onerror = function () {
         if (fail) {
-            fail();
+            fail(request);
+        }
+        else {
+            console.warn(request);
         }
     };
 
