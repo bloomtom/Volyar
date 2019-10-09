@@ -183,7 +183,21 @@ namespace Volyar.Controllers
         [HttpGet("manager")]
         public IActionResult Manager(string query, int limit, int page, string orderBy, int ascending, int byColumn)
         {
-            if (string.IsNullOrWhiteSpace(orderBy) || orderBy == "null") { orderBy = "MediaId"; }
+            var orderProps = new List<string>();
+            if (string.IsNullOrWhiteSpace(orderBy) || orderBy == "null")
+            {
+                orderProps.Add("MediaId");
+            }
+            else if (orderBy == "seasonNumber")
+            {
+                orderProps.Add("seasonNumber");
+                orderProps.Add("episodeNumber");
+            }
+            else
+            {
+                orderProps.Add(orderBy);
+            }
+
             List<VolyDatabase.MediaItem> result;
             int totalCount = 0;
             if (!string.IsNullOrWhiteSpace(query))
@@ -191,7 +205,7 @@ namespace Volyar.Controllers
                 var q = new MediaManagerQuery(query);
                 totalCount = Filter(q).Count();
                 result = Filter(q)
-                    .OrderBy(orderBy, ascending == 0)
+                    .OrderBy(orderProps, ascending == 0)
                     .Skip(limit * (page - 1)).Take(limit)
                     .AsNoTracking().ToList();
             }
@@ -199,7 +213,7 @@ namespace Volyar.Controllers
             {
                 totalCount = db.Media.Count();
                 result = db.Media
-                    .OrderBy(orderBy, ascending == 0)
+                    .OrderBy(orderProps, ascending == 0)
                     .Skip(limit * (page - 1)).Take(limit)
                     .AsNoTracking().ToList();
             }
