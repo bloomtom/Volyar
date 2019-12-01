@@ -289,7 +289,8 @@ namespace VolyConverter.Scanning
         private bool TryReconvert(HashSet<IQuality> quality, ScanFile file, VolyDatabase.MediaItem existingEntry, string seriesName)
         {
             // Item exists, check if update is needed.
-            if (file.LastModified > existingEntry.SourceModified)
+            // Item last modified date is newer than source, or older than source by more than a day.
+            if (file.LastModified > existingEntry.SourceModified || existingEntry.SourceModified - file.LastModified > TimeSpan.FromDays(1))
             {
                 string outFilename = $"{file.SourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
                 if (file.SourceHash != existingEntry.SourceHash)
