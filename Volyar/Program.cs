@@ -93,9 +93,15 @@ namespace Volyar
             }
         }
 
-        public static void Shutdown(ShutdownCodes code)
+        public static void PrepareShutdown(ShutdownCodes code)
         {
             NLog.LogManager.Shutdown();
+            Environment.ExitCode = (int)code;
+        }
+
+        private static void Shutdown(ShutdownCodes code)
+        {
+            PrepareShutdown(code);
             Environment.Exit((int)code);
         }
 

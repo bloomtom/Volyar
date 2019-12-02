@@ -14,7 +14,7 @@ namespace VolyConverterTests
         public void TestRateLimiting()
         {
             TimeSpan rateTime = TimeSpan.FromMilliseconds(200);
-            var limiter = new RateLimiter(rateTime);
+            var limiter = new RateLimiter(rateTime, null, TimeSpan.FromMilliseconds(50));
             int i = 0;
             Action increment = new Action(() => { System.Threading.Interlocked.Increment(ref i); });
 

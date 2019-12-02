@@ -230,13 +230,13 @@ namespace Volyar
                     else
                     {
                         log.LogWarning("Shutdown timeout expired and not all tasks were cancelled.");
-                        Program.Shutdown(ShutdownCodes.TasksNotCancelled);
+                        Program.PrepareShutdown(ShutdownCodes.TasksNotCancelled);
                         return;
                     }
                 }
 
                 log.LogInformation("Application stopped.");
-                Program.Shutdown(ShutdownCodes.Normal);
+                Program.PrepareShutdown(ShutdownCodes.Normal);
             });
 
             if (!string.IsNullOrWhiteSpace(Settings.BasePath))
