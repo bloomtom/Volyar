@@ -22,26 +22,26 @@ namespace VolyDatabase
             }),
             new Action<VolyContext>(x =>
             {
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [SeasonNumber] INTEGER;");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [EpisodeNumber] INTEGER;");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [ImdbId] VARCHAR;");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TvdbId] VARCHAR;");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TvmazeId] VARCHAR;");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [SeasonNumber] INTEGER;");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [EpisodeNumber] INTEGER;");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [ImdbId] VARCHAR;");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [TvdbId] VARCHAR;");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [TvmazeId] VARCHAR;");
             }),
             new Action<VolyContext>(x =>
             {
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [TmdbId] VARCHAR;");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [AbsoluteEpisodeNumber] INTEGER;");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [TmdbId] VARCHAR;");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [AbsoluteEpisodeNumber] INTEGER;");
             }),
             new Action<VolyContext>(x =>
             {
-                x.Database.ExecuteSqlCommand("CREATE TABLE [PendingDeletions] ([MediaId] INTEGER, [Version] INTEGER NOT NULL, [Requestor] INTEGER, PRIMARY KEY([MediaId], [Version]));");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaVariant] ADD [Version] INTEGER NOT NULL DEFAULT (0);");
-                x.Database.ExecuteSqlCommand("ALTER TABLE [MediaItem] ADD [Version] INTEGER NOT NULL DEFAULT (0);");
+                x.Database.ExecuteSqlRaw("CREATE TABLE [PendingDeletions] ([MediaId] INTEGER, [Version] INTEGER NOT NULL, [Requestor] INTEGER, PRIMARY KEY([MediaId], [Version]));");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaVariant] ADD [Version] INTEGER NOT NULL DEFAULT (0);");
+                x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [Version] INTEGER NOT NULL DEFAULT (0);");
             }),
             new Action<VolyContext>(x =>
             {
-                x.Database.ExecuteSqlCommand("UPDATE TransactionLog SET TableName = 1, Date = 1553580240;");
+                x.Database.ExecuteSqlRaw("UPDATE TransactionLog SET TableName = 1, Date = 1553580240;");
             })
         };
 

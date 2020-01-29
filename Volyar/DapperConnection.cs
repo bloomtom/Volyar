@@ -34,9 +34,9 @@ namespace Volyar
                 case "sqlite":
                     return new SqliteConnection(connectionString);
                 case "sqlserver":
-                    return new SqlConnection(connectionString);
+                    return new Microsoft.Data.SqlClient.SqlConnection(connectionString);
             }
-            return new SqlConnection(connectionString);
+            return new Microsoft.Data.SqlClient.SqlConnection(connectionString);
         }
     }
 

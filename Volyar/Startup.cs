@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 using VolyConverter.Conversion;
 using VolyConverter.Scanning;
 using Volyar.Models;
@@ -26,10 +26,10 @@ namespace Volyar
     {
         private ILoggerFactory LoggerFactory { get; }
         public IConfiguration Configuration { get; }
-        public IHostingEnvironment Env { get; }
+        public IHostEnvironment Env { get; }
         public VSettings Settings { get; }
 
-        public Startup(IConfiguration configuration, ILoggerFactory loggerFactory, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, ILoggerFactory loggerFactory, IHostEnvironment env)
         {
             Configuration = configuration;
             LoggerFactory = loggerFactory;
@@ -49,7 +49,7 @@ namespace Volyar
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddOptions();
             services.Configure<VSettings>(Configuration.GetSection("VSettings"));
@@ -200,8 +200,8 @@ namespace Volyar
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app,
-            IApplicationLifetime applicationLifetime,
-            IHostingEnvironment env,
+            IHostApplicationLifetime applicationLifetime,
+            IHostEnvironment env,
             ILoggerFactory loggerFactory,
             LibraryScanningQueue libraryScanningQueue,
             MediaConversionQueue mediaConversionQueue,
@@ -249,9 +249,12 @@ namespace Volyar
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
-
+            app.UseRouting();
             app.UseStaticFiles("/external/static");
+
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers();
+            });
 
             VolySeed.Initialize(context, log);
         }

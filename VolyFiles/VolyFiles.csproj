@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="bloomtom.DistinctQueueProcessor" Version="1.1.5" />
-    <PackageReference Include="bloomtom.MStorage" Version="0.3.2" />
+    <PackageReference Include="bloomtom.MStorage" Version="1.0.0" />
     <PackageReference Include="bloomtom.NaiveProgress" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>
