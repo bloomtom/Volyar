@@ -43,7 +43,7 @@ namespace VolyConverter.Scanning
             get
             {
                 if (outFilename != null) { return outFilename; }
-                outFilename = $"{SourceHash.Substring(0, 8)}_{System.IO.Path.GetFileNameWithoutExtension(Path)}";
+                outFilename = System.Net.WebUtility.UrlEncode($"{SourceHash.Substring(0, 8)}_{System.IO.Path.GetFileNameWithoutExtension(Path)}");
                 return outFilename;
             }
         }
