@@ -5,9 +5,9 @@ After=syslog.target network.target
 [Service]
 User=volyar
 Group=volyar
-WorkingDirectory=/home/volyar/Volyar/Volyar/bin/
+WorkingDirectory=/home/volyar/Volyar/build
 Environment=DOTNET_CLI_TELEMETRY_OPTOUT=1
-ExecStart=/usr/bin/dotnet /home/volyar/Volyar/Volyar/bin/Volyar.dll
+ExecStart=/usr/bin/dotnet /home/volyar/Volyar/build/Volyar.dll
 TimeoutStopSec=10
 KillMode=process
 Restart=on-failure

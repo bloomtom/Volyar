@@ -8,6 +8,6 @@ chmod +x build.sh
 chmod +x run.sh
 
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
-dotnet publish -c Release --output bin
+dotnet publish -c Release --output build
 
-cd ./Volyar/bin && dotnet Volyar.dll --bootstrap && cd
+cd ./build && dotnet Volyar.dll --bootstrap && cd
