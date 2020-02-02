@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace VolyExports
 {
@@ -16,6 +17,7 @@ namespace VolyExports
         /// <summary>
         /// The duration of this media file.
         /// </summary>
+        [JsonConverter(typeof(TimeSpanConverter))]
         public TimeSpan Duration { get; set; }
         /// <summary>
         /// The md5 hash of the file located at SourcePath.
