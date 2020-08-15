@@ -14,6 +14,7 @@ using Microsoft.Data.Sqlite;
 using VolyConverter.Complete;
 using VolyConverter;
 using VolyConverter.Plugin;
+using DEnc.Models;
 
 namespace VolyConverterTests
 {
@@ -65,13 +66,13 @@ namespace VolyConverterTests
                     new Logger<MediaConversionQueue>(logFactory));
                 var scanQueue = new LibraryScanningQueue(db, converter, new List<IConversionPlugin>(), new Logger<LibraryScanningQueue>(logFactory));
 
-                var quality1 = new DEnc.Quality(640, 480, 300, "ultrafast");
-                var quality2 = new DEnc.Quality(640, 480, 400, "ultrafast");
+                var quality1 = new Quality(640, 480, 300, DEnc.H264Preset.ultrafast);
+                var quality2 = new Quality(640, 480, 400, DEnc.H264Preset.ultrafast);
                 var testLibrary = new Library()
                 {
                     Name = "Test",
                     OriginPath = inputDirectory,
-                    Qualities = new List<DEnc.Quality>() { quality1, quality2 },
+                    Qualities = new List<Quality>() { quality1, quality2 },
                     ValidExtensions = new HashSet<string>() { ".mp4", ".mkv", ".ogg" },
                     TempPath = libraryTemp
                 };

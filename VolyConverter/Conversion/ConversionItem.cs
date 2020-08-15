@@ -1,4 +1,5 @@
 ﻿using DEnc;
+using DEnc.Models.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -4,6 +4,7 @@ using DEnc;
 using System.Collections.Immutable;
 using System.Threading;
 using VolyExports;
+using DEnc.Models.Interfaces;
 
 namespace VolyConverter.Conversion
 {

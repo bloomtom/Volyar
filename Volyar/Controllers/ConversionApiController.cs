@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DEnc.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace Volyar.Controllers
         [HttpGet("teststatus")]
         public IActionResult TestStatus(long transactionId)
         {
-            var quality = DEnc.Quality.GenerateDefaultQualities(DEnc.DefaultQuality.medium, "fast").ToHashSet();
+            var quality = Quality.GenerateDefaultQualities(DEnc.DefaultQuality.medium, DEnc.H264Preset.fast).ToHashSet();
 
             var result = new Dictionary<string, object>
             {

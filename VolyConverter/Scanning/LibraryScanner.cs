@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using MStorage.WebStorage;
 using VolyConverter.Plugin;
 using VolyFiles;
+using DEnc.Models.Interfaces;
 
 namespace VolyConverter.Scanning
 {
@@ -326,7 +327,7 @@ namespace VolyConverter.Scanning
                         newMedia.Duration = result.FileDuration;
                         newMedia.IndexName = Path.GetFileName(result.DashFilePath);
                         newMedia.IndexHash = "";
-                        newMedia.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata);
+                        newMedia.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.InputMetadata?.Metadata);
                         innerContext.Media.Add(newMedia);
                         innerContext.SaveChanges(); // Need to save changes now to yield a MediaId from the database.
 
@@ -441,7 +442,7 @@ namespace VolyConverter.Scanning
                         inDb.Duration = result.FileDuration;
                         inDb.IndexName = Path.GetFileName(result.DashFilePath);
                         inDb.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
-                        inDb.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.Metadata);
+                        inDb.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.InputMetadata?.Metadata);
                         innerContext.Update(inDb);
 
                         var files = new List<string>(result.MediaFiles)

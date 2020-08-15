@@ -1,4 +1,5 @@
 ﻿using DEnc;
+using DEnc.Models;
 using DQP;
 using Microsoft.Extensions.Logging;
 using NaiveProgress;
@@ -34,8 +35,8 @@ namespace VolyConverter.Conversion
         /// <param name="logger">A log receiver to capture ffmpeg/mp4box output.</param>
         public MediaConversionQueue(string ffmpegPath, string ffProbePath, string mp4boxPath, string tempPath, int parallelization, ICompleteItems<IExportableConversionItem> completeItems, ILogger<MediaConversionQueue> logger)
         {
-            this.completeItems = completeItems ?? throw new ArgumentNullException("completeItems", "completeItems cannot be null.");
-            log = logger ?? throw new ArgumentNullException("logger", "logger cannot be null.");
+            this.completeItems = completeItems ?? throw new ArgumentNullException(nameof(completeItems), "completeItems cannot be null.");
+            log = logger ?? throw new ArgumentNullException(nameof(logger), "logger cannot be null.");
 
             Parallelization = parallelization <= 0 ? 1 : parallelization;
             this.parallelization = Parallelization;
@@ -54,15 +55,12 @@ namespace VolyConverter.Conversion
                         log.LogDebug(s);
                     }
                 }),
-                tempPath)
-            {
-                EnableStreamCopying = true
-            };
+                tempPath);
         }
 
         protected override void Error(IConversionItem item, Exception ex)
         {
-            log.LogError($"Exception while converting {item.ToString()} -- {ex.Message}");
+            log.LogError($"Exception while converting {item} -- {ex.Message}");
             item.ErrorAction.Invoke(ex);
             item.ErrorText = ex.Message;
 
@@ -95,16 +93,13 @@ namespace VolyConverter.Conversion
 
             try
             {
-                var dashResult = encoder.GenerateDash(
-                    inFile: item.SourcePath,
-                    outFilename: item.OutputBaseFilename,
-                    framerate: item.Framerate,
-                    keyframeInterval: 0,
-                    qualities: item.Quality,
-                    options: options,
-                    outDirectory: item.OutputPath,
-                    progress: new NaiveProgress<IEnumerable<EncodeStageProgress>>(x => { item.Progress = x.Select(y => new DescribedProgress(y.Name, y.Progress)); }),
-                    cancel: item.CancellationToken.Token);
+                var probeData = encoder.ProbeFile(item.SourcePath, out _);
+                var dashConfig = new DashConfig(item.SourcePath, item.OutputPath, item.Quality, item.OutputBaseFilename)
+                {
+                    EnableStreamCopying = true,
+                    Framerate = item.Framerate
+                };
+                var dashResult = encoder.GenerateDash(dashConfig, probeData, new NaiveProgress<double>((x) => { item.Progress = new[] { new DescribedProgress("Conversion", x) }; }), item.CancellationToken.Token);
                 if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator. Check the ffmpeg/mp4box log."); }
 
                 item.CompletionAction.Invoke(item, dashResult);

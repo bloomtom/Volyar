@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="bloomtom.DEnc" Version="1.4.2" />
+    <PackageReference Include="bloomtom.DEnc" Version="2.0.1-rc" />
     <PackageReference Include="bloomtom.DistinctQueueProcessor" Version="1.1.5" />
     <PackageReference Include="bloomtom.MStorage" Version="1.0.0" />
     <PackageReference Include="bloomtom.NaiveProgress" Version="1.0.0" />
