@@ -127,120 +127,118 @@ namespace VolyConverter.Scanning
                 return false;
             }
 
-            using (var context = new VolyContext(dbOptions))
+            using var context = new VolyContext(dbOptions);
+            IEnumerable<VolyDatabase.MediaItem> contextMediaItems;
+            contextMediaItems = context.Media
+                .Where(x => x.LibraryName == library.Name)
+                .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash, IndexHash = x.IndexHash });
+
+            if (scanTheseFilesOnly != null)
             {
-                IEnumerable<VolyDatabase.MediaItem> contextMediaItems;
-                contextMediaItems = context.Media
-                    .Where(x => x.LibraryName == library.Name)
-                    .Select(x => new VolyDatabase.MediaItem() { MediaId = x.MediaId, SourcePath = x.SourcePath, SourceModified = x.SourceModified, SourceHash = x.SourceHash, IndexHash = x.IndexHash });
+                // Reduce the data set to only items which are in our scan selection.
+                var extensionlessSTFO = scanTheseFilesOnly.Select(x => Path.GetFileNameWithoutExtension(x)).ToHashSet();
+                contextMediaItems = contextMediaItems.Where(x => extensionlessSTFO.Contains(Path.GetFileNameWithoutExtension(x.SourcePath)));
+            }
 
-                if (scanTheseFilesOnly != null)
-                {
-                    // Reduce the data set to only items which are in our scan selection.
-                    var extensionlessSTFO = scanTheseFilesOnly.Select(x => Path.GetFileNameWithoutExtension(x)).ToHashSet();
-                    contextMediaItems = contextMediaItems.Where(x => extensionlessSTFO.Contains(Path.GetFileNameWithoutExtension(x.SourcePath)));
-                }
+            var currentLibrary = new Dictionary<string, VolyDatabase.MediaItem>();
+            var dbMediaItemsNotFound = new HashSet<int>();
+            foreach (var item in contextMediaItems)
+            {
+                currentLibrary[Path.GetFileNameWithoutExtension(item.SourcePath)] = item;
+                dbMediaItemsNotFound.Add(item.MediaId);
+            }
 
-                var currentLibrary = new Dictionary<string, VolyDatabase.MediaItem>();
-                var dbMediaItemsNotFound = new HashSet<int>();
-                foreach (var item in contextMediaItems)
-                {
-                    currentLibrary[Path.GetFileNameWithoutExtension(item.SourcePath)] = item;
-                    dbMediaItemsNotFound.Add(item.MediaId);
-                }
+            var quality = new HashSet<IQuality>(library.Qualities);
 
-                var quality = new HashSet<IQuality>(library.Qualities);
+            IEnumerable<ScanFile> foundFiles;
+            if (scanTheseFilesOnly == null)
+            {
+                log.LogInformation($"Scanning library {library.Name}...");
+                foundFiles = GetLibraryFiles(library.OriginPath);
+            }
+            else if (scanTheseFilesOnly.Count() == 0)
+            {
+                log.LogWarning("Library scan was started with a specified scan set, but the scan set was empty.");
+                return false;
+            }
+            else
+            {
+                log.LogInformation($"Scanning library {library.Name} for {scanTheseFilesOnly.Count()} files...");
+                foundFiles = GetLibraryFiles(library.OriginPath, scanTheseFilesOnly);
+            }
 
-                IEnumerable<ScanFile> foundFiles;
-                if (scanTheseFilesOnly == null)
+            foreach (var file in foundFiles)
+            {
+                if (CancellationToken.IsCancellationRequested)
                 {
-                    log.LogInformation($"Scanning library {library.Name}...");
-                    foundFiles = GetLibraryFiles(library.OriginPath);
-                }
-                else if (scanTheseFilesOnly.Count() == 0)
-                {
-                    log.LogWarning("Library scan was started with a specified scan set, but the scan set was empty.");
+                    log.LogInformation($"Halted scan of library {library.Name} (cancelled).");
                     return false;
+                }
+
+                var extension = Path.GetExtension(file.Path);
+                if (!library.ValidExtensions.Contains(extension)) { continue; }
+
+                bool existsInDb = currentLibrary.TryGetValue(Path.GetFileNameWithoutExtension(file.Path), out var existingEntry);
+                if (existsInDb) { dbMediaItemsNotFound.Remove(existingEntry.MediaId); } // Remove to track missing entries for later.
+
+                string seriesName = new DirectoryInfo(Directory.GetParent(file.Path).FullName).Name;
+                if (file.ZeroLength)
+                {
+                    continue;
+                }
+                else if (existsInDb && string.IsNullOrWhiteSpace(existingEntry.IndexHash)) // Indicates previous failed conversion.
+                {
+                    log.LogInformation($"Scheduling conversion of previously failed item at path {file.Path}");
+                    using (var deletionContext = new VolyContext(dbOptions))
+                    {
+                        deletionContext.Media.Remove(existingEntry);
+                        deletionContext.SaveChanges();
+                    }
+                    ScheduleConversion(library, quality, file.Path, file.LastModified, seriesName, file);
+                }
+                else if (existsInDb)
+                {
+                    TryReconvert(quality, file, existingEntry, seriesName);
                 }
                 else
                 {
-                    log.LogInformation($"Scanning library {library.Name} for {scanTheseFilesOnly.Count()} files...");
-                    foundFiles = GetLibraryFiles(library.OriginPath, scanTheseFilesOnly);
-                }
-
-                foreach (var file in foundFiles)
-                {
-                    if (CancellationToken.IsCancellationRequested)
+                    var oldVersion = context.Media.Where(x => x.SourceHash == file.SourceHash).SingleOrDefault();
+                    if (oldVersion != null)
                     {
-                        log.LogInformation($"Halted scan of library {library.Name} (cancelled).");
-                        return false;
-                    }
-
-                    var extension = Path.GetExtension(file.Path);
-                    if (!library.ValidExtensions.Contains(extension)) { continue; }
-
-                    bool existsInDb = currentLibrary.TryGetValue(Path.GetFileNameWithoutExtension(file.Path), out var existingEntry);
-                    if (existsInDb) { dbMediaItemsNotFound.Remove(existingEntry.MediaId); } // Remove to track missing entries for later.
-
-                    string seriesName = new DirectoryInfo(Directory.GetParent(file.Path).FullName).Name;
-                    if (file.ZeroLength)
-                    {
-                        continue;
-                    }
-                    else if (existsInDb && string.IsNullOrWhiteSpace(existingEntry.IndexHash)) // Indicates previous failed conversion.
-                    {
-                        log.LogInformation($"Scheduling conversion of previously failed item at path {file.Path}");
-                        using (var deletionContext = new VolyContext(dbOptions))
+                        log.LogInformation($"Discovered renamed file. {oldVersion.SourcePath} => {file.Path}");
+                        dbMediaItemsNotFound.Remove(oldVersion.MediaId);
+                        oldVersion.SourcePath = file.Path;
+                        context.Media.Update(oldVersion);
+                        if (!TryReconvert(quality, file, oldVersion, seriesName))
                         {
-                            deletionContext.Media.Remove(existingEntry);
-                            deletionContext.SaveChanges();
+                            // Not being reconverted, just update metadata.
+                            RunPrePlugins(library, null, oldVersion, ConversionType.MetadataOnly);
+                            context.Media.Update(oldVersion);
+                            RunPostPlugins(library, context, null, oldVersion, null, ConversionType.MetadataOnly);
                         }
-                        ScheduleConversion(library, quality, file.Path, file.LastModified, seriesName, file);
-                    }
-                    else if (existsInDb)
-                    {
-                        TryReconvert(quality, file, existingEntry, seriesName);
                     }
                     else
                     {
-                        var oldVersion = context.Media.Where(x => x.SourceHash == file.SourceHash).SingleOrDefault();
-                        if (oldVersion != null)
-                        {
-                            log.LogInformation($"Discovered renamed file. {oldVersion.SourcePath} => {file.Path}");
-                            dbMediaItemsNotFound.Remove(oldVersion.MediaId);
-                            oldVersion.SourcePath = file.Path;
-                            context.Media.Update(oldVersion);
-                            if (!TryReconvert(quality, file, oldVersion, seriesName))
-                            {
-                                // Not being reconverted, just update metadata.
-                                RunPrePlugins(library, null, oldVersion, ConversionType.MetadataOnly);
-                                context.Media.Update(oldVersion);
-                                RunPostPlugins(library, context, null, oldVersion, null, ConversionType.MetadataOnly);
-                            }
-                        }
-                        else
-                        {
-                            // Media doesn't exist in db, make it.
-                            log.LogInformation($"Scheduling conversion of {file.Path}");
-                            ScheduleConversion(library, quality, file.Path, file.LastModified, seriesName, file);
-                        }
+                        // Media doesn't exist in db, make it.
+                        log.LogInformation($"Scheduling conversion of {file.Path}");
+                        ScheduleConversion(library, quality, file.Path, file.LastModified, seriesName, file);
                     }
                 }
-
-                if (library.DeleteWithSource)
-                {
-                    // Queue delete for items not found in scan.
-                    var inDb = context.PendingDeletions.Where(x => dbMediaItemsNotFound.Contains(x.MediaId)).Select(y => y.MediaId);
-                    dbMediaItemsNotFound.ExceptWith(inDb);
-                    context.PendingDeletions.AddRange(dbMediaItemsNotFound.Select(x => new PendingDeletion() { MediaId = x, Version = -1, Requestor = DeleteRequester.Scan }));
-                }
-
-                context.SaveChanges();
-
-                log.LogInformation($"Scanning library {library.Name} complete.");
-
-                return true;
             }
+
+            if (library.DeleteWithSource)
+            {
+                // Queue delete for items not found in scan.
+                var inDb = context.PendingDeletions.Where(x => dbMediaItemsNotFound.Contains(x.MediaId)).Select(y => y.MediaId);
+                dbMediaItemsNotFound.ExceptWith(inDb);
+                context.PendingDeletions.AddRange(dbMediaItemsNotFound.Select(x => new PendingDeletion() { MediaId = x, Version = -1, Requestor = DeleteRequester.Scan }));
+            }
+
+            context.SaveChanges();
+
+            log.LogInformation($"Scanning library {library.Name} complete.");
+
+            return true;
         }
 
         private static IEnumerable<ScanFile> GetLibraryFiles(string libraryPath)
@@ -259,6 +257,7 @@ namespace VolyConverter.Scanning
             return created > lastWritten ? created : lastWritten;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Just a check, and failure is logged.")]
         private IEnumerable<ScanFile> GetLibraryFiles(string libraryPath, IEnumerable<string> filter)
         {
             libraryPath = Path.GetFullPath(libraryPath);
@@ -293,7 +292,6 @@ namespace VolyConverter.Scanning
             // Item last modified date is newer than source, or older than source by more than a day.
             if (file.LastModified > existingEntry.SourceModified || existingEntry.SourceModified - file.LastModified > TimeSpan.FromDays(1))
             {
-                string outFilename = $"{file.SourceHash.Substring(0, 8)}_{Path.GetFileNameWithoutExtension(file.Path)}";
                 if (file.SourceHash != existingEntry.SourceHash)
                 {
                     // Update needed.
@@ -305,6 +303,7 @@ namespace VolyConverter.Scanning
             return false;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Inner failure is a we-tried type.")]
         private void ScheduleConversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, ScanFile file)
         {
             var newMedia = new VolyDatabase.MediaItem()
@@ -321,58 +320,58 @@ namespace VolyConverter.Scanning
                 int? addedKey = null;
                 try
                 {
-                    using (var innerContext = new VolyContext(dbOptions))
+                    using var innerContext = new VolyContext(dbOptions);
+                    // Save the new media item to db.
+                    newMedia.Duration = result.FileDuration;
+                    newMedia.IndexName = Path.GetFileName(result.DashFilePath);
+                    newMedia.IndexHash = "";
+                    newMedia.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.InputMetadata?.Metadata);
+                    innerContext.Media.Add(newMedia);
+                    innerContext.SaveChanges(); // Need to save changes now to yield a MediaId from the database.
+
+                    // Set to allow deletion of this key on failure.
+                    addedKey = newMedia.MediaId;
+
+                    // Must be done after initial push to allow reconvert on error.
+                    newMedia.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
+
+                    // Update the transaction log.
+                    innerContext.TransactionLog.Add(new TransactionLog()
                     {
-                        // Save the new media item to db.
-                        newMedia.Duration = result.FileDuration;
-                        newMedia.IndexName = Path.GetFileName(result.DashFilePath);
-                        newMedia.IndexHash = "";
-                        newMedia.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.InputMetadata?.Metadata);
-                        innerContext.Media.Add(newMedia);
-                        innerContext.SaveChanges(); // Need to save changes now to yield a MediaId from the database.
+                        TableName = TransactionTableType.MediaItem,
+                        Type = TransactionType.Insert,
+                        Key = newMedia.MediaId
+                    });
 
-                        // Set to allow deletion of this key on failure.
-                        addedKey = newMedia.MediaId;
-
-                        // Must be done after initial push to allow reconvert on error.
-                        newMedia.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
-
-                        // Update the transaction log.
-                        innerContext.TransactionLog.Add(new TransactionLog()
-                        {
-                            TableName = TransactionTableType.MediaItem,
-                            Type = TransactionType.Insert,
-                            Key = newMedia.MediaId
-                        });
-
-                        // Add associated files to the db.
-                        var files = new List<string>(result.MediaFiles)
+                    // Add associated files to the db.
+                    var files = new List<string>(result.MediaFiles)
                         {
                             Path.GetFileName(result.DashFilePath)
                         };
-                        AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, files);
+                    AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, files);
 
-                        HandleSourceFate(sourcePath);
+                    HandleSourceFate(sourcePath);
 
-                        // Set files on disk variable for the storage backend operations below.
-                        var addedFiles = new List<string>();
-                        addedFiles.Add(result.DashFilePath);
-                        addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
+                    // Set files on disk variable for the storage backend operations below.
+                    var addedFiles = new List<string>
+                    {
+                        result.DashFilePath
+                    };
+                    addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
 
-                        // Set up progress reporting.
-                        var progress = sender.Progress.ToList();
-                        var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
-                        progress.AddRange(uploadProgress);
-                        sender.Progress = progress;
+                    // Set up progress reporting.
+                    var progress = sender.Progress.ToList();
+                    var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
+                    progress.AddRange(uploadProgress);
+                    sender.Progress = progress;
 
-                        var fileManagement = new FileManagement(storageBackend, log);
-                        fileManagement.UploadFiles(addedFiles, uploadProgress);
+                    var fileManagement = new FileManagement(storageBackend, log);
+                    fileManagement.UploadFiles(addedFiles, uploadProgress);
 
-                        RunPostPlugins(library, innerContext, sender, newMedia, result, ConversionType.Conversion);
+                    RunPostPlugins(library, innerContext, sender, newMedia, result, ConversionType.Conversion);
 
-                        innerContext.SaveChanges();
-                        log.LogInformation($"Converted {sourcePath}");
-                    }
+                    innerContext.SaveChanges();
+                    log.LogInformation($"Converted {sourcePath}");
                 }
                 catch (Exception)
                 {
@@ -380,14 +379,12 @@ namespace VolyConverter.Scanning
                     {
                         try
                         {
-                            using (var abortContext = new VolyContext(dbOptions))
-                            {
-                                abortContext.Media.Remove(abortContext.Media.Where(x => x.MediaId == addedKey.Value).SingleOrDefault());
-                            }
+                            using var abortContext = new VolyContext(dbOptions);
+                            abortContext.Media.Remove(abortContext.Media.Where(x => x.MediaId == addedKey.Value).SingleOrDefault());
                         }
                         catch (Exception ex)
                         {
-                            log.LogError($"Failed to abort media ID {addedKey.Value} at path {sourcePath}. This item may require manual reconversion. Ex: {ex.ToString()}");
+                            log.LogError($"Failed to abort media ID {addedKey.Value} at path {sourcePath}. This item may require manual reconversion. Ex: {ex}");
                         }
                     }
                     throw;
@@ -395,7 +392,7 @@ namespace VolyConverter.Scanning
             },
             (ex) =>
             {
-                log.LogError($"Failed to convert {sourcePath} -- Ex: {ex.ToString()}");
+                log.LogError($"Failed to convert {sourcePath} -- Ex: {ex}");
             });
 
             RunPrePlugins(library, conversionItem, newMedia, ConversionType.Conversion);
@@ -416,78 +413,78 @@ namespace VolyConverter.Scanning
             };
             var conversionItem = new ConversionItem(newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, quality, library.ForceFramerate, (sender, result) =>
             {
-                using (var innerContext = new VolyContext(dbOptions))
+                using var innerContext = new VolyContext(dbOptions);
+                int oldVersion = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault().Version;
+                int newVersion = innerContext.MediaFiles.Where(x => x.MediaId == mediaId).Max(y => y.Version) + 1;
+
+                var inDb = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault();
+                if (inDb != null)
                 {
-                    int oldVersion = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault().Version;
-                    int newVersion = innerContext.MediaFiles.Where(x => x.MediaId == mediaId).Max(y => y.Version) + 1;
+                    inDb.Version = newVersion;
+                    inDb.SourcePath = newMedia.SourcePath;
+                    inDb.SourceModified = newMedia.SourceModified;
+                    inDb.SourceHash = newMedia.SourceHash;
+                    inDb.SeriesName = newMedia.SeriesName;
+                    inDb.Name = newMedia.Name;
 
-                    var inDb = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault();
-                    if (inDb != null)
-                    {
-                        inDb.Version = newVersion;
-                        inDb.SourcePath = newMedia.SourcePath;
-                        inDb.SourceModified = newMedia.SourceModified;
-                        inDb.SourceHash = newMedia.SourceHash;
-                        inDb.SeriesName = newMedia.SeriesName;
-                        inDb.Name = newMedia.Name;
+                    if (newMedia.SeasonNumber != 0) { inDb.SeasonNumber = newMedia.SeasonNumber; }
+                    if (newMedia.EpisodeNumber != 0) { inDb.EpisodeNumber = newMedia.EpisodeNumber; }
+                    if (newMedia.AbsoluteEpisodeNumber != 0) { inDb.AbsoluteEpisodeNumber = newMedia.AbsoluteEpisodeNumber; }
+                    if (newMedia.ImdbId != null) { inDb.ImdbId = newMedia.ImdbId; }
+                    if (newMedia.TmdbId != null) { inDb.TmdbId = newMedia.TmdbId; }
+                    if (newMedia.TvdbId != null) { inDb.TvdbId = newMedia.TvdbId; }
+                    if (newMedia.TvmazeId != null) { inDb.TvmazeId = newMedia.TvmazeId; }
 
-                        if (newMedia.SeasonNumber != 0) { inDb.SeasonNumber = newMedia.SeasonNumber; }
-                        if (newMedia.EpisodeNumber != 0) { inDb.EpisodeNumber = newMedia.EpisodeNumber; }
-                        if (newMedia.AbsoluteEpisodeNumber != 0) { inDb.AbsoluteEpisodeNumber = newMedia.AbsoluteEpisodeNumber; }
-                        if (newMedia.ImdbId != null) { inDb.ImdbId = newMedia.ImdbId; }
-                        if (newMedia.TmdbId != null) { inDb.TmdbId = newMedia.TmdbId; }
-                        if (newMedia.TvdbId != null) { inDb.TvdbId = newMedia.TvdbId; }
-                        if (newMedia.TvmazeId != null) { inDb.TvmazeId = newMedia.TvmazeId; }
+                    inDb.Duration = result.FileDuration;
+                    inDb.IndexName = Path.GetFileName(result.DashFilePath);
+                    inDb.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
+                    inDb.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.InputMetadata?.Metadata);
+                    innerContext.Update(inDb);
 
-                        inDb.Duration = result.FileDuration;
-                        inDb.IndexName = Path.GetFileName(result.DashFilePath);
-                        inDb.IndexHash = Hashing.HashFileMd5(result.DashFilePath);
-                        inDb.Metadata = Newtonsoft.Json.JsonConvert.SerializeObject(result.InputMetadata?.Metadata);
-                        innerContext.Update(inDb);
-
-                        var files = new List<string>(result.MediaFiles)
+                    var files = new List<string>(result.MediaFiles)
                         {
                             Path.GetFileName(result.DashFilePath)
                         };
-                        AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, files, newVersion);
+                    AddMediaFilesToMedia(innerContext, inDb.MediaId, library.TempPath, files, newVersion);
 
-                        HandleSourceFate(sourcePath);
-                    }
-                    else
-                    {
-                        log.LogError($"Failed to find media item {mediaId}");
-                    }
-
-                    // Set files on disk variable for the storage backend operations below.
-                    var addedFiles = new List<string>();
-                    addedFiles.Add(result.DashFilePath);
-                    addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
-
-                    // Set up progress reporting.
-                    var progress = sender.Progress.ToList();
-                    var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
-                    progress.AddRange(uploadProgress);
-                    sender.Progress = progress;
-
-                    var fileManagement = new FileManagement(storageBackend, log);
-                    fileManagement.UploadFiles(addedFiles, uploadProgress);
-
-                    innerContext.PendingDeletions.Add(new PendingDeletion()
-                    {
-                        MediaId = mediaId,
-                        Version = oldVersion,
-                        Requestor = DeleteRequester.Scan
-                    });
-
-                    RunPostPlugins(library, innerContext, sender, inDb, result, ConversionType.Conversion);
-
-                    innerContext.SaveChanges();
-                    log.LogInformation($"Converted {sourcePath}");
+                    HandleSourceFate(sourcePath);
                 }
+                else
+                {
+                    log.LogError($"Failed to find media item {mediaId}");
+                }
+
+                // Set files on disk variable for the storage backend operations below.
+                var addedFiles = new List<string>
+                {
+                    result.DashFilePath
+                };
+                addedFiles.AddRange(result.MediaFiles.Select(x => Path.Combine(library.TempPath, x)));
+
+                // Set up progress reporting.
+                var progress = sender.Progress.ToList();
+                var uploadProgress = addedFiles.Select(x => new DescribedProgress($"Upload {x}", 0)).ToList();
+                progress.AddRange(uploadProgress);
+                sender.Progress = progress;
+
+                var fileManagement = new FileManagement(storageBackend, log);
+                fileManagement.UploadFiles(addedFiles, uploadProgress);
+
+                innerContext.PendingDeletions.Add(new PendingDeletion()
+                {
+                    MediaId = mediaId,
+                    Version = oldVersion,
+                    Requestor = DeleteRequester.Scan
+                });
+
+                RunPostPlugins(library, innerContext, sender, inDb, result, ConversionType.Conversion);
+
+                innerContext.SaveChanges();
+                log.LogInformation($"Converted {sourcePath}");
             },
             (ex) =>
             {
-                log.LogError($"Failed to re-convert {sourcePath}, database not updated. -- Ex: {ex.ToString()}");
+                log.LogError($"Failed to re-convert {sourcePath}, database not updated. -- Ex: {ex}");
             });
 
             RunPrePlugins(library, conversionItem, newMedia, ConversionType.Reconversion);
@@ -502,7 +499,7 @@ namespace VolyConverter.Scanning
                 case "none":
                     break;
                 case "truncate":
-                    File.WriteAllBytes(sourcePath, new byte[0]);
+                    File.WriteAllBytes(sourcePath, Array.Empty<byte>());
                     break;
                 case "delete":
                     File.Delete(sourcePath);
@@ -513,6 +510,7 @@ namespace VolyConverter.Scanning
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Plugins must not throw exceptions. Failure is logged.")]
         private void RunPrePlugins(ILibrary library, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, ConversionType type)
         {
             foreach (var plugin in conversionPlugins)
@@ -525,12 +523,13 @@ namespace VolyConverter.Scanning
                     }
                     catch (Exception ex)
                     {
-                        log.LogWarning($"Failed to run pre-plugin {plugin.Name} on item {conversionItem?.SourcePath ?? mediaItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
+                        log.LogWarning($"Failed to run pre-plugin {plugin.Name} on item {conversionItem?.SourcePath ?? mediaItem.SourcePath} in library {library.Name}. Ex: {ex}");
                     }
                 }
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Plugins must not throw exceptions. Failure is logged.")]
         private void RunPostPlugins(ILibrary library, VolyContext context, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, DashEncodeResult result, ConversionType type)
         {
             foreach (var plugin in conversionPlugins)
@@ -543,7 +542,7 @@ namespace VolyConverter.Scanning
                     }
                     catch (Exception ex)
                     {
-                        log.LogWarning($"Failed to run post-plugin {plugin.Name} on item {conversionItem?.SourcePath ?? mediaItem.SourcePath} in library {library.Name}. Ex: {ex.ToString()}");
+                        log.LogWarning($"Failed to run post-plugin {plugin.Name} on item {conversionItem?.SourcePath ?? mediaItem.SourcePath} in library {library.Name}. Ex: {ex}");
                     }
                 }
             }

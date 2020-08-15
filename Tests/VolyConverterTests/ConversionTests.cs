@@ -51,8 +51,10 @@ namespace VolyConverterTests
             {
                 var dbBuilder = new DbContextOptionsBuilder<VolyContext>()
                     .UseSqlite(connection);
-                MediaDatabase db = new MediaDatabase();
-                db.Database = dbBuilder.Options;
+                MediaDatabase db = new MediaDatabase
+                {
+                    Database = dbBuilder.Options
+                };
 
                 var logFactory = new LoggerFactory();
 
@@ -79,63 +81,61 @@ namespace VolyConverterTests
 
                 IStorage storage = new MStorage.FilesystemStorage.FilesystemStorage(outputDirectory);
 
-                using (var context = new VolyContext(dbBuilder.Options))
+                using var context = new VolyContext(dbBuilder.Options);
+                VolySeed.Initialize(context, logFactory.CreateLogger("VolySeed"));
+
+                scanQueue.ScheduleLibraryScan(testLibrary, storage, context);
+
+                var sw = new System.Diagnostics.Stopwatch();
+                sw.Start();
+                while (converter.ItemsQueued.Count == 0)
                 {
-                    VolySeed.Initialize(context, logFactory.CreateLogger("VolySeed"));
-
-                    scanQueue.ScheduleLibraryScan(testLibrary, storage, context);
-
-                    var sw = new System.Diagnostics.Stopwatch();
-                    sw.Start();
-                    while (converter.ItemsQueued.Count == 0)
+                    if (sw.ElapsedMilliseconds > 10000)
                     {
-                        if (sw.ElapsedMilliseconds > 10000)
-                        {
-                            Assert.Fail("Disk scan took too long.");
-                        }
-                        System.Threading.Thread.Sleep(10);
+                        Assert.Fail("Disk scan took too long.");
                     }
-
-                    var itemsProcessed = new Dictionary<string, IConversionItem>();
-                    int lastProgressesSeen = 0;
-                    int progressMovedEvents = 0;
-                    while (converter.ItemsQueued.Count > 0)
-                    {
-                        foreach (var item in converter.ItemsProcessing)
-                        {
-                            Assert.IsTrue(item.Value.Quality.Where(x => x.Bitrate == quality1.Bitrate).SingleOrDefault() != null, "Item does not have the correct quality1 configuration.");
-                            Assert.IsTrue(item.Value.Quality.Where(x => x.Bitrate == quality2.Bitrate).SingleOrDefault() != null, "Item does not have the correct quality2 configuration.");
-                            if (!itemsProcessed.ContainsKey(item.Key))
-                            {
-                                itemsProcessed.Add(item.Key, item.Value.DeepClone());
-                                Assert.AreEqual(item.Value.SourcePath, itemsProcessed[item.Key].SourcePath);
-                            }
-                            else
-                            {
-                                int progressesSeen = 0;
-                                var updateProgresses = item.Value.Progress.GetEnumerator();
-                                var currentProgresses = itemsProcessed[item.Key].Progress.GetEnumerator();
-                                while (updateProgresses.MoveNext())
-                                {
-                                    progressesSeen++;
-                                    if (currentProgresses.MoveNext())
-                                    {
-                                        Assert.AreEqual(currentProgresses.Current.Description, updateProgresses.Current.Description);
-                                        Assert.IsTrue(updateProgresses.Current.Progress >= currentProgresses.Current.Progress, "Progress not expected to go backwards.");
-                                        if (updateProgresses.Current.Progress > currentProgresses.Current.Progress) { progressMovedEvents++; }
-                                    }
-                                }
-                                lastProgressesSeen = progressesSeen;
-
-                                item.Value.DeepCloneTo(itemsProcessed[item.Key]);
-                            }
-                        }
-                        System.Threading.Thread.Sleep(10);
-                    }
-
-                    Assert.IsTrue(lastProgressesSeen > 1);
-                    Assert.IsTrue(progressMovedEvents > 1);
+                    System.Threading.Thread.Sleep(10);
                 }
+
+                var itemsProcessed = new Dictionary<string, IConversionItem>();
+                int lastProgressesSeen = 0;
+                int progressMovedEvents = 0;
+                while (converter.ItemsQueued.Count > 0)
+                {
+                    foreach (var item in converter.ItemsProcessing)
+                    {
+                        Assert.IsTrue(item.Value.Quality.Where(x => x.Bitrate == quality1.Bitrate).SingleOrDefault() != null, "Item does not have the correct quality1 configuration.");
+                        Assert.IsTrue(item.Value.Quality.Where(x => x.Bitrate == quality2.Bitrate).SingleOrDefault() != null, "Item does not have the correct quality2 configuration.");
+                        if (!itemsProcessed.ContainsKey(item.Key))
+                        {
+                            itemsProcessed.Add(item.Key, item.Value.DeepClone());
+                            Assert.AreEqual(item.Value.SourcePath, itemsProcessed[item.Key].SourcePath);
+                        }
+                        else
+                        {
+                            int progressesSeen = 0;
+                            var updateProgresses = item.Value.Progress.GetEnumerator();
+                            var currentProgresses = itemsProcessed[item.Key].Progress.GetEnumerator();
+                            while (updateProgresses.MoveNext())
+                            {
+                                progressesSeen++;
+                                if (currentProgresses.MoveNext())
+                                {
+                                    Assert.AreEqual(currentProgresses.Current.Description, updateProgresses.Current.Description);
+                                    Assert.IsTrue(updateProgresses.Current.Progress >= currentProgresses.Current.Progress, "Progress not expected to go backwards.");
+                                    if (updateProgresses.Current.Progress > currentProgresses.Current.Progress) { progressMovedEvents++; }
+                                }
+                            }
+                            lastProgressesSeen = progressesSeen;
+
+                            item.Value.DeepCloneTo(itemsProcessed[item.Key]);
+                        }
+                    }
+                    System.Threading.Thread.Sleep(10);
+                }
+
+                Assert.IsTrue(lastProgressesSeen > 1);
+                Assert.IsTrue(progressMovedEvents > 1);
 
             }
             finally
