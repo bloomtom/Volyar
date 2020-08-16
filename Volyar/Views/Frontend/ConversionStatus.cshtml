@@ -1,53 +1,61 @@
-﻿<template id="queue-template">
+﻿<template id="queue-item-template">
+    <div class="card">
+        <div class="card-body queue-item-body">
+            <div class="w-100">
+                <b v-if="item.Series">{{item.Series}}</b>
+                <details v-bind:title="item.SourcePath">
+                    <summary class="card-title">
+                        {{title(item)}}
+                        <dl style="margin-left:8%;" v-if="item.ErrorReason !== null">
+                            <dt class="text-danger">
+                                Error
+                            </dt>
+                            <dd>
+                                {{item.ErrorReason}}<br />
+                                <b-button size="sm" variant="link" v-b-modal="'errorModal-' + this.cuid">More Details</b-button>
+                            </dd>
+                        </dl>
+                    </summary>
+                    <dl style="margin-left:8%;">
+                        <dt class="card-text">
+                            Added
+                        </dt>
+                        <dd v-bind:title="item.CreateTime">
+                            {{timeago(item.CreateTime)}}
+                        </dd>
+
+                        <dt>
+                            Qualities
+                        </dt>
+                        <dd>
+                            <quality-component v-bind:quality="item.Quality"></quality-component>
+                        </dd>
+                        <dt v-if="tune(item.Tune)">
+                            Tune
+                        </dt>
+                        <dd>
+                            {{tune(item.Tune)}}
+                        </dd>
+                    </dl>
+                </details>
+            </div>
+            <b-modal ok-only :id="'errorModal-' + this.cuid" size="xl" title="Error Details">
+                <pre>{{item.ErrorDetail}}</pre>
+            </b-modal>
+            <div class="" v-bind:title="'Cancel ' + item.SourcePath" v-if="item.Complete !== true">
+                <button class="btn text-mute-warn btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
+            </div>
+        </div>
+        <div class="card-footer p-0" v-if="item.Complete !== true">
+            <progress-component v-bind:progress="item.Progress"></progress-component>
+        </div>
+    </div>
+</template>
+
+<template id="queue-template">
     <div class="wrapper">
         <div class="panel" v-for="item in items">
-            <div class="card">
-                <div class="card-body queue-item-body">
-                    <div class="w-100">
-                        <b v-if="item.Series">{{item.Series}}</b>
-                        <details v-bind:title="item.SourcePath">
-                            <summary class="card-title">
-                                {{title(item)}}
-                                <dl style="margin-left:8%;" v-if="item.ErrorText !== null">
-                                    <dt class="text-danger">
-                                        Error
-                                    </dt>
-                                    <dd>
-                                        {{item.ErrorText}}
-                                    </dd>
-                                </dl>
-                            </summary>
-                            <dl style="margin-left:8%;">
-                                <dt class="card-text">
-                                    Added
-                                </dt>
-                                <dd v-bind:title="item.CreateTime">
-                                    {{timeago(item.CreateTime)}}
-                                </dd>
-
-                                <dt>
-                                    Qualities
-                                </dt>
-                                <dd>
-                                    <quality-component v-bind:quality="item.Quality"></quality-component>
-                                </dd>
-                                <dt v-if="tune(item.Tune)">
-                                    Tune
-                                </dt>
-                                <dd>
-                                    {{tune(item.Tune)}}
-                                </dd>
-                            </dl>
-                        </details>
-                    </div>
-                    <div class="" v-bind:title="'Cancel ' + item.SourcePath" v-if="item.Complete !== true">
-                        <button class="btn text-mute-warn btn-sm btn-cancel" v-on:click="cancel(item.SourcePath)">X</button>
-                    </div>
-                </div>
-                <div class="card-footer p-0" v-if="item.Complete !== true">
-                    <progress-component v-bind:progress="item.Progress"></progress-component>
-                </div>
-            </div>
+            <queue-item-component v-bind:item="item"></queue-item-component>
         </div>
     </div>
 </template>
@@ -85,19 +93,19 @@
             <summary class="hidden-details">
                 <h5 class="alert alert-primary text-center">Processing {{queueSize(progress)}}</h5>
             </summary>
-            <progress-queue-component v-bind:items="progress"></progress-queue-component>
+            <queue-component v-bind:items="progress"></queue-component>
         </details>
         <details open>
             <summary class="hidden-details">
                 <h5 class="alert alert-dark text-center">Waiting {{queueSize(waiting)}}</h5>
             </summary>
-            <wait-queue-component v-bind:items="waiting"></wait-queue-component>
+            <queue-component v-bind:items="waiting"></queue-component>
         </details>
         <details open>
             <summary class="hidden-details">
                 <h5 class="alert alert-success text-center">Complete {{queueSize(complete)}}</h5>
             </summary>
-            <complete-queue-component v-bind:items="complete"></complete-queue-component>
+            <queue-component v-bind:items="complete"></queue-component>
         </details>
     </div>
 </template>

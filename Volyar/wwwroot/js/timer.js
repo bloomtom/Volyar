@@ -40,6 +40,7 @@ function sortPendingDeletions(a, b) {
 
 function updateStatus() {
     var statusFunc = testMode ? getTestStatus : getStatus;
+    var completeFunc = testMode ? getTestComplete : getComplete;
 
     statusFunc(function (data) {
         let result = JSON.parse(data.responseText);
@@ -50,7 +51,7 @@ function updateStatus() {
         console.log('Updated progress');
     }, null);
 
-    getComplete(function (data) {
+    completeFunc(function (data) {
         let result = JSON.parse(data.responseText);
         throttleWait += result.length * throttleWaitMultiplier;
 

@@ -11,6 +11,10 @@ function getComplete(done, fail) {
     get("../external/api/conversion/complete", done, fail);
 }
 
+function getTestComplete(done, fail) {
+    get("../external/api/conversion/testcomplete", done, fail);
+}
+
 function getPendingDelete(done, fail) {
     get("../external/api/delete/pending", done, fail);
 }

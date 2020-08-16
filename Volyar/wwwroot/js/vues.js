@@ -71,9 +71,9 @@ var progressComponent = {
     template: '#progress-template'
 };
 
-var queueComponent = {
+var queueItemComponent = {
     props: {
-        items: {}
+        item: {}
     },
     methods: {
         timeago: function (x) {
@@ -98,6 +98,16 @@ var queueComponent = {
     components: {
         'quality-component': qualityComponent,
         'progress-component': progressComponent
+    },
+    template: '#queue-item-template'
+};
+
+var queueComponent = {
+    props: {
+        items: {}
+    },
+    components: {
+        'queue-item-component': queueItemComponent
     },
     template: '#queue-template'
 };
@@ -135,9 +145,7 @@ var conversionStatusComponent = {
         }
     },
     components: {
-        'wait-queue-component': queueComponent,
-        'progress-queue-component': queueComponent,
-        'complete-queue-component': queueComponent
+        'queue-component': queueComponent,
     },
     methods: {
         queueSize: function (x) {
@@ -395,6 +403,14 @@ const store = new Vuex.Store({
         }
     }
 });
+
+let cuid = 0;
+Vue.mixin({
+    beforeCreate() {
+        this.cuid = cuid.toString();
+        cuid++;
+    },
+})
 
 const mainVue = new Vue({
     data: {
