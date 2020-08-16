@@ -1,4 +1,5 @@
 ﻿using DEnc;
+using DEnc.Exceptions;
 using DEnc.Models;
 using DQP;
 using Microsoft.Extensions.Logging;
@@ -40,33 +41,20 @@ namespace VolyConverter.Conversion
 
             Parallelization = parallelization <= 0 ? 1 : parallelization;
             this.parallelization = Parallelization;
-            encoder = new Encoder(ffmpegPath, ffProbePath, mp4boxPath,
-                new Action<string>(s =>
-                {
-                    if (s != null)
-                    {
-                        log.LogInformation(s);
-                    }
-                }),
-                new Action<string>(s =>
-                {
-                    if (s != null)
-                    {
-                        log.LogDebug(s);
-                    }
-                }),
-                tempPath);
+            encoder = new Encoder(ffmpegPath, ffProbePath, mp4boxPath, workingDirectory: tempPath);
         }
 
         protected override void Error(IConversionItem item, Exception ex)
         {
             log.LogError($"Exception while converting {item} -- {ex.Message}");
             item.ErrorAction.Invoke(ex);
-            item.ErrorText = ex.Message;
+            item.ErrorReason = ex.Message;
+            item.ErrorDetail = ex.ToString();
 
             completeItems.Add(item);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Overzealous stylecop.")]
         protected override void Process(IConversionItem item)
         {
             if (item.CancellationToken.IsCancellationRequested)
@@ -99,11 +87,54 @@ namespace VolyConverter.Conversion
                     EnableStreamCopying = true,
                     Framerate = item.Framerate
                 };
-                var dashResult = encoder.GenerateDash(dashConfig, probeData, new NaiveProgress<double>((x) => { item.Progress = new[] { new DescribedProgress("Conversion", x) }; }), item.CancellationToken.Token);
+                var dashResult = encoder.GenerateDash(dashConfig, probeData,
+                    progress: new NaiveProgress<double>((x) =>
+                    {
+                        item.Progress = new[] { new DescribedProgress("Conversion", x) };
+                    }),
+                    cancel: item.CancellationToken.Token);
+
                 if (dashResult == null) { throw new Exception("Failed to convert item. Got null from generator. Check the ffmpeg/mp4box log."); }
 
                 item.CompletionAction.Invoke(item, dashResult);
 
+                completeItems.Add(item);
+            }
+            catch (FFMpegFailedException ex) when (ex is FFMpegFailedException || ex is Mp4boxFailedException || ex is DashManifestNotCreatedException)
+            {
+                var logItems = new List<string>()
+                {
+                    $"Failed to convert {item.SourcePath}",
+                    $"ffmpeg command: {ex.FFmpegCommand?.RenderedCommand ?? "Unavailable"}"
+                };
+                string failureStage = "unknown";
+                switch (ex)
+                {
+                    case DashManifestNotCreatedException dex:
+                        failureStage = "Manifest generation";
+                        break;
+                    case Mp4boxFailedException mpex:
+                        failureStage = "MP4Box";
+                        logItems.Add($"MP4Box command: {mpex.MP4BoxCommand.RenderedCommand}");
+                        break;
+                    case FFMpegFailedException ffex:
+                        failureStage = "ffmpeg";
+                        break;
+                    default:
+                        break;
+                }
+
+                logItems.Add($"Stack trace: {ex}");
+                if (ex.Log != null && ex.Log.Length > 0)
+                {
+                    logItems.Add($"Process log: {ex.Log}");
+                }
+
+                string fullLog = string.Join('\n', logItems);
+                log.LogWarning(fullLog);
+
+                item.ErrorReason = $"Failed at step: {failureStage} Message: {ex.Message}";
+                item.ErrorDetail = fullLog;
                 completeItems.Add(item);
             }
             catch (OperationCanceledException)
@@ -115,7 +146,7 @@ namespace VolyConverter.Conversion
 
         private void HandleCancel(IConversionItem item)
         {
-            if (item.ErrorText == null) { item.ErrorText = "Cancelled"; }
+            if (item.ErrorReason == null) { item.ErrorReason = "Cancelled"; }
             completeItems.Add(item);
         }
 

@@ -19,7 +19,8 @@ namespace VolyConverter.Conversion
         Tune Tune { get; }
         DateTime CreateTime { get; }
         IEnumerable<DescribedProgress> Progress { get; }
-        string ErrorText { get; }
+        string ErrorReason { get; }
+        string ErrorDetail { get; }
 
         ImmutableHashSet<IQuality> Quality { get; }
     }
@@ -31,7 +32,8 @@ namespace VolyConverter.Conversion
         CancellationTokenSource CancellationToken { get; }
 
         new IEnumerable<DescribedProgress> Progress { get; set; }
-        new string ErrorText { get; set; }
+        new string ErrorReason { get; set; }
+        new string ErrorDetail { get; set; }
 
         bool Equals(object obj);
         int GetHashCode();

@@ -145,7 +145,7 @@ namespace Volyar
                         {
                             if(metadata == null && g.CancelIfUnavailable && args.ConversionItem != null)
                             {
-                                args.ConversionItem.ErrorText = "Cancelled: No API data found.";
+                                args.ConversionItem.ErrorReason = "Cancelled: No API data found.";
                                 args.Log.LogWarning($"ApiIntegration retrieve failed for {args.ConversionItem.SourcePath}. Cancelling item.");
                                 args.ConversionItem.CancellationToken.Cancel();
                             }

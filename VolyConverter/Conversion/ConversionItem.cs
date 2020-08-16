@@ -61,7 +61,12 @@ namespace VolyConverter.Conversion
         /// <summary>
         /// Error text which may be displayed if conversion fails.
         /// </summary>
-        public string ErrorText { get; set; }
+        public string ErrorReason { get; set; }
+
+        /// <summary>
+        /// Detailed error information, may contain a stack trace or log entry series.
+        /// </summary>
+        public string ErrorDetail { get; set; }
 
         public ExportableConversionItem()
         {
