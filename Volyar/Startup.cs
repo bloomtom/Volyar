@@ -49,7 +49,12 @@ namespace Volyar
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            var builder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            if (Env.IsDevelopment())
+            {
+                builder.AddRazorRuntimeCompilation();
+            }
 
             services.AddOptions();
             services.Configure<VSettings>(Configuration.GetSection("VSettings"));
