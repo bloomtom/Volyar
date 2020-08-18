@@ -130,9 +130,17 @@ namespace Volyar
                                     {
                                         conversionItem.Tune = Tune.Film;
                                     }
-                                    if (metadata.Genres != null && metadata.Genres.Where(x => x.ToLowerInvariant() == "animation").Any())
+                                    foreach (var genre in metadata?.Genres)
                                     {
-                                        conversionItem.Tune = Tune.Animation;
+                                        switch (genre.ToLowerInvariant())
+                                        {
+                                            case "animation":
+                                            case "anime":
+                                                conversionItem.Tune = Tune.Animation;
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                     }
                                     conversionItem.Series = args.MediaItem.SeriesName;
                                     conversionItem.Title = args.MediaItem.Name;
@@ -257,7 +265,8 @@ namespace Volyar
             app.UseRouting();
             app.UseStaticFiles("/external/static");
 
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapControllers();
             });
 
