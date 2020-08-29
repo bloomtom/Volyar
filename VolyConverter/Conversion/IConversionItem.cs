@@ -23,7 +23,7 @@ namespace VolyConverter.Conversion
         string ErrorReason { get; }
         string ErrorDetail { get; }
 
-        ImmutableHashSet<IQuality> Quality { get; }
+        IEnumerable<IQuality> Quality { get; }
     }
 
     public interface IConversionItem : IExportableConversionItem

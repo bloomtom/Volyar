@@ -43,7 +43,7 @@ namespace VolyConverter.Conversion
         /// <summary>
         /// The quality matrix to encode into.
         /// </summary>
-        public ImmutableHashSet<IQuality> Quality { get; protected set; }
+        public IEnumerable<IQuality> Quality { get; protected set; }
         /// <summary>
         /// Override the media item's framerate. If zero the original framerate is used.
         /// </summary>
