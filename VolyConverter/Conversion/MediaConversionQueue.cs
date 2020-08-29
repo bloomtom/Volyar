@@ -103,23 +103,30 @@ namespace VolyConverter.Conversion
             }
             catch (FFMpegFailedException ex) when (ex is FFMpegFailedException || ex is Mp4boxFailedException || ex is DashManifestNotCreatedException)
             {
+                if (ex.InnerException is OperationCanceledException)
+                {
+                    log.LogInformation($"Task Cancelled: {item.SourcePath}");
+                    HandleCancel(item);
+                    return;
+                }
+
                 var logItems = new List<string>()
                 {
                     $"Failed to convert {item.SourcePath}",
                     $"ffmpeg command: {ex.FFmpegCommand?.RenderedCommand ?? "Unavailable"}"
                 };
-                string failureStage = "unknown";
+                string failureStage = "Unknown";
                 switch (ex)
                 {
                     case DashManifestNotCreatedException dex:
                         failureStage = "Manifest generation";
                         break;
                     case Mp4boxFailedException mpex:
-                        failureStage = "MP4Box";
+                        failureStage = "DASHing/MP4Box";
                         logItems.Add($"MP4Box command: {mpex.MP4BoxCommand.RenderedCommand}");
                         break;
                     case FFMpegFailedException ffex:
-                        failureStage = "ffmpeg";
+                        failureStage = "Encoding/ffmpeg";
                         break;
                     default:
                         break;
@@ -134,7 +141,7 @@ namespace VolyConverter.Conversion
                 string fullLog = string.Join('\n', logItems);
                 log.LogWarning(fullLog);
 
-                item.ErrorReason = $"Failed at step: {failureStage} Message: {ex.Message}";
+                item.ErrorReason = $"Failed at step: {failureStage}. Message: {ex.Message}";
                 item.ErrorDetail = fullLog;
                 completeItems.Add(item);
             }
