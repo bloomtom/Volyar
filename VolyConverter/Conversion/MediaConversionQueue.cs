@@ -85,7 +85,8 @@ namespace VolyConverter.Conversion
                 var dashConfig = new DashConfig(item.SourcePath, item.OutputPath, item.Quality, item.OutputBaseFilename)
                 {
                     EnableStreamCopying = true,
-                    Framerate = item.Framerate
+                    Framerate = item.Framerate,
+                    Options = options
                 };
                 var dashResult = encoder.GenerateDash(dashConfig, probeData,
                     progress: new NaiveProgress<double>((x) =>
