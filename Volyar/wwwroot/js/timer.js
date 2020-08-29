@@ -48,7 +48,6 @@ function updateStatus() {
 
         store.commit('setWaiting', result.queued.sort(sortQueueItems));
         store.commit('setProgress', result.processing.sort(sortQueueItems));
-        console.log('Updated progress');
     }, null);
 
     completeFunc(function (data) {
@@ -69,7 +68,6 @@ function updatePendingDelete() {
         throttleWait += result.length * throttleWaitMultiplier;
 
         store.commit('setPendingDelete', result.sort(sortPendingDeletions));
-        console.log('Updated pending delete');
     }, null);
 }
 
@@ -101,7 +99,6 @@ function startTimer(force, single = false) {
                 startTimer(true);
             }
         }
-        console.log('Waiting ' + (baseTimerPeriod + throttleWait + iterationThrottle));
     }, baseTimerPeriod + throttleWait);
 }
 
