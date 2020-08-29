@@ -18,6 +18,13 @@
                     </summary>
                     <dl style="margin-left:8%;">
                         <dt class="card-text">
+                            Library
+                        </dt>
+                        <dd v-bind:title="item.CreateTime">
+                            {{item.Library}}
+                        </dd>
+
+                        <dt class="card-text">
                             Added
                         </dt>
                         <dd v-bind:title="item.CreateTime">
@@ -63,7 +70,7 @@
 <template id="quality-template">
     <div>
         <div v-for="q in quality">
-            {{q.Width}}x{{q.Height}}@@{{ q.Bitrate}}k - {{q.Preset}}
+            {{q.Width}}x{{q.Height}}@@{{ q.Bitrate}}k - {{presetStr(q.Preset)}}
         </div>
     </div>
 </template>

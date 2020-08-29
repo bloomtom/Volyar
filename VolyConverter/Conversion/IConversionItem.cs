@@ -10,6 +10,7 @@ namespace VolyConverter.Conversion
 {
     public interface IExportableConversionItem
     {
+        string Library { get; }
         string Series { get; }
         string Title { get; }
         string SourcePath { get; }

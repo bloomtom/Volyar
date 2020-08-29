@@ -42,6 +42,32 @@ var qualityComponent = {
     props: {
         quality: {}
     },
+    methods: {
+        presetStr: function (x) {
+            switch (x) {
+                case 0: return 'None';
+                case 1: return 'Ultrafast';
+                case 2: return 'Superfast';
+                case 3: return 'Veryfast';
+                case 4: return 'Faster';
+                case 5: return 'Fast';
+                case 6: return 'Medium';
+                case 7: return 'Slow';
+                case 8: return 'Slower';
+                case 9: return 'Veryslow';
+                default: return null;
+            }
+        },
+        profileStr: function (x) {
+            switch (x) {
+                case 0: return 'None';
+                case 1: return 'Baseline';
+                case 2: return 'Main';
+                case 3: return 'High';
+                default: return null;
+            }
+        },
+    },
     template: '#quality-template'
 };
 

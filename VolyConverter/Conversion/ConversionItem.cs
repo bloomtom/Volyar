@@ -17,6 +17,10 @@ namespace VolyConverter.Conversion
     public class ExportableConversionItem : IExportableConversionItem
     {
         /// <summary>
+        /// The library this media item belongs to.
+        /// </summary>
+        public string Library { get; protected set; }
+        /// <summary>
         /// If known, the series name this media item belongs to.
         /// </summary>
         public string Series { get; set; }
@@ -100,10 +104,11 @@ namespace VolyConverter.Conversion
         [JsonIgnore]
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
-        public ConversionItem(string seriesName, string title, string sourcePath, string destination, string outputBaseFilename,
+        public ConversionItem(string libraryName, string seriesName, string title, string sourcePath, string destination, string outputBaseFilename,
             HashSet<IQuality> quality, int framerate,
             Action<IConversionItem, DashEncodeResult> completionAction, Action<Exception> errorAction)
         {
+            Library = libraryName;
             Series = seriesName;
             Title = title;
             SourcePath = sourcePath;
