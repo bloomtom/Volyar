@@ -107,8 +107,12 @@ namespace VolyExternalApiAccess.Darr
         [JsonProperty("specialAbsoluteEpisodeNumbers")]
         public List<decimal> SpecialAbsoluteEpisodeNumbers { get; set; }
 
+        /// <summary>
+        /// The type of this differs between Sonarr V2 and V3.
+        /// The V2 type is string. The V3 type is a key value collection of [id,name].
+        /// </summary>
         [JsonProperty("language")]
-        public string Language { get; set; }
+        public dynamic Language { get; set; }
 
         [JsonProperty("fullSeason")]
         public bool FullSeason { get; set; }

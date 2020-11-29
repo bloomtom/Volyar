@@ -1,0 +1,556 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="RadarrV2ApiResult" xml:space="preserve">
+    <value>[
+  {
+    "title": "My Movie",
+    "alternativeTitles": [
+      {
+        "sourceType": "tmdb",
+        "movieId": 16,
+        "title": "Movie",
+        "sourceId": 123000,
+        "votes": 0,
+        "voteCount": 0,
+        "language": "english",
+        "id": 46
+      },
+      {
+        "sourceType": "tmdb",
+        "movieId": 16,
+        "title": "Please Reconsider",
+        "sourceId": 123400,
+        "votes": 0,
+        "voteCount": 0,
+        "language": "english",
+        "id": 44
+      },
+      {
+        "sourceType": "tmdb",
+        "movieId": 16,
+        "title": "Der Mov",
+        "sourceId": 123450,
+        "votes": 0,
+        "voteCount": 0,
+        "language": "english",
+        "id": 41
+      }
+    ],
+    "secondaryYearSourceId": 0,
+    "sortTitle": "my movie",
+    "sizeOnDisk": 1340000001,
+    "status": "released",
+    "overview": "I made a movie!",
+    "inCinemas": "2019-01-25T00:00:00Z",
+    "physicalRelease": "2019-02-14T00:00:00Z",
+    "images": [
+      {
+        "coverType": "poster",
+        "url": "/radarr/MediaCover/1/poster.jpg"
+      },
+      {
+        "coverType": "fanart",
+        "url": "/radarr/MediaCover/1/fanart.jpg"
+      }
+    ],
+    "website": "",
+    "downloaded": true,
+    "year": 2019,
+    "hasFile": true,
+    "studio": "Movie Makers",
+    "path": "/movies/My Movie (2019)",
+    "profileId": 2,
+    "pathState": "static",
+    "monitored": true,
+    "minimumAvailability": "announced",
+    "isAvailable": true,
+    "folderName": "/movies/My Movie (2019)",
+    "runtime": 137,
+    "lastInfoSync": "2019-02-13T06:24:28.540159Z",
+    "cleanTitle": "mymovie",
+    "imdbId": "tt3315342",
+    "tmdbId": 263115,
+    "titleSlug": "mymovie-264001",
+    "genres": [],
+    "tags": [],
+    "added": "2019-02-01T21:54:43.421033Z",
+    "ratings": {
+      "votes": 12001,
+      "value": 7.2
+    },
+    "movieFile": {
+      "movieId": 0,
+      "relativePath": "MyMovie.2019.mp4",
+      "size": 1340000001,
+      "dateAdded": "2019-02-01T21:54:43.421033Z",
+      "quality": {
+        "quality": {
+          "id": 6,
+          "name": "Bluray-720p",
+          "source": "bluray",
+          "resolution": "r720P",
+          "modifier": "none"
+        },
+        "customFormats": [],
+        "revision": {
+          "version": 1,
+          "real": 0
+        }
+      },
+      "edition": "",
+      "mediaInfo": {
+        "containerFormat": "MPEG-4",
+        "videoFormat": "AVC",
+        "videoCodecID": "avc1",
+        "videoProfile": "High@L4",
+        "videoCodecLibrary": "x264 - core 133 r2334 a3ac64b",
+        "videoBitrate": 1233000,
+        "videoBitDepth": 8,
+        "videoMultiViewCount": 0,
+        "videoColourPrimaries": "",
+        "videoTransferCharacteristics": "",
+        "width": 1280,
+        "height": 536,
+        "audioFormat": "AAC",
+        "audioCodecID": "40",
+        "audioCodecLibrary": "",
+        "audioAdditionalFeatures": "",
+        "audioBitrate": 63001,
+        "runTime": "01:30:05.2680000",
+        "audioStreamCount": 1,
+        "audioChannels": 2,
+        "audioChannelPositions": "2/0/0",
+        "audioChannelPositionsText": "Front: L R",
+        "audioProfile": "HE-AAC",
+        "videoFps": 23.976,
+        "audioLanguages": "English",
+        "subtitles": "",
+        "scanType": "Progressive",
+        "schemaRevision": 5
+      },
+      "id": 12
+    },
+    "qualityProfileId": 2,
+    "id": 16
+  },
+  {
+    "title": "Assassin's Creed",
+    "sortTitle": "assassins creed",
+    "sizeOnDisk": 0,
+    "status": "released",
+    "overview": "Lynch discovers he is a descendant of the secret Assassins society through unlocked genetic memories that allow him to relive the adventures of his ancestor, Aguilar, in 15th Century Spain. After gaining incredible knowledge and skills he’s poised to take on the oppressive Knights Templar in the present day.",
+    "inCinemas": "2016-12-21T00:00:00Z",
+    "images": [
+      {
+        "coverType": "poster",
+        "url": "/radarr/MediaCover/1/poster.jpg?lastWrite=636200219330000000"
+      },
+      {
+        "coverType": "banner",
+        "url": "/radarr/MediaCover/1/banner.jpg?lastWrite=636200219340000000"
+      }
+    ],
+    "website": "https://www.ubisoft.com/en-US/",
+    "downloaded": false,
+    "year": 2016,
+    "hasFile": false,
+    "youTubeTrailerId": "pgALJgMjXN4",
+    "studio": "20th Century Fox",
+    "path": "/path/to/Assassin's Creed (2016)",
+    "profileId": 6,
+    "monitored": true,
+    "minimumAvailability": "preDB",
+    "runtime": 115,
+    "lastInfoSync": "2017-01-23T22:05:32.365337Z",
+    "cleanTitle": "assassinscreed",
+    "imdbId": "tt2094766",
+    "tmdbId": 121856,
+    "titleSlug": "assassins-creed-121856",
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy",
+      "Science Fiction"
+    ],
+    "tags": [],
+    "added": "2017-01-14T20:18:52.938244Z",
+    "ratings": {
+      "votes": 711,
+      "value": 5.2
+    },
+    "qualityProfileId": 6,
+    "id": 1
+  }
+]</value>
+  </data>
+  <data name="SonarrV2ApiResult" xml:space="preserve">
+    <value>{
+  "parsedEpisodeInfo": {
+    "releaseTitle": "My.Show.S01E13.(Part.2)",
+    "seriesTitle": "My Show",
+    "seriesTitleInfo": {
+      "title": "My Show",
+      "titleWithoutYear": "My Show",
+      "year": 0
+    },
+    "quality": {
+      "quality": {
+        "id": 1,
+        "name": "SDTV",
+        "source": "television",
+        "resolution": 480
+      },
+      "revision": {
+        "version": 1,
+        "real": 0
+      }
+    },
+    "seasonNumber": 1,
+    "episodeNumbers": [
+      13
+    ],
+    "absoluteEpisodeNumbers": [],
+    "specialAbsoluteEpisodeNumbers": [],
+    "language": "english",
+    "fullSeason": false,
+    "isPartialSeason": false,
+    "isSeasonExtra": false,
+    "special": false,
+    "releaseHash": "",
+    "seasonPart": 0,
+    "isDaily": false,
+    "isAbsoluteNumbering": false,
+    "isPossibleSpecialEpisode": false,
+    "isPossibleSceneSeasonSpecial": false
+  },
+  "series": {
+    "title": "My Show",
+    "sortTitle": "my show",
+    "seasonCount": 1,
+    "status": "ended",
+    "overview": "This is a story about my show.",
+    "network": "My MX",
+    "airTime": "00:00",
+    "images": [
+      {
+        "coverType": "fanart",
+        "url": "https://www.thetvdb.com/banners/fanart/original/abcd.jpg"
+      },
+      {
+        "coverType": "banner",
+        "url": "https://www.thetvdb.com/banners/graphical/abcd.jpg"
+      },
+      {
+        "coverType": "poster",
+        "url": "https://www.thetvdb.com/banners/posters/abcd.jpg"
+      }
+    ],
+    "seasons": [
+      {
+        "seasonNumber": 0,
+        "monitored": false
+      },
+      {
+        "seasonNumber": 1,
+        "monitored": true
+      }
+    ],
+    "year": 2018,
+    "path": "/mnt/media/downloads/series/My Show",
+    "profileId": 7,
+    "seasonFolder": true,
+    "monitored": true,
+    "useSceneNumbering": true,
+    "runtime": 25,
+    "tvdbId": 123456,
+    "tvRageId": 0,
+    "tvMazeId": 12345,
+    "firstAired": "2018-01-01T00:00:00Z",
+    "lastInfoSync": "2019-01-01T06:54:03.101071Z",
+    "seriesType": "anime",
+    "cleanTitle": "myshow",
+    "imdbId": "tt1234567",
+    "titleSlug": "my-show",
+    "certification": "TV-14",
+    "genres": [
+      "Action",
+      "Animation",
+      "Comedy"
+    ],
+    "tags": [],
+    "added": "2018-01-01T07:40:01.350000Z",
+    "ratings": {
+      "votes": 0,
+      "value": 0
+    },
+    "qualityProfileId": 7,
+    "id": 58
+  },
+  "episodes": [
+    {
+      "seriesId": 58,
+      "episodeFileId": 1901,
+      "seasonNumber": 1,
+      "episodeNumber": 10,
+      "title": "This Episode (Part 2)",
+      "airDate": "2018-09-01",
+      "airDateUtc": "2018-09-01T15:00:00Z",
+      "overview": "This is my show! What kind of show is it?",
+      "hasFile": true,
+      "monitored": true,
+      "absoluteEpisodeNumber": 10,
+      "sceneAbsoluteEpisodeNumber": 10,
+      "sceneEpisodeNumber": 10,
+      "sceneSeasonNumber": 1,
+      "unverifiedSceneNumbering": false,
+      "id": 2714
+    }
+  ]
+}</value>
+  </data>
+  <data name="SonarrV3ApiResult" xml:space="preserve">
+    <value>{
+  "parsedEpisodeInfo": {
+    "releaseTitle": "My.Show.S01E01",
+    "seriesTitle": "My Show",
+    "seriesTitleInfo": {
+      "title": "My Show",
+      "titleWithoutYear": "My Show",
+      "year": 0
+    },
+    "quality": {
+      "quality": {
+        "id": 1,
+        "name": "HDTV-720p",
+        "source": "television",
+        "resolution": 720
+      },
+      "revision": {
+        "version": 1,
+        "real": 0,
+        "isRepack": false
+      }
+    },
+    "seasonNumber": 1,
+    "episodeNumbers": [
+      1
+    ],
+    "absoluteEpisodeNumbers": [],
+    "specialAbsoluteEpisodeNumbers": [],
+    "language": {
+      "id": 1,
+      "name": "English"
+    },
+    "fullSeason": false,
+    "isPartialSeason": false,
+    "isMultiSeason": false,
+    "isSeasonExtra": false,
+    "special": false,
+    "releaseHash": "",
+    "seasonPart": 0,
+    "releaseTokens": "My.Show.S01E01",
+    "isDaily": false,
+    "isAbsoluteNumbering": false,
+    "isPossibleSpecialEpisode": false,
+    "isPossibleSceneSeasonSpecial": false
+  },
+  "series": {
+    "title": "My Show",
+    "sortTitle": "my show",
+    "seasonCount": 1,
+    "status": "continuing",
+    "overview": "Some long description about My Show.",
+    "network": "My Show Network",
+    "airTime": "01:00",
+    "images": [
+      {
+        "coverType": "banner",
+        "url": "https://test.test"
+      },
+      {
+        "coverType": "poster",
+        "url": "https://test.test"
+      },
+      {
+        "coverType": "fanart",
+        "url": "https://test.test"
+      }
+    ],
+    "seasons": [
+      {
+        "seasonNumber": 1,
+        "monitored": true
+      }
+    ],
+    "year": 2020,
+    "path": "/home/volyar/series/My Show",
+    "profileId": 1,
+    "languageProfileId": 1,
+    "seasonFolder": true,
+    "monitored": true,
+    "useSceneNumbering": true,
+    "runtime": 25,
+    "tvdbId": 300000,
+    "tvRageId": 0,
+    "tvMazeId": 50000,
+    "firstAired": "2020-10-09T04:00:00Z",
+    "lastInfoSync": "2020-2-1T12:00:00.0Z",
+    "seriesType": "standard",
+    "cleanTitle": "myshow",
+    "imdbId": "tt10000000",
+    "titleSlug": "my-show",
+    "certification": "TV-14",
+    "genres": [
+      "Comedy",
+      "Drama",
+      "Romance"
+    ],
+    "tags": [],
+    "added": "2020-02-1T12:00:00.0Z",
+    "ratings": {
+      "votes": 0,
+      "value": 0.0
+    },
+    "qualityProfileId": 1,
+    "id": 100
+  },
+  "episodes": [
+    {
+      "seriesId": 100,
+      "episodeFileId": 5000,
+      "seasonNumber": 1,
+      "episodeNumber": 1,
+      "title": "My Show",
+      "airDate": "2020-1-1",
+      "airDateUtc": "2020-1-1T12:00:00Z",
+      "overview": "Some description.",
+      "hasFile": true,
+      "monitored": true,
+      "absoluteEpisodeNumber": 1,
+      "sceneAbsoluteEpisodeNumber": 1,
+      "sceneEpisodeNumber": 1,
+      "sceneSeasonNumber": 1,
+      "unverifiedSceneNumbering": false,
+      "id": 8000
+    }
+  ]
+}</value>
+  </data>
+</root>
