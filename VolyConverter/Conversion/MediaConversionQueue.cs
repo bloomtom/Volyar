@@ -88,6 +88,11 @@ namespace VolyConverter.Conversion
                     Framerate = item.Framerate,
                     Options = options
                 };
+                if (item.DownmixAudio)
+                {
+                    dashConfig.AudioConfig = new AudioConfig() { DownmixMode = DownmixMode.Default };
+                }
+
                 var dashResult = encoder.GenerateDash(dashConfig, probeData,
                     progress: new NaiveProgress<double>((x) =>
                     {

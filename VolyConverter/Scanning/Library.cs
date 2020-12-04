@@ -29,7 +29,7 @@ namespace VolyConverter.Scanning
         /// </summary>
         public string SourceHandling { get; set; } = "none";
         /// <summary>
-        /// If true, transcoded media objects are deleted from the database and storage backend when the source file cannot be found.
+        /// If true, transcoded media objects are deleted from the database and storage backend when the source file cannot be found.<br/>
         /// This is incompatible with SourceHandling: "delete"
         /// </summary>
         public bool DeleteWithSource { get; set; } = true;
@@ -41,6 +41,11 @@ namespace VolyConverter.Scanning
         /// The file extensions allowed for uptake in a scan. Should start with a dot (.mp4, .mkv, etc.)
         /// </summary>
         public HashSet<string> ValidExtensions { get; set; }
+        /// <summary>
+        /// If true, audio tracks with more than two channels are downmixed into stereo.<br/>
+        /// Two channel audio is more compatible with web browsers.
+        /// </summary>
+        public bool DownmixAudio { get; set; } = true;
         /// <summary>
         /// A collection of qualities to encode into.
         /// </summary>

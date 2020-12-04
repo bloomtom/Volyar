@@ -112,11 +112,11 @@ Libraries are given as a collection of the following properties.
  - `Name`
    - The library name. Must be unique.
  - `Enable`
-   - Set to false to disable processing of this library.
+   - True by default. Set to false to disable processing of this library.
  - `OriginPath`
    - The path to source media items from.
  - `SourceHandling`
-   - Defines what should be done with source files after successful processing.
+   - None by default. Defines what should be done with source files after successful processing.
      - none
 	   - Nothing will be done to source files.
 	 - truncate
@@ -125,13 +125,15 @@ Libraries are given as a collection of the following properties.
 	   - Source files will be deleted.
 	   - Avoid using this with DeleteWithSource: true.
  - `DeleteWithSource`
-   - If true, transcoded media objects are scheduled for deletion from the database and storage backend when the source file cannot be found. Avoid using this with SourceHandling: "delete" unless you don't care about your files.
+   - True by default. Transcoded media objects are scheduled for deletion from the database and storage backend when the source file cannot be found. Avoid using this with SourceHandling: "delete" unless you don't care about your files.
  - `TempPath`
    - The temporary path to store intermediate files when encoding.
  - `ForceFramerate`
-   - If not zero, the output framerate is forced to this value on encode.
+   - Zero by default. If not zero, the output framerate is forced to this value on encode.
  - `ValidExtensions`
    - The file extensions allowed for uptake in a scan. Should start with a dot (.mp4, .mkv, etc.)
+ - `DownmixAudio`
+   - True by default. Audio tracks with more than two channels are downmixed into stereo. Two channel audio is more compatible with web browsers.
  - [`Qualities`](#library-quality-configuration)
    - A collection of qualities to encode into.
  - [`StorageBackend`](#library-storage-configuration)

@@ -23,6 +23,7 @@ namespace VolyConverter.Conversion
         string ErrorReason { get; }
         string ErrorDetail { get; }
 
+        bool DownmixAudio { get; }
         IEnumerable<IQuality> Quality { get; }
     }
 

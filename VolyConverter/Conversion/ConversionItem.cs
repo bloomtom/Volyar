@@ -41,6 +41,10 @@ namespace VolyConverter.Conversion
         /// </summary>
         public string OutputBaseFilename { get; protected set; }
         /// <summary>
+        /// If true, audio tracks with more than two channels are downmixed into stereo.
+        /// </summary>
+        public bool DownmixAudio { get; protected set; }
+        /// <summary>
         /// The quality matrix to encode into.
         /// </summary>
         public IEnumerable<IQuality> Quality { get; protected set; }
