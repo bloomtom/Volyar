@@ -27,6 +27,7 @@ namespace VolyConverter.Scanning
         string OriginPath { get; }
         /// <summary>
         /// Specifies what should be done to source files after processing.
+        /// Supports: none, truncate, delete.
         /// </summary>
         string SourceHandling { get; }
         /// <summary>
@@ -34,6 +35,11 @@ namespace VolyConverter.Scanning
         /// This is incompatible with SourceHandling.Delete
         /// </summary>
         bool DeleteWithSource { get; }
+        /// <summary>
+        /// If true, audio tracks with more than two channels are downmixed into stereo.<br/>
+        /// Two channel audio is more compatible with web browsers.
+        /// </summary>
+        bool DownmixAudio { get; }
         /// <summary>
         /// A collection of qualities to encode into.
         /// </summary>

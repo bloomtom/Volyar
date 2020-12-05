@@ -315,7 +315,7 @@ namespace VolyConverter.Scanning
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
                 SeriesName = seriesName
             };
-            var conversionItem = new ConversionItem(library.Name, newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, quality, library.ForceFramerate, (sender, result) =>
+            var conversionItem = new ConversionItem(library.Name, newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, library.DownmixAudio, quality, library.ForceFramerate, (sender, result) =>
             {
                 int? addedKey = null;
                 try
@@ -411,7 +411,7 @@ namespace VolyConverter.Scanning
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
                 SeriesName = seriesName
             };
-            var conversionItem = new ConversionItem(library.Name, newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, quality, library.ForceFramerate, (sender, result) =>
+            var conversionItem = new ConversionItem(library.Name, newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, library.DownmixAudio, quality, library.ForceFramerate, (sender, result) =>
             {
                 using var innerContext = new VolyContext(dbOptions);
                 int oldVersion = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault().Version;

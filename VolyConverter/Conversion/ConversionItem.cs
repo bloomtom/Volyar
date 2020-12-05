@@ -109,7 +109,7 @@ namespace VolyConverter.Conversion
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
         public ConversionItem(string libraryName, string seriesName, string title, string sourcePath, string destination, string outputBaseFilename,
-            HashSet<IQuality> quality, int framerate,
+            bool downmixAudio, HashSet<IQuality> quality, int framerate,
             Action<IConversionItem, DashEncodeResult> completionAction, Action<Exception> errorAction)
         {
             Library = libraryName;
@@ -118,6 +118,7 @@ namespace VolyConverter.Conversion
             SourcePath = sourcePath;
             OutputPath = destination;
             OutputBaseFilename = outputBaseFilename;
+            DownmixAudio = downmixAudio;
             Quality = quality.ToImmutableHashSet();
             Framerate = framerate;
             CompletionAction = completionAction;
