@@ -149,7 +149,7 @@
         "sourceId": 123450,
         "votes": 0,
         "voteCount": 0,
-        "language": "english",
+        "language": "german",
         "id": 41
       }
     ],
@@ -185,7 +185,7 @@
     "runtime": 137,
     "lastInfoSync": "2019-02-13T06:24:28.540159Z",
     "cleanTitle": "mymovie",
-    "imdbId": "tt3315342",
+    "imdbId": "tt2000000",
     "tmdbId": 263115,
     "titleSlug": "mymovie-264001",
     "genres": [],
@@ -251,38 +251,38 @@
     "id": 16
   },
   {
-    "title": "Assassin's Creed",
-    "sortTitle": "assassins creed",
+    "title": "Second Movie",
+    "sortTitle": "second movie",
     "sizeOnDisk": 0,
     "status": "released",
-    "overview": "Lynch discovers he is a descendant of the secret Assassins society through unlocked genetic memories that allow him to relive the adventures of his ancestor, Aguilar, in 15th Century Spain. After gaining incredible knowledge and skills he’s poised to take on the oppressive Knights Templar in the present day.",
+    "overview": "This is a second movie.",
     "inCinemas": "2016-12-21T00:00:00Z",
     "images": [
       {
         "coverType": "poster",
-        "url": "/radarr/MediaCover/1/poster.jpg?lastWrite=636200219330000000"
+        "url": "/radarr/MediaCover/1/poster.jpg?lastWrite=600000000000000000"
       },
       {
         "coverType": "banner",
-        "url": "/radarr/MediaCover/1/banner.jpg?lastWrite=636200219340000000"
+        "url": "/radarr/MediaCover/1/banner.jpg?lastWrite=600000000000000000"
       }
     ],
-    "website": "https://www.ubisoft.com/en-US/",
+    "website": "https://www.google.com",
     "downloaded": false,
     "year": 2016,
     "hasFile": false,
-    "youTubeTrailerId": "pgALJgMjXN4",
-    "studio": "20th Century Fox",
-    "path": "/path/to/Assassin's Creed (2016)",
+    "youTubeTrailerId": "abcdefghi",
+    "studio": "Second Film Productions",
+    "path": "/path/to/Second Movie (2016)",
     "profileId": 6,
     "monitored": true,
     "minimumAvailability": "preDB",
-    "runtime": 115,
-    "lastInfoSync": "2017-01-23T22:05:32.365337Z",
-    "cleanTitle": "assassinscreed",
-    "imdbId": "tt2094766",
-    "tmdbId": 121856,
-    "titleSlug": "assassins-creed-121856",
+    "runtime": 110,
+    "lastInfoSync": "2017-01-23T22:00:00.000000Z",
+    "cleanTitle": "secondmovie",
+    "imdbId": "tt4000000",
+    "tmdbId": 120000,
+    "titleSlug": "second-movie-120000",
     "genres": [
       "Action",
       "Adventure",
@@ -290,13 +290,318 @@
       "Science Fiction"
     ],
     "tags": [],
-    "added": "2017-01-14T20:18:52.938244Z",
+    "added": "2017-01-04T20:18:00.000000Z",
     "ratings": {
-      "votes": 711,
-      "value": 5.2
+      "votes": 700,
+      "value": 5.0
     },
     "qualityProfileId": 6,
     "id": 1
+  }
+]</value>
+  </data>
+  <data name="RadarrV3ApiResult" xml:space="preserve">
+    <value>[
+  {
+    "title": "My Movie",
+    "alternativeTitles": [
+      {
+        "sourceType": "tmdb",
+        "movieId": 16,
+        "title": "Movie",
+        "sourceId": 123000,
+        "votes": 0,
+        "voteCount": 0,
+        "language": {
+          "id": 1,
+          "name": "English"
+        },
+        "id": 46
+      },
+      {
+        "sourceType": "tmdb",
+        "movieId": 16,
+        "title": "Please Reconsider",
+        "sourceId": 123400,
+        "votes": 0,
+        "voteCount": 0,
+        "language": "english",
+        "id": 44
+      },
+      {
+        "sourceType": "tmdb",
+        "movieId": 16,
+        "title": "Der Mov",
+        "sourceId": 123450,
+        "votes": 0,
+        "voteCount": 0,
+        "language": {
+          "id": 2,
+          "name": "German"
+        },
+        "id": 41
+      }
+    ],
+    "secondaryYearSourceId": 0,
+    "sortTitle": "my movie",
+    "sizeOnDisk": 1340000001,
+    "status": "released",
+    "overview": "I made a movie!",
+    "inCinemas": "2019-01-25T00:00:00Z",
+    "physicalRelease": "2019-02-14T00:00:00Z",
+    "images": [
+      {
+        "coverType": "poster",
+        "url": "/radarr/MediaCover/1/poster.jpg"
+      },
+      {
+        "coverType": "fanart",
+        "url": "/radarr/MediaCover/1/fanart.jpg"
+      }
+    ],
+    "website": "",
+    "downloaded": true,
+    "year": 2019,
+    "hasFile": true,
+    "studio": "Movie Makers",
+    "path": "/movies/My Movie (2019)",
+    "profileId": 2,
+    "pathState": "static",
+    "monitored": true,
+    "minimumAvailability": "announced",
+    "isAvailable": true,
+    "folderName": "/movies/My Movie (2019)",
+    "runtime": 137,
+    "lastInfoSync": "2019-02-13T06:24:28.540159Z",
+    "cleanTitle": "mymovie",
+    "imdbId": "tt2000000",
+    "tmdbId": 200000,
+    "titleSlug": "mymovie-264001",
+    "genres": [],
+    "tags": [],
+    "added": "2019-02-01T21:54:43.421033Z",
+    "ratings": {
+      "votes": 12001,
+      "value": 7.2
+    },
+    "movieFile": {
+      "movieId": 0,
+      "relativePath": "MyMovie.2019.mp4",
+      "size": 1340000001,
+      "dateAdded": "2019-02-01T21:54:43.421033Z",
+      "quality": {
+        "quality": {
+          "id": 6,
+          "name": "Bluray-720p",
+          "source": "bluray",
+          "resolution": "r720P",
+          "modifier": "none"
+        },
+        "customFormats": [],
+        "revision": {
+          "version": 1,
+          "real": 0
+        }
+      },
+      "edition": "",
+      "mediaInfo": {
+        "containerFormat": "MPEG-4",
+        "videoFormat": "AVC",
+        "videoCodecID": "avc1",
+        "videoProfile": "High@L4",
+        "videoCodecLibrary": "x264 - core 133 r2334 a3ac64b",
+        "videoBitrate": 1233000,
+        "videoBitDepth": 8,
+        "videoMultiViewCount": 0,
+        "videoColourPrimaries": "",
+        "videoTransferCharacteristics": "",
+        "width": 1280,
+        "height": 536,
+        "audioFormat": "AAC",
+        "audioCodecID": "40",
+        "audioCodecLibrary": "",
+        "audioAdditionalFeatures": "",
+        "audioBitrate": 63001,
+        "runTime": "01:30:05.2680000",
+        "audioStreamCount": 1,
+        "audioChannels": 2,
+        "audioChannelPositions": "2/0/0",
+        "audioChannelPositionsText": "Front: L R",
+        "audioProfile": "HE-AAC",
+        "videoFps": 23.976,
+        "audioLanguages": "English",
+        "subtitles": "",
+        "scanType": "Progressive",
+        "schemaRevision": 5
+      },
+      "id": 12
+    },
+    "qualityProfileId": 2,
+    "id": 16
+  },
+  {
+    "title": "A Movie",
+    "alternativeTitles": [
+      {
+        "sourceType": "tmdb",
+        "movieId": 123,
+        "title": "A Movie",
+        "sourceId": 123456,
+        "votes": 0,
+        "voteCount": 0,
+        "language": {
+          "id": 1,
+          "name": "English"
+        },
+        "id": 343
+      },
+      {
+        "sourceType": "tmdb",
+        "movieId": 123,
+        "title": "A Movie: A Movie",
+        "sourceId": 123456,
+        "votes": 0,
+        "voteCount": 0,
+        "language": {
+          "id": 1,
+          "name": "English"
+        },
+        "id": 985
+      },
+      {
+        "sourceType": "tmdb",
+        "movieId": 123,
+        "title": "La Movie",
+        "sourceId": 0,
+        "votes": 0,
+        "voteCount": 0,
+        "language": {
+          "id": 3,
+          "name": "Spanish"
+        },
+        "id": 456
+      },
+      {
+        "sourceType": "tmdb",
+        "movieId": 123,
+        "title": "щца",
+        "sourceId": 0,
+        "votes": 0,
+        "voteCount": 0,
+        "language": {
+          "id": 29,
+          "name": "Bulgarian"
+        },
+        "id": 678
+      }
+    ],
+    "secondaryYearSourceId": 0,
+    "sortTitle": "movie",
+    "sizeOnDisk": 4000000000,
+    "status": "released",
+    "overview": "One man, one movie, this summer.",
+    "inCinemas": "2015-01-01T00:00:00Z",
+    "physicalRelease": "2015-06-01T00:00:00Z",
+    "images": [
+      {
+        "coverType": "poster",
+        "url": "/radarr/MediaCover/123/poster.jpg?lastWrite=600000000000000000",
+        "remoteUrl": "https://image.tmdb.org/t/p/original/notreal.jpg"
+      },
+      {
+        "coverType": "fanart",
+        "url": "/radarr/MediaCover/123/fanart.jpg?lastWrite=600000000000000000",
+        "remoteUrl": "https://image.tmdb.org/t/p/original/notreal.jpg"
+      }
+    ],
+    "website": "http://a24films.com/films/movie/",
+    "downloaded": true,
+    "year": 2015,
+    "hasFile": true,
+    "youTubeTrailerId": "abcdefghij",
+    "studio": "Special Movies",
+    "path": "/mnt/media/downloads/movies/A Movie (2015)",
+    "profileId": 2,
+    "monitored": true,
+    "minimumAvailability": "announced",
+    "isAvailable": true,
+    "folderName": "/mnt/media/downloads/movies/A Movie (2015)",
+    "runtime": 92,
+    "lastInfoSync": "2021-03-28T12:18:21.01444Z",
+    "cleanTitle": "amovie",
+    "imdbId": "tt4000000",
+    "tmdbId": 123456,
+    "titleSlug": "123456",
+    "certification": "R",
+    "genres": [
+      "Horror",
+      "Drama",
+      "Mystery"
+    ],
+    "tags": [],
+    "added": "2021-01-01T06:00:00.277172Z",
+    "ratings": {
+      "votes": 4500,
+      "value": 6.9
+    },
+    "movieFile": {
+      "movieId": 0,
+      "relativePath": "A.Movie.2015.mkv",
+      "size": 4000000000,
+      "dateAdded": "2021-01-01T06:00:00.277172Z",
+      "sceneName": "A.Movie.2015.720p",
+      "releaseGroup": "RELEASERS",
+      "quality": {
+        "quality": {
+          "id": 6,
+          "name": "Bluray-720p",
+          "source": "bluray",
+          "resolution": 720,
+          "modifier": "none"
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "edition": "",
+      "mediaInfo": {
+        "containerFormat": "Matroska",
+        "videoFormat": "AVC",
+        "videoCodecID": "V_MPEG4/ISO/AVC",
+        "videoProfile": "High@L4.1",
+        "videoCodecLibrary": "x264",
+        "videoBitrate": 5000000,
+        "videoBitDepth": 8,
+        "videoMultiViewCount": 0,
+        "videoColourPrimaries": "",
+        "videoTransferCharacteristics": "",
+        "width": 1200,
+        "height": 720,
+        "audioFormat": "DTS",
+        "audioCodecID": "A_DTS",
+        "audioCodecLibrary": "",
+        "audioAdditionalFeatures": "",
+        "audioBitrate": 1500000,
+        "runTime": "01:30:00.0000000",
+        "audioStreamCount": 1,
+        "audioChannelsContainer": 6,
+        "audioChannelsStream": 0,
+        "audioChannelPositions": "3/2/0.1",
+        "audioChannelPositionsTextContainer": "Front: L C R, Side: L R, LFE",
+        "audioChannelPositionsTextStream": "",
+        "audioProfile": "",
+        "videoFps": 23.976,
+        "audioLanguages": "English",
+        "subtitles": "",
+        "scanType": "Progressive",
+        "schemaRevision": 6
+      },
+      "id": 341
+    },
+    "qualityProfileId": 2,
+    "id": 123
   }
 ]</value>
   </data>

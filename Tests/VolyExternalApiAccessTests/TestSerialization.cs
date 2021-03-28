@@ -28,7 +28,16 @@ namespace VolyExternalApiAccessTests
             var movies = Movie.FromJson(Properties.Resources.RadarrV2ApiResult);
             Assert.AreEqual(2, movies.Count);
             Assert.AreEqual("mymovie", movies[0].CleanTitle);
-            Assert.AreEqual("tt2094766", movies[1].ImdbId);
+            Assert.AreEqual("tt4000000", movies[1].ImdbId);
+        }
+
+        [TestMethod]
+        public void RadarrV3()
+        {
+            var movies = Movie.FromJson(Properties.Resources.RadarrV3ApiResult);
+            Assert.AreEqual(2, movies.Count);
+            Assert.AreEqual("mymovie", movies[0].CleanTitle);
+            Assert.AreEqual("tt4000000", movies[1].ImdbId);
         }
     }
 }

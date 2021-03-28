@@ -122,7 +122,7 @@ namespace VolyExternalApiAccess.Darr
         public long VoteCount { get; set; }
 
         [JsonProperty("language")]
-        public string Language { get; set; }
+        public dynamic Language { get; set; }
 
         [JsonProperty("id")]
         public long Id { get; set; }
