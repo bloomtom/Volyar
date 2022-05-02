@@ -107,22 +107,22 @@ namespace Volyar
                     {
                         if (library?.ApiIntegration == null) { return; }
                         var g = library.ApiIntegration;
-                        VolyExternalApiAccess.ApiValue metadata = null;
+                        VolyExternalApiAccess.ApiResponse<VolyExternalApiAccess.ApiValue> metadata = null;
                         try
                         {
                             var fetcher = new VolyExternalApiAccess.ApiFetch(g.Type, g.Url, g.ApiKey, g.Username, g.Password);
                             metadata = fetcher.RetrieveInfo(args.ConversionItem?.SourcePath ?? args.MediaItem.SourcePath);
-                            if (metadata != null)
+                            if (metadata.Value != null)
                             {
-                                args.MediaItem.SeriesName = metadata.SeriesTitle ?? args.MediaItem.SeriesName;
-                                args.MediaItem.Name = metadata.Title ?? args.MediaItem.Name;
-                                args.MediaItem.SeasonNumber = metadata.SeasonNumber;
-                                args.MediaItem.EpisodeNumber = metadata.EpisodeNumber;
-                                args.MediaItem.AbsoluteEpisodeNumber = metadata.AbsoluteEpisodeNumber;
-                                args.MediaItem.ImdbId = string.IsNullOrWhiteSpace(metadata.ImdbId) ? null : metadata.ImdbId;
-                                args.MediaItem.TmdbId = metadata.TmdbId?.ToString();
-                                args.MediaItem.TvdbId = metadata.TvdbId?.ToString();
-                                args.MediaItem.TvmazeId = metadata.TvMazeId?.ToString();
+                                args.MediaItem.SeriesName = metadata.Value.SeriesTitle ?? args.MediaItem.SeriesName;
+                                args.MediaItem.Name = metadata.Value.Title ?? args.MediaItem.Name;
+                                args.MediaItem.SeasonNumber = metadata.Value.SeasonNumber;
+                                args.MediaItem.EpisodeNumber = metadata.Value.EpisodeNumber;
+                                args.MediaItem.AbsoluteEpisodeNumber = metadata.Value.AbsoluteEpisodeNumber;
+                                args.MediaItem.ImdbId = string.IsNullOrWhiteSpace(metadata.Value.ImdbId) ? null : metadata.Value.ImdbId;
+                                args.MediaItem.TmdbId = metadata.Value.TmdbId?.ToString();
+                                args.MediaItem.TvdbId = metadata.Value.TvdbId?.ToString();
+                                args.MediaItem.TvmazeId = metadata.Value.TvMazeId?.ToString();
 
                                 if (args.ConversionItem != null && args.ConversionItem is ConversionItem conversionItem)
                                 {
@@ -130,7 +130,7 @@ namespace Volyar
                                     {
                                         conversionItem.Tune = Tune.Film;
                                     }
-                                    foreach (var genre in metadata?.Genres)
+                                    foreach (var genre in metadata.Value?.Genres)
                                     {
                                         switch (genre.ToLowerInvariant())
                                         {
@@ -156,10 +156,11 @@ namespace Volyar
                         }
                         finally
                         {
-                            if(metadata == null && g.CancelIfUnavailable && args.ConversionItem != null)
+                            if((metadata == null || !metadata.IsSuccessStatusCode || metadata.Value == null) && g.CancelIfUnavailable && args.ConversionItem != null)
                             {
                                 args.ConversionItem.ErrorReason = "Cancelled: No API data found.";
-                                args.Log.LogWarning($"ApiIntegration retrieve failed for {args.ConversionItem.SourcePath}. Cancelling item.");
+                                args.ConversionItem.ErrorDetail = metadata?.ErrorDetails;
+                                args.Log.LogWarning($"ApiIntegration retrieve failed for {args.ConversionItem.SourcePath}. Details: {metadata?.ErrorDetails ?? "None"} Cancelling item.");
                                 args.ConversionItem.CancellationToken.Cancel();
                             }
                         }

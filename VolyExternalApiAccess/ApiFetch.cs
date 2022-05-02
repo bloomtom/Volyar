@@ -24,7 +24,7 @@ namespace VolyExternalApiAccess
             this.password = password;
         }
 
-        public ApiValue RetrieveInfo(string path)
+        public ApiResponse<ApiValue> RetrieveInfo(string path)
         {
             switch (type.ToUpperInvariant())
             {
@@ -37,16 +37,20 @@ namespace VolyExternalApiAccess
             }
         }
 
-        private ApiValue RetrieveSonarr(string path)
+        private ApiResponse<ApiValue> RetrieveSonarr(string path)
         {
             var api = new SonarrQuery(url, apiKey, username, password);
-            var mediaInfo = api.Find(path);
+            var apiResponse = api.Find(path);
 
-            if (mediaInfo == null || mediaInfo.Series == null || mediaInfo.ParsedEpisodeInfo == null) { return null; }
+            if (!apiResponse.IsSuccessStatusCode || apiResponse.Value?.Series == null || apiResponse.Value.ParsedEpisodeInfo == null)
+            {
+                return new ApiResponse<ApiValue>(null, apiResponse.StatusCode, apiResponse.ErrorDetails);
+            }
 
+            var mediaInfo = apiResponse.Value;
             var episode = mediaInfo.Episodes?.FirstOrDefault();
 
-            return new ApiValue()
+            return new ApiResponse<ApiValue>(new ApiValue()
             {
                 SeriesTitle = mediaInfo.Series.Title ?? mediaInfo.ParsedEpisodeInfo?.SeriesTitle ?? mediaInfo.Title,
                 Title = episode?.Title,
@@ -57,27 +61,33 @@ namespace VolyExternalApiAccess
                 TvdbId = mediaInfo.Series.TvdbId,
                 TvMazeId = mediaInfo.Series.TvMazeId,
                 Genres = mediaInfo.Series.Genres
-            };
+            }, apiResponse.StatusCode, apiResponse.ErrorDetails);
         }
 
-        private ApiValue RetrieveRadarr(string path)
+        private ApiResponse<ApiValue> RetrieveRadarr(string path)
         {
             string directory = System.IO.Path.GetDirectoryName(path);
             string filename = System.IO.Path.GetFileName(path);
 
             var api = new RadarrQuery(url, apiKey, username, password);
-            var mediaInfo = api.Where((x) => x.FolderName == directory && x.MovieFile.RelativePath == filename).FirstOrDefault();
+            var filtered = api.Where((x) => x.FolderName == directory && x.MovieFile.RelativePath == filename);
 
-            if (mediaInfo == null || mediaInfo.Title == null) { return null; }
+            if (filtered.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                return new ApiResponse<ApiValue>(null, filtered.StatusCode, filtered.ErrorDetails);
+            }
 
-            return new ApiValue()
+            var mediaInfo = filtered.Value.FirstOrDefault();
+            if (mediaInfo == null || mediaInfo.Title == null) { return new ApiResponse<ApiValue>(null, System.Net.HttpStatusCode.BadRequest, "Could not find the media item."); }
+
+            return new ApiResponse<ApiValue>(new ApiValue()
             {
                 SeriesTitle = mediaInfo.Title,
                 Title = mediaInfo.Title,
                 ImdbId = mediaInfo.ImdbId,
                 TmdbId = mediaInfo.TmdbId,
                 Genres = mediaInfo.Genres
-            };
+            }, System.Net.HttpStatusCode.OK);
         }
     }
 }

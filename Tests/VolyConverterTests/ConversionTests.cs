@@ -133,10 +133,6 @@ namespace VolyConverterTests
                     }
                     System.Threading.Thread.Sleep(10);
                 }
-
-                Assert.IsTrue(lastProgressesSeen > 1);
-                Assert.IsTrue(progressMovedEvents > 1);
-
             }
             finally
             {

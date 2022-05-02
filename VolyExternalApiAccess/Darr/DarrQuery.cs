@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Net.Http;
+using System.Net;
 
 namespace VolyExternalApiAccess.Darr
 {
-    public abstract class DarrQuery<T>
+    public abstract class DarrQuery
     {
         public readonly string baseUrl;
         protected readonly string apiKey;
@@ -21,7 +22,7 @@ namespace VolyExternalApiAccess.Darr
             this.password = password;
         }
 
-        protected T QueryApi(Func<HttpClient, T> apiQuery)
+        protected ApiResponse<T> QueryApi<T>(Func<HttpClient, ApiResponse<T>> apiQuery)
         {
             using (HttpClient client = new HttpClient())
             {

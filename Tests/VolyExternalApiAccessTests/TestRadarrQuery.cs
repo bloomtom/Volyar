@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using VolyExternalApiAccess;
 using VolyExternalApiAccess.Darr;
 using VolyExternalApiAccess.Darr.Radarr;
 
@@ -18,10 +19,10 @@ namespace VolyExternalApiAccessTests
 
         }
 
-        protected override ICollection<Movie> Get()
+        protected override ApiResponse<ICollection<Movie>> GetMovies()
         {
             System.Threading.Interlocked.Increment(ref recreated);
-            return new List<Movie>()
+            return new ApiResponse<ICollection<Movie>>(new List<Movie>()
             {
                 new Movie()
                 {
@@ -41,7 +42,7 @@ namespace VolyExternalApiAccessTests
                     Title = "My Favorite Movie 3",
                     ImdbId = "1234569"
                 }
-            };
+            }, System.Net.HttpStatusCode.OK);
         }
     }
 
@@ -66,13 +67,13 @@ namespace VolyExternalApiAccessTests
                     foreach (var mock in mocks)
                     {
                         int itemsCount = 0;
-                        foreach (var item in mock.Where((x) => true))
+                        foreach (var item in mock.Where((x) => true).Value)
                         {
                             itemsCount++;
                         }
                         Assert.AreEqual(3, itemsCount);
 
-                        foreach (var item in mock.Where((x) => x.ImdbId == "1234568"))
+                        foreach (var item in mock.Where((x) => x.ImdbId == "1234568").Value)
                         {
                             Assert.AreEqual("1234568", item.ImdbId);
                         }
