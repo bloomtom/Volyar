@@ -200,7 +200,7 @@ namespace VolyExternalApiAccess.Darr
         public int AudioStreamCount { get; set; }
 
         [JsonProperty("audioChannels")]
-        public int AudioChannels { get; set; }
+        public double AudioChannels { get; set; }
 
         [JsonProperty("audioChannelPositions")]
         public string AudioChannelPositions { get; set; }

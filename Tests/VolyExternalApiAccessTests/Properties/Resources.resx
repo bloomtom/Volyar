@@ -301,308 +301,260 @@
 ]</value>
   </data>
   <data name="RadarrV3ApiResult" xml:space="preserve">
-    <value>[
-  {
-    "title": "My Movie",
-    "alternativeTitles": [
-      {
-        "sourceType": "tmdb",
-        "movieId": 16,
-        "title": "Movie",
-        "sourceId": 123000,
-        "votes": 0,
-        "voteCount": 0,
-        "language": {
-          "id": 1,
-          "name": "English"
+    <value>[{
+        "title": "My Movie",
+        "alternativeTitles": [{
+                "sourceType": "tmdb",
+                "movieId": 16,
+                "title": "Movie",
+                "sourceId": 123000,
+                "votes": 0,
+                "voteCount": 0,
+                "language": {
+                    "id": 1,
+                    "name": "English"
+                },
+                "id": 46
+            }, {
+                "sourceType": "tmdb",
+                "movieId": 16,
+                "title": "Please Reconsider",
+                "sourceId": 123400,
+                "votes": 0,
+                "voteCount": 0,
+                "language": "english",
+                "id": 44
+            }, {
+                "sourceType": "tmdb",
+                "movieId": 16,
+                "title": "Der Mov",
+                "sourceId": 123450,
+                "votes": 0,
+                "voteCount": 0,
+                "language": {
+                    "id": 2,
+                    "name": "German"
+                },
+                "id": 41
+            }
+        ],
+        "secondaryYearSourceId": 0,
+        "sortTitle": "my movie",
+        "sizeOnDisk": 1340000001,
+        "status": "released",
+        "overview": "I made a movie!",
+        "inCinemas": "2019-01-25T00:00:00Z",
+        "physicalRelease": "2019-02-14T00:00:00Z",
+        "images": [{
+                "coverType": "poster",
+                "url": "/radarr/MediaCover/1/poster.jpg"
+            }, {
+                "coverType": "fanart",
+                "url": "/radarr/MediaCover/1/fanart.jpg"
+            }
+        ],
+        "website": "",
+        "downloaded": true,
+        "year": 2019,
+        "hasFile": true,
+        "studio": "Movie Makers",
+        "path": "/movies/My Movie (2019)",
+        "profileId": 2,
+        "pathState": "static",
+        "monitored": true,
+        "minimumAvailability": "announced",
+        "isAvailable": true,
+        "folderName": "/movies/My Movie (2019)",
+        "runtime": 137,
+        "lastInfoSync": "2019-02-13T06:24:28.540159Z",
+        "cleanTitle": "mymovie",
+        "imdbId": "tt2000000",
+        "tmdbId": 200000,
+        "titleSlug": "mymovie-264001",
+        "genres": [],
+        "tags": [],
+        "added": "2019-02-01T21:54:43.421033Z",
+        "ratings": {
+            "votes": 12001,
+            "value": 7.2
         },
-        "id": 46
-      },
-      {
-        "sourceType": "tmdb",
-        "movieId": 16,
-        "title": "Please Reconsider",
-        "sourceId": 123400,
-        "votes": 0,
-        "voteCount": 0,
-        "language": "english",
-        "id": 44
-      },
-      {
-        "sourceType": "tmdb",
-        "movieId": 16,
-        "title": "Der Mov",
-        "sourceId": 123450,
-        "votes": 0,
-        "voteCount": 0,
-        "language": {
-          "id": 2,
-          "name": "German"
+        "movieFile": {
+            "movieId": 0,
+            "relativePath": "MyMovie.2019.mp4",
+            "size": 1340000001,
+            "dateAdded": "2019-02-01T21:54:43.421033Z",
+            "quality": {
+                "quality": {
+                    "id": 6,
+                    "name": "Bluray-720p",
+                    "source": "bluray",
+                    "resolution": "r720P",
+                    "modifier": "none"
+                },
+                "customFormats": [],
+                "revision": {
+                    "version": 1,
+                    "real": 0
+                }
+            },
+            "edition": "",
+            "mediaInfo": {
+                "containerFormat": "MPEG-4",
+                "videoFormat": "AVC",
+                "videoCodecID": "avc1",
+                "videoProfile": "High@L4",
+                "videoCodecLibrary": "x264 - core 133 r2334 a3ac64b",
+                "videoBitrate": 1233000,
+                "videoBitDepth": 8,
+                "videoMultiViewCount": 0,
+                "videoColourPrimaries": "",
+                "videoTransferCharacteristics": "",
+                "width": 1280,
+                "height": 536,
+                "audioFormat": "AAC",
+                "audioCodecID": "40",
+                "audioCodecLibrary": "",
+                "audioAdditionalFeatures": "",
+                "audioBitrate": 63001,
+                "runTime": "01:30:05.2680000",
+                "audioStreamCount": 1,
+                "audioChannels": 2,
+                "audioChannelPositions": "2/0/0",
+                "audioChannelPositionsText": "Front: L R",
+                "audioProfile": "HE-AAC",
+                "videoFps": 23.976,
+                "audioLanguages": "English",
+                "subtitles": "",
+                "scanType": "Progressive",
+                "schemaRevision": 5
+            },
+            "id": 12
         },
-        "id": 41
-      }
-    ],
-    "secondaryYearSourceId": 0,
-    "sortTitle": "my movie",
-    "sizeOnDisk": 1340000001,
-    "status": "released",
-    "overview": "I made a movie!",
-    "inCinemas": "2019-01-25T00:00:00Z",
-    "physicalRelease": "2019-02-14T00:00:00Z",
-    "images": [
-      {
-        "coverType": "poster",
-        "url": "/radarr/MediaCover/1/poster.jpg"
-      },
-      {
-        "coverType": "fanart",
-        "url": "/radarr/MediaCover/1/fanart.jpg"
-      }
-    ],
-    "website": "",
-    "downloaded": true,
-    "year": 2019,
-    "hasFile": true,
-    "studio": "Movie Makers",
-    "path": "/movies/My Movie (2019)",
-    "profileId": 2,
-    "pathState": "static",
-    "monitored": true,
-    "minimumAvailability": "announced",
-    "isAvailable": true,
-    "folderName": "/movies/My Movie (2019)",
-    "runtime": 137,
-    "lastInfoSync": "2019-02-13T06:24:28.540159Z",
-    "cleanTitle": "mymovie",
-    "imdbId": "tt2000000",
-    "tmdbId": 200000,
-    "titleSlug": "mymovie-264001",
-    "genres": [],
-    "tags": [],
-    "added": "2019-02-01T21:54:43.421033Z",
-    "ratings": {
-      "votes": 12001,
-      "value": 7.2
-    },
-    "movieFile": {
-      "movieId": 0,
-      "relativePath": "MyMovie.2019.mp4",
-      "size": 1340000001,
-      "dateAdded": "2019-02-01T21:54:43.421033Z",
-      "quality": {
-        "quality": {
-          "id": 6,
-          "name": "Bluray-720p",
-          "source": "bluray",
-          "resolution": "r720P",
-          "modifier": "none"
+        "qualityProfileId": 2,
+        "id": 16
+    }, {
+        "title": "My Movie 2",
+        "originalTitle": "My Movie 2",
+        "originalLanguage": {
+            "id": 1,
+            "name": "English"
         },
-        "customFormats": [],
-        "revision": {
-          "version": 1,
-          "real": 0
-        }
-      },
-      "edition": "",
-      "mediaInfo": {
-        "containerFormat": "MPEG-4",
-        "videoFormat": "AVC",
-        "videoCodecID": "avc1",
-        "videoProfile": "High@L4",
-        "videoCodecLibrary": "x264 - core 133 r2334 a3ac64b",
-        "videoBitrate": 1233000,
-        "videoBitDepth": 8,
-        "videoMultiViewCount": 0,
-        "videoColourPrimaries": "",
-        "videoTransferCharacteristics": "",
-        "width": 1280,
-        "height": 536,
-        "audioFormat": "AAC",
-        "audioCodecID": "40",
-        "audioCodecLibrary": "",
-        "audioAdditionalFeatures": "",
-        "audioBitrate": 63001,
-        "runTime": "01:30:05.2680000",
-        "audioStreamCount": 1,
-        "audioChannels": 2,
-        "audioChannelPositions": "2/0/0",
-        "audioChannelPositionsText": "Front: L R",
-        "audioProfile": "HE-AAC",
-        "videoFps": 23.976,
-        "audioLanguages": "English",
-        "subtitles": "",
-        "scanType": "Progressive",
-        "schemaRevision": 5
-      },
-      "id": 12
-    },
-    "qualityProfileId": 2,
-    "id": 16
-  },
-  {
-    "title": "A Movie",
-    "alternativeTitles": [
-      {
-        "sourceType": "tmdb",
-        "movieId": 123,
-        "title": "A Movie",
-        "sourceId": 123456,
-        "votes": 0,
-        "voteCount": 0,
-        "language": {
-          "id": 1,
-          "name": "English"
+        "alternateTitles": [],
+        "secondaryYearSourceId": 0,
+        "sortTitle": "mymovie2",
+        "sizeOnDisk": 7000000000,
+        "status": "released",
+        "overview": "This is my movie 2!",
+        "inCinemas": "2019-10-18T00:00:00Z",
+        "physicalRelease": "2022-01-01T00:00:00Z",
+        "digitalRelease": "2022-01-01T00:00:00Z",
+        "images": [{
+                "coverType": "poster",
+                "url": "/radarr/MediaCover/200/poster.jpg?lastWrite=600000000000000000",
+                "remoteUrl": "https://image.tmdb.org/t/p/original/5i7sW28vddZhUfotDL5zuzDprvT.jpg"
+            }, {
+                "coverType": "fanart",
+                "url": "/radarr/MediaCover/200/fanart.jpg?lastWrite=600000000000000000",
+                "remoteUrl": "https://image.tmdb.org/t/p/original/tNE9HGcFOH8EpCmzO7XCYwqguI0.jpg"
+            }
+        ],
+        "website": "https://a24films.com/films/my-movie",
+        "year": 2022,
+        "hasFile": true,
+        "youTubeTrailerId": "42_Hdu3i438",
+        "studio": "A24",
+        "path": "/mnt/media/movies/MyMovie2",
+        "qualityProfileId": 6,
+        "monitored": true,
+        "minimumAvailability": "announced",
+        "isAvailable": true,
+        "folderName": "/mnt/media/movies/MyMovie2",
+        "runtime": 109,
+        "cleanTitle": "mymovie2",
+        "imdbId": "tt4000000",
+        "tmdbId": 400000,
+        "titleSlug": "500000",
+        "certification": "R",
+        "genres": [
+            "Drama",
+            "Fantasy",
+            "Thriller"
+        ],
+        "tags": [],
+        "added": "2021-01-01T01:00:00Z",
+        "ratings": {
+            "imdb": {
+                "votes": 100000,
+                "value": 7.0,
+                "type": "user"
+            },
+            "tmdb": {
+                "votes": 3000,
+                "value": 7.0,
+                "type": "user"
+            },
+            "metacritic": {
+                "votes": 0,
+                "value": 60,
+                "type": "user"
+            },
+            "rottenTomatoes": {
+                "votes": 0,
+                "value": 70,
+                "type": "user"
+            }
         },
-        "id": 343
-      },
-      {
-        "sourceType": "tmdb",
-        "movieId": 123,
-        "title": "A Movie: A Movie",
-        "sourceId": 123456,
-        "votes": 0,
-        "voteCount": 0,
-        "language": {
-          "id": 1,
-          "name": "English"
+        "movieFile": {
+            "movieId": 2,
+            "relativePath": "MyMovie2.mkv",
+            "path": "/mnt/media/movies/My Movie 2/MyMovie2.mkv",
+            "size": 7000000000,
+            "dateAdded": "2022-01-01T01:00:00Z",
+            "sceneName": "My-Movie-2",
+            "indexerFlags": 0,
+            "quality": {
+                "quality": {
+                    "id": 3,
+                    "name": "WEBDL-1080p",
+                    "source": "webdl",
+                    "resolution": 1080,
+                    "modifier": "none"
+                },
+                "revision": {
+                    "version": 1,
+                    "real": 0,
+                    "isRepack": false
+                }
+            },
+            "mediaInfo": {
+                "audioBitrate": 640000,
+                "audioChannels": 5.1,
+                "audioCodec": "EAC3",
+                "audioLanguages": "eng",
+                "audioStreamCount": 1,
+                "videoBitDepth": 8,
+                "videoBitrate": 0,
+                "videoCodec": "x264",
+                "videoDynamicRangeType": "",
+                "videoFps": 23.976,
+                "resolution": "1920x1080",
+                "runTime": "1:30:07",
+                "scanType": "Progressive",
+                "subtitles": "eng/eng"
+            },
+            "originalFilePath": "MyMovie2.mkv",
+            "qualityCutoffNotMet": false,
+            "languages": [{
+                    "id": 1,
+                    "name": "English"
+                }
+            ],
+            "releaseGroup": "NTG",
+            "edition": "",
+            "id": 2
         },
-        "id": 985
-      },
-      {
-        "sourceType": "tmdb",
-        "movieId": 123,
-        "title": "La Movie",
-        "sourceId": 0,
-        "votes": 0,
-        "voteCount": 0,
-        "language": {
-          "id": 3,
-          "name": "Spanish"
-        },
-        "id": 456
-      },
-      {
-        "sourceType": "tmdb",
-        "movieId": 123,
-        "title": "щца",
-        "sourceId": 0,
-        "votes": 0,
-        "voteCount": 0,
-        "language": {
-          "id": 29,
-          "name": "Bulgarian"
-        },
-        "id": 678
-      }
-    ],
-    "secondaryYearSourceId": 0,
-    "sortTitle": "movie",
-    "sizeOnDisk": 4000000000,
-    "status": "released",
-    "overview": "One man, one movie, this summer.",
-    "inCinemas": "2015-01-01T00:00:00Z",
-    "physicalRelease": "2015-06-01T00:00:00Z",
-    "images": [
-      {
-        "coverType": "poster",
-        "url": "/radarr/MediaCover/123/poster.jpg?lastWrite=600000000000000000",
-        "remoteUrl": "https://image.tmdb.org/t/p/original/notreal.jpg"
-      },
-      {
-        "coverType": "fanart",
-        "url": "/radarr/MediaCover/123/fanart.jpg?lastWrite=600000000000000000",
-        "remoteUrl": "https://image.tmdb.org/t/p/original/notreal.jpg"
-      }
-    ],
-    "website": "http://a24films.com/films/movie/",
-    "downloaded": true,
-    "year": 2015,
-    "hasFile": true,
-    "youTubeTrailerId": "abcdefghij",
-    "studio": "Special Movies",
-    "path": "/mnt/media/downloads/movies/A Movie (2015)",
-    "profileId": 2,
-    "monitored": true,
-    "minimumAvailability": "announced",
-    "isAvailable": true,
-    "folderName": "/mnt/media/downloads/movies/A Movie (2015)",
-    "runtime": 92,
-    "lastInfoSync": "2021-03-28T12:18:21.01444Z",
-    "cleanTitle": "amovie",
-    "imdbId": "tt4000000",
-    "tmdbId": 123456,
-    "titleSlug": "123456",
-    "certification": "R",
-    "genres": [
-      "Horror",
-      "Drama",
-      "Mystery"
-    ],
-    "tags": [],
-    "added": "2021-01-01T06:00:00.277172Z",
-    "ratings": {
-      "votes": 4500,
-      "value": 6.9
-    },
-    "movieFile": {
-      "movieId": 0,
-      "relativePath": "A.Movie.2015.mkv",
-      "size": 4000000000,
-      "dateAdded": "2021-01-01T06:00:00.277172Z",
-      "sceneName": "A.Movie.2015.720p",
-      "releaseGroup": "RELEASERS",
-      "quality": {
-        "quality": {
-          "id": 6,
-          "name": "Bluray-720p",
-          "source": "bluray",
-          "resolution": 720,
-          "modifier": "none"
-        },
-        "revision": {
-          "version": 1,
-          "real": 0,
-          "isRepack": false
-        }
-      },
-      "edition": "",
-      "mediaInfo": {
-        "containerFormat": "Matroska",
-        "videoFormat": "AVC",
-        "videoCodecID": "V_MPEG4/ISO/AVC",
-        "videoProfile": "High@L4.1",
-        "videoCodecLibrary": "x264",
-        "videoBitrate": 5000000,
-        "videoBitDepth": 8,
-        "videoMultiViewCount": 0,
-        "videoColourPrimaries": "",
-        "videoTransferCharacteristics": "",
-        "width": 1200,
-        "height": 720,
-        "audioFormat": "DTS",
-        "audioCodecID": "A_DTS",
-        "audioCodecLibrary": "",
-        "audioAdditionalFeatures": "",
-        "audioBitrate": 1500000,
-        "runTime": "01:30:00.0000000",
-        "audioStreamCount": 1,
-        "audioChannelsContainer": 6,
-        "audioChannelsStream": 0,
-        "audioChannelPositions": "3/2/0.1",
-        "audioChannelPositionsTextContainer": "Front: L C R, Side: L R, LFE",
-        "audioChannelPositionsTextStream": "",
-        "audioProfile": "",
-        "videoFps": 23.976,
-        "audioLanguages": "English",
-        "subtitles": "",
-        "scanType": "Progressive",
-        "schemaRevision": 6
-      },
-      "id": 341
-    },
-    "qualityProfileId": 2,
-    "id": 123
-  }
+        "id": 200
+    }
 ]</value>
   </data>
   <data name="SonarrV2ApiResult" xml:space="preserve">

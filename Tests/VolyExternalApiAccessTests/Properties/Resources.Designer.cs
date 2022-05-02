@@ -92,30 +92,24 @@ namespace VolyExternalApiAccessTests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [
-        ///  {
-        ///    &quot;title&quot;: &quot;My Movie&quot;,
-        ///    &quot;alternativeTitles&quot;: [
-        ///      {
-        ///        &quot;sourceType&quot;: &quot;tmdb&quot;,
-        ///        &quot;movieId&quot;: 16,
-        ///        &quot;title&quot;: &quot;Movie&quot;,
-        ///        &quot;sourceId&quot;: 123000,
-        ///        &quot;votes&quot;: 0,
-        ///        &quot;voteCount&quot;: 0,
-        ///        &quot;language&quot;: {
-        ///          &quot;id&quot;: 1,
-        ///          &quot;name&quot;: &quot;English&quot;
-        ///        },
-        ///        &quot;id&quot;: 46
-        ///      },
-        ///      {
-        ///        &quot;sourceType&quot;: &quot;tmdb&quot;,
-        ///        &quot;movieId&quot;: 16,
-        ///        &quot;title&quot;: &quot;Please Reconsider&quot;,
-        ///        &quot;sourceId&quot;: 123400,
-        ///        &quot;votes&quot;: 0,
-        ///        &quot;voteCount&quot; [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to [{
+        ///        &quot;title&quot;: &quot;My Movie&quot;,
+        ///        &quot;alternativeTitles&quot;: [{
+        ///                &quot;sourceType&quot;: &quot;tmdb&quot;,
+        ///                &quot;movieId&quot;: 16,
+        ///                &quot;title&quot;: &quot;Movie&quot;,
+        ///                &quot;sourceId&quot;: 123000,
+        ///                &quot;votes&quot;: 0,
+        ///                &quot;voteCount&quot;: 0,
+        ///                &quot;language&quot;: {
+        ///                    &quot;id&quot;: 1,
+        ///                    &quot;name&quot;: &quot;English&quot;
+        ///                },
+        ///                &quot;id&quot;: 46
+        ///            }, {
+        ///                &quot;sourceType&quot;: &quot;tmdb&quot;,
+        ///                &quot;movieId&quot;: 16,
+        ///      [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RadarrV3ApiResult {
             get {
