@@ -194,7 +194,7 @@ namespace VolyExternalApiAccess.Darr
         public int AudioBitrate { get; set; }
 
         [JsonProperty("runTime")]
-        public TimeSpan RunTime { get; set; }
+        public string RunTime { get; set; }
 
         [JsonProperty("audioStreamCount")]
         public int AudioStreamCount { get; set; }
