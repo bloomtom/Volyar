@@ -78,7 +78,10 @@ namespace VolyExternalApiAccess
             }
 
             var mediaInfo = filtered.Value.FirstOrDefault();
-            if (mediaInfo == null || mediaInfo.Title == null) { return new ApiResponse<ApiValue>(null, System.Net.HttpStatusCode.BadRequest, "Could not find the media item."); }
+            if (mediaInfo == null || mediaInfo.Title == null)
+            {
+                return new ApiResponse<ApiValue>(null, System.Net.HttpStatusCode.BadRequest, $"Could not find the media item. Directory: {directory} Filename: {filename}");
+            }
 
             return new ApiResponse<ApiValue>(new ApiValue()
             {
