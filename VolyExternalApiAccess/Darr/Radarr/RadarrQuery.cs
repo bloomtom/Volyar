@@ -130,11 +130,11 @@ namespace VolyExternalApiAccess.Darr.Radarr
                 return new ApiResponse<IEnumerable<Movie>>(Enumerable.Empty<Movie>(), response.StatusCode, response.ErrorDetails);
             }
 
-            var filtered = response.Value.Where(condition);
-            if (filtered.Count() == 0)
+            var filtered = response.Value?.Where(condition);
+            if (filtered == null || !filtered.Any())
             {
                 // Try again if Radarr hasn't been queried very recently.
-                response = GetCached(TimeSpan.FromSeconds(10));
+                response = GetCached(TimeSpan.FromSeconds(2));
                 filtered = response.Value.Where(condition);
             }
             return new ApiResponse<IEnumerable<Movie>>(filtered, response.StatusCode, response.ErrorDetails);
