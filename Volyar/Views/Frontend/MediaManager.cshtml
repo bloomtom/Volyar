@@ -23,7 +23,7 @@
                 </b-button>
                 <b-modal size="xl" centered v-bind:id="'modal-' + props.row.mediaId">
                     <div slot="modal-title">
-                        <b-label>{{props.row.mediaId}}&ensp;({{props.row.libraryName}})</b-label>
+                        <label>{{props.row.mediaId}}&ensp;({{props.row.libraryName}})</label>
                     </div>
                     <b-container fluid>
                         <b-form-group inline id="input-group-info" label-for="input-info">
@@ -54,15 +54,15 @@
                             <b-form-row>
                                 <b-col>
                                     <label>Season</label>
-                                    <b-form-input aria-label="Season Number" size="sm" id="input-season" v-model="props.row.seasonNumber"></b-form-input>
+                                    <b-form-input aria-label="Season Number" size="sm" id="input-season" v-model.number="props.row.seasonNumber" type="number"></b-form-input>
                                 </b-col>
                                 <b-col>
                                     <label>Episode</label>
-                                    <b-form-input aria-label="Episode Number" size="sm" id="input-episode" v-model="props.row.episodeNumber"></b-form-input>
+                                    <b-form-input aria-label="Episode Number" size="sm" id="input-episode" v-model.number="props.row.episodeNumber" type="number"></b-form-input>
                                 </b-col>
                                 <b-col>
                                     <label>Absolute Episode</label>
-                                    <b-form-input aria-label="Absolute Episode Number" size="sm" id="input-absolute-episode" v-model="props.row.absoluteEpisodeNumber"></b-form-input>
+                                    <b-form-input aria-label="Absolute Episode Number" size="sm" id="input-absolute-episode" v-model.number="props.row.absoluteEpisodeNumber" type="number"></b-form-input>
                                 </b-col>
                             </b-form-row>
                         </b-form-group>
