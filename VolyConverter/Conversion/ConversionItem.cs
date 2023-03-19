@@ -43,7 +43,7 @@ namespace VolyConverter.Conversion
         /// <summary>
         /// If true, audio tracks with more than two channels are downmixed into stereo.
         /// </summary>
-        public bool DownmixAudio { get; protected set; }
+        public bool DownmixAudio { get; init; }
         /// <summary>
         /// The quality matrix to encode into.
         /// </summary>
@@ -51,7 +51,11 @@ namespace VolyConverter.Conversion
         /// <summary>
         /// Override the media item's framerate. If zero the original framerate is used.
         /// </summary>
-        public int Framerate { get; protected set; }
+        public int Framerate { get; init; }
+        /// <summary>
+        /// Override the transcoder's keyframe interval. If zero, DEnc selects 3 as the default.
+        /// </summary>
+        public int KeyframeMultiple { get; init; }
         /// <summary>
         /// The ffmpeg tune type to use for encoding.
         /// </summary>
@@ -97,20 +101,18 @@ namespace VolyConverter.Conversion
         /// An action to perform upon conversion success.
         /// </summary>
         [JsonIgnore]
-        public Action<IConversionItem, DashEncodeResult> CompletionAction { get; private set; }
+        public Action<IConversionItem, DashEncodeResult> CompletionAction { get; init; }
 
         /// <summary>
         /// An action to perform upon conversion failure.
         /// </summary>
         [JsonIgnore]
-        public Action<Exception> ErrorAction { get; private set; }
+        public Action<Exception> ErrorAction { get; init; }
 
         [JsonIgnore]
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
-        public ConversionItem(string libraryName, string seriesName, string title, string sourcePath, string destination, string outputBaseFilename,
-            bool downmixAudio, HashSet<IQuality> quality, int framerate,
-            Action<IConversionItem, DashEncodeResult> completionAction, Action<Exception> errorAction)
+        public ConversionItem(string libraryName, string seriesName, string title, string sourcePath, string destination, string outputBaseFilename, HashSet<IQuality> quality)
         {
             Library = libraryName;
             Series = seriesName;
@@ -118,11 +120,7 @@ namespace VolyConverter.Conversion
             SourcePath = sourcePath;
             OutputPath = destination;
             OutputBaseFilename = outputBaseFilename;
-            DownmixAudio = downmixAudio;
             Quality = quality.ToImmutableHashSet();
-            Framerate = framerate;
-            CompletionAction = completionAction;
-            ErrorAction = errorAction;
         }
 
         public override bool Equals(object obj)

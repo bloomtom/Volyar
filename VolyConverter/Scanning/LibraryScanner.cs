@@ -303,6 +303,22 @@ namespace VolyConverter.Scanning
             return false;
         }
 
+        private void CombinedScheduleConversion(VolyDatabase.MediaItem newMedia, ILibrary library, HashSet<IQuality> quality, ScanFile file, Action<IConversionItem, DashEncodeResult> completeAction, Action<Exception> errorAction)
+        {
+            var conversionItem = new ConversionItem(library.Name, newMedia.SeriesName, newMedia.Name, newMedia.SourcePath, library.TempPath, file.OutFilename, quality)
+            {
+                DownmixAudio = library.DownmixAudio,
+                Framerate = library.ForceFramerate,
+                KeyframeMultiple = library.KeyframeMultiple,
+                CompletionAction = completeAction,
+                ErrorAction = errorAction
+            };
+
+            RunPrePlugins(library, conversionItem, newMedia, ConversionType.Conversion);
+
+            converter.AddItem(conversionItem);
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Inner failure is a we-tried type.")]
         private void ScheduleConversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, string seriesName, ScanFile file)
         {
@@ -315,7 +331,8 @@ namespace VolyConverter.Scanning
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
                 SeriesName = seriesName
             };
-            var conversionItem = new ConversionItem(library.Name, newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, library.DownmixAudio, quality, library.ForceFramerate, (sender, result) =>
+
+            var completeAction = (IConversionItem sender, DashEncodeResult result) =>
             {
                 int? addedKey = null;
                 try
@@ -345,9 +362,9 @@ namespace VolyConverter.Scanning
 
                     // Add associated files to the db.
                     var files = new List<string>(result.MediaFiles)
-                        {
-                            Path.GetFileName(result.DashFilePath)
-                        };
+                    {
+                        Path.GetFileName(result.DashFilePath)
+                    };
                     AddMediaFilesToMedia(innerContext, newMedia.MediaId, library.TempPath, files);
 
                     HandleSourceFate(sourcePath);
@@ -389,15 +406,14 @@ namespace VolyConverter.Scanning
                     }
                     throw;
                 }
-            },
-            (ex) =>
+            };
+
+            var errorAction = (Exception ex) =>
             {
-                log.LogError($"Failed to convert {sourcePath} -- Ex: {ex}");
-            });
+                log.LogError($"Failed to convert {sourcePath}, database not updated. -- Ex: {ex}");
+            };
 
-            RunPrePlugins(library, conversionItem, newMedia, ConversionType.Conversion);
-
-            converter.AddItem(conversionItem);
+            CombinedScheduleConversion(newMedia, library, quality, file, completeAction, errorAction);
         }
 
         private void ScheduleReconversion(ILibrary library, HashSet<IQuality> quality, string sourcePath, DateTimeOffset lastWrite, int mediaId, string seriesName, ScanFile file)
@@ -411,7 +427,8 @@ namespace VolyConverter.Scanning
                 Name = Path.GetFileNameWithoutExtension(sourcePath),
                 SeriesName = seriesName
             };
-            var conversionItem = new ConversionItem(library.Name, newMedia.SeriesName, newMedia.Name, sourcePath, library.TempPath, file.OutFilename, library.DownmixAudio, quality, library.ForceFramerate, (sender, result) =>
+
+            var completeAction = (IConversionItem sender, DashEncodeResult result) =>
             {
                 using var innerContext = new VolyContext(dbOptions);
                 int oldVersion = innerContext.Media.Where(x => x.MediaId == mediaId).SingleOrDefault().Version;
@@ -481,15 +498,14 @@ namespace VolyConverter.Scanning
 
                 innerContext.SaveChanges();
                 log.LogInformation($"Converted {sourcePath}");
-            },
-            (ex) =>
+            };
+
+            var errorAction = (Exception ex) =>
             {
                 log.LogError($"Failed to re-convert {sourcePath}, database not updated. -- Ex: {ex}");
-            });
+            };
 
-            RunPrePlugins(library, conversionItem, newMedia, ConversionType.Reconversion);
-
-            converter.AddItem(conversionItem);
+            CombinedScheduleConversion(newMedia, library, quality, file, completeAction, errorAction);
         }
 
         private void HandleSourceFate(string sourcePath)

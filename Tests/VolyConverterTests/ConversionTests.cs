@@ -128,7 +128,7 @@ namespace VolyConverterTests
                             }
                             lastProgressesSeen = progressesSeen;
 
-                            item.Value.DeepCloneTo(itemsProcessed[item.Key]);
+                            itemsProcessed[item.Key] = item.Value.DeepClone();
                         }
                     }
                     System.Threading.Thread.Sleep(10);

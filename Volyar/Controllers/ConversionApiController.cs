@@ -51,22 +51,22 @@ namespace Volyar.Controllers
                     "queued",
                     new List<ExportableConversionItem>()
                     {
-                        new ConversionItem("SomeLibrary", "The TEST", "Test #1", "/home/test/vid/vid1.mkv", "/home/output/", "testitem", true, quality, 24, null, null),
-                        new ConversionItem("SomeLibrary", null, null, "/home/test/vid/vid2.mkv", "/home/output/", "testitem2", true, quality, 24, null, null)
+                        new ConversionItem("SomeLibrary", "The TEST", "Test #1", "/home/test/vid/vid1.mkv", "/home/output/", "testitem", quality),
+                        new ConversionItem("SomeLibrary", null, null, "/home/test/vid/vid2.mkv", "/home/output/", "testitem2", quality)
                     }
                 },
                 {
                     "processing",
                     new List<ExportableConversionItem>()
                     {
-                        new ConversionItem("SomeLibrary", "The TEST", "Test #3","/home/test/vid/vid3.mkv", "/home/output/", "processItem", true, quality, 24, null, null)
+                        new ConversionItem("SomeLibrary", "The TEST", "Test #3","/home/test/vid/vid3.mkv", "/home/output/", "processItem", quality)
                         {
                             Progress = new List<DescribedProgress>()
                             {
                                 new DescribedProgress("Encoding", 0.25)
                             }
                         },
-                        new ConversionItem("SomeLibrary", null, null, "/home/test/vid/vid4.mkv", "/home/output/", "processItem2", true, quality, 24, null, null)
+                        new ConversionItem("SomeLibrary", null, null, "/home/test/vid/vid4.mkv", "/home/output/", "processItem2", quality)
                         {
                             Progress = new List<DescribedProgress>()
                             {
@@ -74,7 +74,7 @@ namespace Volyar.Controllers
                                 new DescribedProgress("Upload", 0.47)
                             }
                         },
-                        new ConversionItem("SomeLibrary", null, null, "/home/test/vid/vid5.mkv", "/home/output/", "processItem3", true, quality, 24, null, null)
+                        new ConversionItem("SomeLibrary", null, null, "/home/test/vid/vid5.mkv", "/home/output/", "processItem3", quality)
                         {
                             Progress = new List<DescribedProgress>()
                             {
@@ -99,8 +99,8 @@ namespace Volyar.Controllers
 
             var items = new CompleteItems<ExportableConversionItem>()
             {
-                new ConversionItem("SomeLibrary", "The COMPLETE", "Test #6", "/home/test/vid/vid6.mkv", "/home/output/", "completeitem1", true, quality, 24, null, null),
-                new ConversionItem("SomeLibrary", "The FAILED", "Test #7", "/home/test/vid/vid7.mkv", "/home/output/", "completeitem2", true, quality, 24, null, null)
+                new ConversionItem("SomeLibrary", "The COMPLETE", "Test #6", "/home/test/vid/vid6.mkv", "/home/output/", "completeitem1", quality),
+                new ConversionItem("SomeLibrary", "The FAILED", "Test #7", "/home/test/vid/vid7.mkv", "/home/output/", "completeitem2", quality)
                 {
                     ErrorReason = "Task failed successfully. Reason: Not enough",
                     ErrorDetail = "This is a very long error message which contains all kinds of stack trace information and logs or whatever.\n" +

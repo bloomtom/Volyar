@@ -14,6 +14,11 @@ namespace VolyConverter.Scanning
         /// </summary>
         int ForceFramerate { get; }
         /// <summary>
+        /// The multiple of framerate to place keyframes. Can also be though of as the number of seconds between keyframes.<br/>
+        /// This influences chunk size when streaming. Having a low multiple will increase requests per second, but will also allow faster quality level switching.
+        /// </summary>
+        int KeyframeMultiple { get; }
+        /// <summary>
         /// The library name. Should be unique.
         /// </summary>
         string Name { get; }
