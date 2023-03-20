@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using MStorage.WebStorage;
 using VolyConverter.Plugin;
 using VolyFiles;
-using DEnc.Models.Interfaces;
+using DEnc.Models;
 
 namespace VolyConverter.Scanning
 {

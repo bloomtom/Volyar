@@ -43,7 +43,7 @@ namespace Volyar.Controllers
         [HttpGet("teststatus")]
         public IActionResult TestStatus(long transactionId)
         {
-            var quality = Quality.GenerateDefaultQualities(DEnc.DefaultQuality.medium, DEnc.H264Preset.fast).ToHashSet();
+            var quality = Quality.GenerateDefaultQualities(DefaultQuality.Medium, H264Preset.Fast).ToHashSet();
 
             var items = new Dictionary<string, object>
             {
@@ -95,7 +95,7 @@ namespace Volyar.Controllers
         [HttpGet("testcomplete")]
         public IActionResult TestCompletedItems()
         {
-            var quality = Quality.GenerateDefaultQualities(DEnc.DefaultQuality.medium, DEnc.H264Preset.fast).ToHashSet();
+            var quality = Quality.GenerateDefaultQualities(DefaultQuality.Medium, H264Preset.Fast).ToHashSet();
 
             var items = new CompleteItems<ExportableConversionItem>()
             {

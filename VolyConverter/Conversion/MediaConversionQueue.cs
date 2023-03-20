@@ -86,7 +86,7 @@ namespace VolyConverter.Conversion
                 {
                     EnableStreamCopying = true,
                     Framerate = item.Framerate,
-                    KeyframeInterval = item.KeyframeMultiple,
+                    KeyframeInterval = item.KeyframeMultiple * probeData.Framerate,
                     Options = options
                 };
                 if (item.DownmixAudio)

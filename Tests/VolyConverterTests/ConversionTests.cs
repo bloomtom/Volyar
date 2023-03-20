@@ -68,8 +68,8 @@ namespace VolyConverterTests
                     new Logger<MediaConversionQueue>(logFactory));
                 var scanQueue = new LibraryScanningQueue(db, converter, new List<IConversionPlugin>(), new Logger<LibraryScanningQueue>(logFactory));
 
-                var quality1 = new Quality(640, 480, 300, DEnc.H264Preset.ultrafast);
-                var quality2 = new Quality(640, 480, 400, DEnc.H264Preset.ultrafast);
+                var quality1 = new Quality(640, 480, 300, H264Preset.Ultrafast);
+                var quality2 = new Quality(640, 480, 400, H264Preset.Ultrafast);
                 var testLibrary = new Library()
                 {
                     Name = "Test",
