@@ -264,3 +264,5 @@ __pycache__/
 /.vscode
 /Volyar/vsettings.schema.json
 /build
+/Volyar/temp.sqlite-shm
+/Volyar/temp.sqlite-wal
