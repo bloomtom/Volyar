@@ -3,26 +3,28 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Http;
 using System.Net;
+using VolyExternalApiAccess.Darr.Radarr;
+using System.Threading.Tasks;
 
 namespace VolyExternalApiAccess.Darr.Sonarr
 {
     public class SonarrQuery : DarrQuery
     {
-        public SonarrQuery(string baseUrl, string apiKey, string username = null, string password = null) : base(baseUrl, apiKey, username, password)
+        public SonarrQuery(string baseUrl, string apiKey, DarrApiVersion apiVersion, string username = null, string password = null) : base(baseUrl, apiKey, apiVersion, username, password)
         {
         }
 
-        public ApiResponse<SonarrParsed> Find(string fullPath)
+        public async Task<ApiResponse<SonarrParsed>> FindAsync(string fullPath)
         {
-            return QueryApi((client) =>
+            return await QueryApiAsync(async (client) =>
             {
                 HttpResponseMessage result;
                 string responseContent;
-                string query = $"{baseUrl}/api/parse";
+                string query = $"{baseUrl}{baseApi}parse";
                 try
                 {
-                    result = client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"{query}?apikey={apiKey}&path={System.Web.HttpUtility.UrlEncode(fullPath)}")).Result;
-                    responseContent = result.Content.ReadAsStringAsync().Result;
+                    result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"{query}?apikey={apiKey}&path={System.Web.HttpUtility.UrlEncode(fullPath)}&title={System.Web.HttpUtility.UrlEncode(fullPath)}"));
+                    responseContent = await result.Content.ReadAsStringAsync();
                 }
                 catch (Exception ex)
                 {
@@ -31,7 +33,7 @@ namespace VolyExternalApiAccess.Darr.Sonarr
 
                 if (!result.IsSuccessStatusCode)
                 {
-                    return new ApiResponse<SonarrParsed>(null, result.StatusCode, $"Failed to query Radarr API with URL {query}.");
+                    return new ApiResponse<SonarrParsed>(null, result.StatusCode, $"Failed to query Sonarr API with URL {query}.");
                 }
 
                 SonarrParsed deserialized;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VolyExternalApiAccess;
 using VolyExternalApiAccess.Darr;
@@ -9,40 +10,35 @@ using VolyExternalApiAccess.Darr.Radarr;
 
 namespace VolyExternalApiAccessTests
 {
-    internal class MockRadarr : RadarrQuery
+    internal class MockRadarr(string baseUrl, string apiKey, DarrApiVersion apiVersion, TimeSpan cacheTimeout) : RadarrQuery(baseUrl, apiKey, apiVersion, username: null, password: null, cacheTimeout: cacheTimeout)
     {
         private int recreated = 0;
         public int Recreated { get { return recreated; } }
 
-        public MockRadarr(string baseUrl, string apiKey, TimeSpan cacheTimeout) : base(baseUrl, apiKey, null, null, cacheTimeout)
-        {
-
-        }
-
-        protected override ApiResponse<ICollection<Movie>> GetMovies()
+        protected override Task<ApiResponse<ICollection<Movie>>> GetMoviesAsync()
         {
             System.Threading.Interlocked.Increment(ref recreated);
-            return new ApiResponse<ICollection<Movie>>(new List<Movie>()
+            return Task.FromResult(new ApiResponse<ICollection<Movie>>(new List<Movie>()
             {
-                new Movie()
+                new()
                 {
                     Added = DateTime.Now,
                     Title = "My Favorite Movie",
                     ImdbId = "1234567"
                 },
-                new Movie()
+                new()
                 {
                     Added = DateTime.Now,
                     Title = "My Favorite Movie 2",
                     ImdbId = "1234568"
                 },
-                new Movie()
+                new()
                 {
                     Added = DateTime.Now,
                     Title = "My Favorite Movie 3",
                     ImdbId = "1234569"
                 }
-            }, System.Net.HttpStatusCode.OK);
+            }, System.Net.HttpStatusCode.OK));
         }
     }
 
@@ -54,26 +50,26 @@ namespace VolyExternalApiAccessTests
         {
             var mocks = new List<MockRadarr>()
             {
-                new MockRadarr("http://mysite.com/radarr/", "abcd", TimeSpan.FromMilliseconds(1)),
-                new MockRadarr("http://twosite.com/radarr", "abcd", TimeSpan.FromSeconds(5))
+                new("http://mysite.com/radarr/", "abcd", DarrApiVersion.V3, TimeSpan.FromMilliseconds(1)),
+                new("http://twosite.com/radarr", "abcd", DarrApiVersion.V3, TimeSpan.FromSeconds(5))
             };
             Assert.AreEqual("http://mysite.com/radarr", mocks[0].baseUrl);
             Assert.AreEqual("http://twosite.com/radarr", mocks[1].baseUrl);
 
-            var reader = new Action(() =>
+            var reader = new Task(async () =>
             {
                 for (int i = 0; i < 1000; i++)
                 {
                     foreach (var mock in mocks)
                     {
                         int itemsCount = 0;
-                        foreach (var item in mock.Where((x) => true).Value)
+                        foreach (var item in (await mock.WhereAsync((x) => true)).Value)
                         {
                             itemsCount++;
                         }
                         Assert.AreEqual(3, itemsCount);
 
-                        foreach (var item in mock.Where((x) => x.ImdbId == "1234568").Value)
+                        foreach (var item in (await mock.WhereAsync((x) => x.ImdbId == "1234568")).Value)
                         {
                             Assert.AreEqual("1234568", item.ImdbId);
                         }
@@ -82,7 +78,10 @@ namespace VolyExternalApiAccessTests
                 }
             });
 
-            var readThread = new System.Threading.Thread(new System.Threading.ThreadStart(reader));
+            var readThread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>
+            {
+                reader.RunSynchronously();
+            }));
             readThread.Start();
             readThread.Join();
 

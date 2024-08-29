@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using VolyExternalApiAccess.Darr.Sonarr;
 using VolyExternalApiAccess.Darr.Radarr;
+using VolyExternalApiAccess.Darr;
+using System.Threading.Tasks;
 
 namespace VolyExternalApiAccess
 {
@@ -24,23 +26,24 @@ namespace VolyExternalApiAccess
             this.password = password;
         }
 
-        public ApiResponse<ApiValue> RetrieveInfo(string path)
+        public async Task<ApiResponse<ApiValue>> RetrieveInfoAsync(string path)
         {
             switch (type.ToUpperInvariant())
             {
                 case "SONARR":
-                    return RetrieveSonarr(path);
+                    return await RetrieveSonarr(path);
                 case "RADARR":
-                    return RetrieveRadarr(path);
+                    return await RetrieveRadarr(path);
                 default:
                     throw new ArgumentException($"Invalid ApiType {type}");
             }
         }
 
-        private ApiResponse<ApiValue> RetrieveSonarr(string path)
+        private async Task<ApiResponse<ApiValue>> RetrieveSonarr(string path)
         {
-            var api = new SonarrQuery(url, apiKey, username, password);
-            var apiResponse = api.Find(path);
+            var apiVersion = await DarrQuery.QueryApiVersionAsync(url, username, password);
+            var api = new SonarrQuery(url, apiKey, apiVersion, username: username, password: password);
+            var apiResponse = await api.FindAsync(path);
 
             if (!apiResponse.IsSuccessStatusCode || apiResponse.Value?.Series == null || apiResponse.Value.ParsedEpisodeInfo == null)
             {
@@ -64,13 +67,14 @@ namespace VolyExternalApiAccess
             }, apiResponse.StatusCode, apiResponse.ErrorDetails);
         }
 
-        private ApiResponse<ApiValue> RetrieveRadarr(string path)
+        private async Task<ApiResponse<ApiValue>> RetrieveRadarr(string path)
         {
             string directory = System.IO.Path.GetDirectoryName(path);
             string filename = System.IO.Path.GetFileName(path);
 
-            var api = new RadarrQuery(url, apiKey, username, password);
-            var filtered = api.Where((x) => x.FolderName == directory && x.MovieFile.RelativePath == filename);
+            var apiVersion = await DarrQuery.QueryApiVersionAsync(url, username, password);
+            var api = new RadarrQuery(url, apiKey, apiVersion, username: username, password: password);
+            var filtered = await api.WhereAsync((x) => x.FolderName == directory && x.MovieFile.RelativePath == filename);
 
             if (filtered.StatusCode != System.Net.HttpStatusCode.OK)
             {

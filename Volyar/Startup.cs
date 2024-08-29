@@ -49,7 +49,7 @@ namespace Volyar
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var builder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            var builder = services.AddMvc();
 
             if (Env.IsDevelopment())
             {
@@ -88,8 +88,8 @@ namespace Volyar
 
         private static List<IConversionPlugin> GeneratePlugins(RateLimiter rateLimiter)
         {
-            return new List<IConversionPlugin>
-            {
+            return
+            [
                 new PostConversionPlugin("WebHook", (args) =>
                 {
                     if (args.Library is Models.Library library)
@@ -101,7 +101,7 @@ namespace Volyar
                         }
                     }
                 }),
-                new PreConversionPlugin("ApiIntegration", (args) =>
+                new PreConversionPlugin("ApiIntegration", async (args) =>
                 {
                     if (args.Library is Models.Library library)
                     {
@@ -111,7 +111,7 @@ namespace Volyar
                         try
                         {
                             var fetcher = new VolyExternalApiAccess.ApiFetch(g.Type, g.Url, g.ApiKey, g.Username, g.Password);
-                            metadata = fetcher.RetrieveInfo(args.ConversionItem?.SourcePath ?? args.MediaItem.SourcePath);
+                            metadata = await fetcher.RetrieveInfoAsync(args.ConversionItem?.SourcePath ?? args.MediaItem.SourcePath);
                             if (metadata.Value != null)
                             {
                                 args.MediaItem.SeriesName = metadata.Value.SeriesTitle ?? args.MediaItem.SeriesName;
@@ -166,7 +166,7 @@ namespace Volyar
                         }
                     }
                 })
-            };
+            ];
         }
 
         private string GetTemp()
