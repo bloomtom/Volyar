@@ -72,11 +72,11 @@ namespace VolyExternalApiAccess.Darr
             return await apiQuery(client);
         }
 
-        public static async Task<DarrApiVersion> QueryApiVersionAsync(string baseUrl, string username, string password)
+        public static async Task<DarrApiVersion> QueryApiVersionAsync(string baseUrl, string apiKey, string username, string password)
         {
             var result = await QueryApiAsync<DarrApiVersionResponse>(async (client) =>
             {
-                string requestUri = $"{baseUrl}/api";
+                string requestUri = $"{baseUrl}/api?apikey={apiKey}";
                 var httpResponse = await client.GetAsync(requestUri);
                 if (!httpResponse.IsSuccessStatusCode)
                 {

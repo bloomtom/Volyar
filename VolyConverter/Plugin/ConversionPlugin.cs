@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using VolyConverter.Conversion;
 using VolyConverter.Scanning;
 using VolyDatabase;
@@ -12,11 +13,11 @@ namespace VolyConverter.Plugin
     /// <summary>
     /// The signature for a conversion plugin which is executed before conversion is started.
     /// </summary>
-    public delegate void PreConversionPluginAction(PreConversionPluginArgs args);
+    public delegate Task PreConversionPluginAction(PreConversionPluginArgs args);
     /// <summary>
     /// The signature for a conversion plugin which is executed after conversion is complete but before data is comitted to the database.
     /// </summary>
-    public delegate void PostConversionPluginAction(PostConversionPluginArgs args);
+    public delegate Task PostConversionPluginAction(PostConversionPluginArgs args);
 
     /// <summary>
     /// A plugin that's run before any conversion is performed.

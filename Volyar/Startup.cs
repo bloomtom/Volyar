@@ -94,12 +94,13 @@ namespace Volyar
                 {
                     if (args.Library is Models.Library library)
                     {
-                        if (library?.WebHooks == null) { return; }
+                        if (library?.WebHooks == null) { return Task.CompletedTask; }
                         foreach (var hook in library.WebHooks)
                         {
                             rateLimiter.AddItem(new RateLimitedItem($"WebHook {hook.Url}", () => { hook.CallAsync("").Wait(); }));
                         }
                     }
+                    return Task.CompletedTask;
                 }),
                 new PreConversionPlugin("ApiIntegration", async (args) =>
                 {

@@ -41,7 +41,7 @@ namespace VolyExternalApiAccess
 
         private async Task<ApiResponse<ApiValue>> RetrieveSonarr(string path)
         {
-            var apiVersion = await DarrQuery.QueryApiVersionAsync(url, username, password);
+            var apiVersion = await DarrQuery.QueryApiVersionAsync(url, apiKey, username, password);
             var api = new SonarrQuery(url, apiKey, apiVersion, username: username, password: password);
             var apiResponse = await api.FindAsync(path);
 
@@ -72,7 +72,7 @@ namespace VolyExternalApiAccess
             string directory = System.IO.Path.GetDirectoryName(path);
             string filename = System.IO.Path.GetFileName(path);
 
-            var apiVersion = await DarrQuery.QueryApiVersionAsync(url, username, password);
+            var apiVersion = await DarrQuery.QueryApiVersionAsync(url, apiKey, username, password);
             var api = new RadarrQuery(url, apiKey, apiVersion, username: username, password: password);
             var filtered = await api.WhereAsync((x) => x.FolderName == directory && x.MovieFile.RelativePath == filename);
 

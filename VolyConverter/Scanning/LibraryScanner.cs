@@ -527,7 +527,7 @@ namespace VolyConverter.Scanning
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Plugins must not throw exceptions. Failure is logged.")]
-        private void RunPrePlugins(ILibrary library, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, ConversionType type)
+        private async Task RunPrePlugins(ILibrary library, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, ConversionType type)
         {
             foreach (var plugin in conversionPlugins)
             {
@@ -535,7 +535,7 @@ namespace VolyConverter.Scanning
                 {
                     try
                     {
-                        pre.Action.Invoke(new PreConversionPluginArgs(library, conversionItem, mediaItem, type, log));
+                        await pre.Action.Invoke(new PreConversionPluginArgs(library, conversionItem, mediaItem, type, log));
                     }
                     catch (Exception ex)
                     {
@@ -546,7 +546,7 @@ namespace VolyConverter.Scanning
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Plugins must not throw exceptions. Failure is logged.")]
-        private void RunPostPlugins(ILibrary library, VolyContext context, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, DashEncodeResult result, ConversionType type)
+        private async Task RunPostPlugins(ILibrary library, VolyContext context, IConversionItem conversionItem, VolyDatabase.MediaItem mediaItem, DashEncodeResult result, ConversionType type)
         {
             foreach (var plugin in conversionPlugins)
             {
@@ -554,7 +554,7 @@ namespace VolyConverter.Scanning
                 {
                     try
                     {
-                        post.Action.Invoke(new PostConversionPluginArgs(library, context, conversionItem, mediaItem, result, type, log));
+                        await post.Action.Invoke(new PostConversionPluginArgs(library, context, conversionItem, mediaItem, result, type, log));
                     }
                     catch (Exception ex)
                     {
