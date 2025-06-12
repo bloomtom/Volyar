@@ -50,8 +50,8 @@ namespace VolyDatabase
                     x.Database.ExecuteSqlRaw(@"
                     UPDATE MediaItem 
                     SET
-                        CreateDate = (unixepoch(CreateDate) * 10000000) + 621355968000000000,
-                        SourceModified = (unixepoch(SourceModified) * 10000000) + 621355968000000000;
+                        CreateDate = (unixepoch(CreateDate) * 10000000) + substr(CreateDate, 21, 7) + 621355968000000000,
+                        SourceModified = (unixepoch(SourceModified) * 10000000) + substr(SourceModified, 21, 7) + 621355968000000000;
                     ");
                 }
             })
