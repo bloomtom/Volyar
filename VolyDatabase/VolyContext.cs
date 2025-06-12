@@ -49,6 +49,23 @@ namespace VolyDatabase
             modelBuilder.Entity<TransactionLog>().HasIndex(a => a.Type);
             modelBuilder.Entity<PendingDeletion>().HasKey(a => new { a.MediaId, a.Version });
 
+            // Sqlite datatype transformations
+            if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+                {
+                    var properties = entityType.ClrType.GetProperties().Where(p => p.PropertyType == typeof(DateTimeOffset)
+                                                                                   || p.PropertyType == typeof(DateTimeOffset?));
+                    foreach (var property in properties)
+                    {
+                        modelBuilder
+                            .Entity(entityType.Name)
+                            .Property(property.Name)
+                            .HasConversion(new DateTimeOffsetToTicksConverter());
+                    }
+                }
+            }
+
             base.OnModelCreating(modelBuilder);
         }
 

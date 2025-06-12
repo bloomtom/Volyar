@@ -16,11 +16,11 @@ namespace VolyDatabase
         // A chain of upgrade queries which, when run, upgrade the database by one version each.
         private static readonly List<Action<VolyContext>> Upgrades = new List<Action<VolyContext>>()
         {
-            new Action<VolyContext>(x =>
+            new(x =>
             {
                 //x.Database.ExecuteSqlCommand("ALTER TABLE [MediaVariant] ADD [Built] BIT NOT NULL DEFAULT(1);");
             }),
-            new Action<VolyContext>(x =>
+            new(x =>
             {
                 x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [SeasonNumber] INTEGER;");
                 x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [EpisodeNumber] INTEGER;");
@@ -28,20 +28,32 @@ namespace VolyDatabase
                 x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [TvdbId] VARCHAR;");
                 x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [TvmazeId] VARCHAR;");
             }),
-            new Action<VolyContext>(x =>
+            new(x =>
             {
                 x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [TmdbId] VARCHAR;");
                 x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [AbsoluteEpisodeNumber] INTEGER;");
             }),
-            new Action<VolyContext>(x =>
+            new(x =>
             {
                 x.Database.ExecuteSqlRaw("CREATE TABLE [PendingDeletions] ([MediaId] INTEGER, [Version] INTEGER NOT NULL, [Requestor] INTEGER, PRIMARY KEY([MediaId], [Version]));");
                 x.Database.ExecuteSqlRaw("ALTER TABLE [MediaVariant] ADD [Version] INTEGER NOT NULL DEFAULT (0);");
                 x.Database.ExecuteSqlRaw("ALTER TABLE [MediaItem] ADD [Version] INTEGER NOT NULL DEFAULT (0);");
             }),
-            new Action<VolyContext>(x =>
+            new(x =>
             {
                 x.Database.ExecuteSqlRaw("UPDATE TransactionLog SET TableName = 1, Date = 1553580240;");
+            }),
+            new(x =>
+            {
+                if (x.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+                {
+                    x.Database.ExecuteSqlRaw(@"
+                    UPDATE MediaItem 
+                    SET
+                        CreateDate = (unixepoch(CreateDate) * 10000000) + 621355968000000000,
+                        SourceModified = (unixepoch(SourceModified) * 10000000) + 621355968000000000;
+                    ");
+                }
             })
         };
 

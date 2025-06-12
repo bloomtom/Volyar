@@ -57,7 +57,15 @@ namespace Volyar
     {
         public override DateTimeOffset Parse(object value)
         {
-            return DateTimeOffset.Parse((string)value);
+            if (long.TryParse((string)value, out long ticks))
+            {
+                return new DateTimeOffset(ticks, TimeSpan.Zero);
+            }
+            else
+            {
+                return DateTimeOffset.Parse((string)value);
+            }
+            
         }
 
         public override void SetValue(IDbDataParameter parameter, DateTimeOffset value)
