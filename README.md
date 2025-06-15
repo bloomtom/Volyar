@@ -205,14 +205,12 @@ You should only set one of the following, and leave the rest as `null`. Setting 
 ```
 "StorageBackend": {
   "AmazonS3": {
-    "Filesystem": {
-      "AccessKey": "AAAABBBBCCCCDDDDEEEE",
-      "ApiKey": "abcdefghijklmnopqrstuvwxyz0123456789ABCD",
-      "Endpoint": "apigateway.us-east-1.amazonaws.com",
-      "Bucket": "mybucket",
-      "CannedACL": "public-read",
-      "SignatureVersion": "4",
-    }
+    "AccessKey": "AAAABBBBCCCCDDDDEEEE",
+    "ApiKey": "abcdefghijklmnopqrstuvwxyz0123456789ABCD",
+    "Endpoint": "https://s3.us-east-1.amazonaws.com",
+     Bucket": "mybucket",
+    "CannedACL": "public-read",
+    "SignatureVersion": "4",
   }
 },
 ```
