@@ -398,6 +398,7 @@ namespace VolyConverter.Scanning
                         {
                             using var abortContext = new VolyContext(dbOptions);
                             abortContext.Media.Remove(abortContext.Media.Where(x => x.MediaId == addedKey.Value).SingleOrDefault());
+                            abortContext.SaveChanges();
                         }
                         catch (Exception ex)
                         {
@@ -408,10 +409,10 @@ namespace VolyConverter.Scanning
                 }
             };
 
-            var errorAction = (Exception ex) =>
+            void errorAction(Exception ex)
             {
                 log.LogError($"Failed to convert {sourcePath}, database not updated. -- Ex: {ex}");
-            };
+            }
 
             CombinedScheduleConversion(newMedia, library, quality, file, completeAction, errorAction);
         }
