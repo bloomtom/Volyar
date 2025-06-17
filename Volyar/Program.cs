@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 
@@ -66,14 +65,6 @@ namespace Volyar
                 WriteoutSchema(SettingsPath);
                 var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VSettings>(File.ReadAllText(SettingsPath),
                     new Newtonsoft.Json.JsonSerializerSettings() { ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace });
-
-                foreach (var library in settings.Libraries)
-                {
-                    if (library.SourceHandling.ToLowerInvariant() == "delete" && library.DeleteWithSource)
-                    {
-                        logger.Warn($"Library {library.Name} is set to SourceHandling:delete and DeleteWithSource:true. This is allowed, but is atypical.");
-                    }
-                }
 
                 // Exit if this is a bootstrap run.
                 if (commandOptions != null && commandOptions.Bootstrap)

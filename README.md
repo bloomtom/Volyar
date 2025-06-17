@@ -189,10 +189,14 @@ Qualities determine how media will be encoded. You can configure multiple qualit
 ##### Storage Backend
 The storage backend determines how media will be stored. You can store to a local disk, or upload media to a cloud provider.
 You should only set one of the following, and leave the rest as `null`. Setting more than one will cause only one to be used.
+
+An optional setting `DisableChecks` may be given to disable write/delete checking on the storage backend at startup.
+If this setting is left enabled, a zero byte file `VolyarStorageTestFileca10f8eb` will be created and deleted on the storage backend to ensure basic functionality.
 <a name="library-storage-filesystem-configuration"></a>
 ##### `Filesystem`
 ```
 "StorageBackend": {
+  "DisableChecks": true,
   "Filesystem": {
 	"Directory": "C:\\Users\\SAMSA\\Documents\\volytest\\library"
   }

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,8 +14,6 @@ using VolyConverter.Scanning;
 using Volyar.Models;
 using VolyDatabase;
 using VolyConverter.Complete;
-using NLog.Extensions.Logging;
-using NLog.Web;
 using VolyConverter;
 using VolyConverter.Plugin;
 
@@ -76,6 +73,8 @@ namespace Volyar
             RateLimiter rateLimiter = new RateLimiter(TimeSpan.FromSeconds(10), LoggerFactory.CreateLogger<RateLimiter>());
             services.AddSingleton(rateLimiter);
             List<IConversionPlugin> plugins = GeneratePlugins(rateLimiter);
+
+            ConfigTests.Test(Settings, LoggerFactory.CreateLogger("CheckConfig"));
 
             services.AddSingleton(new LibraryScanningQueue(dbOptions, converter, plugins, LoggerFactory.CreateLogger<LibraryScanningQueue>()));
 

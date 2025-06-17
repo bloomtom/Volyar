@@ -12,6 +12,7 @@ namespace Volyar.Models
 {
     public class StorageSettings
     {
+        public bool DisableChecks = false;
         public FilesystemBackendConfig Filesystem { get; set; } = new FilesystemBackendConfig();
         public S3BackendConfig AmazonS3 { get; set; } = null;
         public AzureBackendConfig Azure { get; set; } = null;

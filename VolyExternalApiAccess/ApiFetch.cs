@@ -28,15 +28,17 @@ namespace VolyExternalApiAccess
 
         public async Task<ApiResponse<ApiValue>> RetrieveInfoAsync(string path)
         {
-            switch (type.ToUpperInvariant())
+            return type.ToUpperInvariant() switch
             {
-                case "SONARR":
-                    return await RetrieveSonarr(path);
-                case "RADARR":
-                    return await RetrieveRadarr(path);
-                default:
-                    throw new ArgumentException($"Invalid ApiType {type}");
-            }
+                "SONARR" => await RetrieveSonarr(path),
+                "RADARR" => await RetrieveRadarr(path),
+                _ => throw new ArgumentException($"Invalid ApiType {type}"),
+            };
+        }
+
+        public async Task<DarrApiVersion> RetrieveVersionAsync()
+        {
+            return await DarrQuery.QueryApiVersionAsync(url, apiKey, username, password);
         }
 
         private async Task<ApiResponse<ApiValue>> RetrieveSonarr(string path)
