@@ -191,7 +191,7 @@ The storage backend determines how media will be stored. You can store to a loca
 You should only set one of the following, and leave the rest as `null`. Setting more than one will cause only one to be used.
 
 An optional setting `DisableChecks` may be given to disable write/delete checking on the storage backend at startup.
-If this setting is left enabled, a zero byte file `VolyarStorageTestFileca10f8eb` will be created and deleted on the storage backend to ensure basic functionality.
+If this setting is left false, a zero byte file `VolyarStorageTestFileca10f8eb` will be created and deleted on the storage backend to ensure basic functionality.
 <a name="library-storage-filesystem-configuration"></a>
 ##### `Filesystem`
 ```
